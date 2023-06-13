@@ -84,6 +84,7 @@ void flash_lock_mid1460c8(mid1460c8_lock_block_e data)
 	flash_write_status_mid1460c8(data, FLASH_WRITE_STATUS_BP_MID1460C8);
 }
 
+
 void flash_lock_all_mid1460c8(void)
 {
 	flash_write_status_mid1460c8(FLASH_LOCK_ALL_1M_MID1460C8, FLASH_WRITE_STATUS_BP_MID1460C8);

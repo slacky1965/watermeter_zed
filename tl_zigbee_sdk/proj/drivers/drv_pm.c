@@ -362,11 +362,6 @@ void drv_pm_lowPowerEnter(void)
 	drv_pm_sleep_mode_e sleepMode = (wakeupSrc & PM_WAKEUP_SRC_TIMER) ? PM_SLEEP_MODE_DEEP_WITH_RETENTION : PM_SLEEP_MODE_DEEPSLEEP;
 #endif
 
-#if UART_PRINTF_MODE
-	printf("sleepTime: %d\r\n", sleepTime);
-#endif /* UART_PRINTF_MODE */
-
-
 	if(sleepTime){
 		if(sleepTime > PM_NORMAL_SLEEP_MAX){
 			longSleep = 1;
@@ -374,6 +369,10 @@ void drv_pm_lowPowerEnter(void)
 			longSleep = 0;
 		}
 	}
+
+#if UART_PRINTF_MODE
+    printf("sleepTime: %d\r\n", sleepTime);
+#endif /* UART_PRINTF_MODE */
 
 #if !defined(__PROJECT_TL_BOOT_LOADER__) && !defined(__PROJECT_TL_SNIFFER__)
 	rf_paShutDown();

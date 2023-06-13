@@ -17,9 +17,17 @@ typedef struct{
 
 typedef struct{
     ev_timer_event_t *bdbFBTimerEvt;
+    ev_timer_event_t *timerBatteryEvt;
+    ev_timer_event_t *timerPollRateEvt;
     ev_timer_event_t *timerLedEvt;
-    s32 Vbat;       //current voltage
-    u32 keyPressedTime;
+
+    u32 short_poll;
+    u32 long_poll;
+
+    u16 battery_mv;         /* 2200 ... 3100 mv                 */
+    u8  battery_level;      /* 0 ... 100 %                      */
+
+    button_t button;
 
     u16 ledOnTime;
     u16 ledOffTime;
@@ -27,8 +35,6 @@ typedef struct{
     u8  sta;        //current state in blink
     u8  times;      //blink times
     u8  state;
-
-    u8  keyPressed;
 
     app_linkKey_info_t tcLinkKey;
 }app_ctx_t;
@@ -70,15 +76,15 @@ typedef struct{
 /**********************************************************************
  * GLOBAL VARIABLES
  */
-extern app_ctx_t g_switchAppCtx;
+extern app_ctx_t g_watermeterCtx;
 
 extern bdb_appCb_t g_zbDemoBdbCb;
 
 extern bdb_commissionSetting_t g_bdbCommissionSetting;
 
 extern u8 SAMPLE_SWITCH_CB_CLUSTER_NUM;
-extern const zcl_specClusterInfo_t g_sampleSwitchClusterList[];
-extern const af_simple_descriptor_t sampleSwitch_simpleDesc;
+extern const zcl_specClusterInfo_t g_watermeterClusterList[];
+extern const af_simple_descriptor_t watermeter_simpleDesc;
 
 /* Attributes */
 extern zcl_basicAttr_t g_zcl_basicAttrs;
@@ -89,17 +95,17 @@ extern zcl_pollCtrlAttr_t g_zcl_pollCtrlAttrs;
 /**********************************************************************
  * FUNCTIONS
  */
-void sampleSwitch_zclProcessIncomingMsg(zclIncoming_t *pInHdlrMsg);
+void watermeter_zclProcessIncomingMsg(zclIncoming_t *pInHdlrMsg);
 
-status_t sampleSwitch_basicCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload);
-status_t sampleSwitch_identifyCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload);
-status_t sampleSwitch_groupCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload);
-status_t sampleSwitch_sceneCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload);
-status_t sampleSwitch_pollCtrlCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload);
+status_t watermeter_basicCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload);
+status_t watermeter_identifyCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload);
+status_t watermeter_groupCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload);
+status_t watermeter_sceneCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload);
+status_t watermeter_pollCtrlCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload);
 
-void sampleSwitch_leaveCnfHandler(nlme_leave_cnf_t *pLeaveCnf);
-void sampleSwitch_leaveIndHandler(nlme_leave_ind_t *pLeaveInd);
-void sampleSwitch_otaProcessMsgHandler(u8 evt, u8 status);
+void watermeter_leaveCnfHandler(nlme_leave_cnf_t *pLeaveCnf);
+void watermeter_leaveIndHandler(nlme_leave_ind_t *pLeaveInd);
+void watermeter_otaProcessMsgHandler(u8 evt, u8 status);
 
 
 #endif /* SRC_INCLUDE_WATERMETER_H_ */

@@ -1,7 +1,7 @@
 /********************************************************************************************************
- * @file    sampleSwitchEpCfg.c
+ * @file    watermeterEpCfg.c
  *
- * @brief   This is the source file for sampleSwitchEpCfg
+ * @brief   This is the source file for watermeterEpCfg
  *
  * @author  Zigbee Group
  * @date    2021
@@ -29,10 +29,9 @@
 #include "tl_common.h"
 #include "zcl_include.h"
 
+#include "app_ui.h"
 #include "watermeter.h"
 #include "watermeter_zcl.h"
-#include "battery.h"
-#include "cfg.h"
 
 /**********************************************************************
  * LOCAL CONSTANTS
@@ -56,7 +55,7 @@
 /**
  *  @brief Definition for Incoming cluster / Sever Cluster
  */
-const u16 sampleSwitch_inClusterList[] =
+const u16 watermeter_inClusterList[] =
 {
 	ZCL_CLUSTER_GEN_BASIC,
 	ZCL_CLUSTER_GEN_IDENTIFY,
@@ -69,7 +68,7 @@ const u16 sampleSwitch_inClusterList[] =
 /**
  *  @brief Definition for Outgoing cluster / Client Cluster
  */
-const u16 sampleSwitch_outClusterList[] =
+const u16 watermeter_outClusterList[] =
 {
 #ifdef ZCL_GROUP
 	ZCL_CLUSTER_GEN_GROUPS,
@@ -95,13 +94,13 @@ const u16 sampleSwitch_outClusterList[] =
 /**
  *  @brief Definition for Server cluster number and Client cluster number
  */
-#define SAMPLESWITCH_IN_CLUSTER_NUM		(sizeof(sampleSwitch_inClusterList)/sizeof(sampleSwitch_inClusterList[0]))
-#define SAMPLESWITCH_OUT_CLUSTER_NUM	(sizeof(sampleSwitch_outClusterList)/sizeof(sampleSwitch_outClusterList[0]))
+#define SAMPLESWITCH_IN_CLUSTER_NUM		(sizeof(watermeter_inClusterList)/sizeof(watermeter_inClusterList[0]))
+#define SAMPLESWITCH_OUT_CLUSTER_NUM	(sizeof(watermeter_outClusterList)/sizeof(watermeter_outClusterList[0]))
 
 /**
  *  @brief Definition for simple description for HA profile
  */
-const af_simple_descriptor_t sampleSwitch_simpleDesc =
+const af_simple_descriptor_t watermeter_simpleDesc =
 {
 	HA_PROFILE_ID,                      	/* Application profile identifier */
 	HA_DEV_ONOFF_SWITCH,                	/* Application device identifier */
@@ -110,8 +109,8 @@ const af_simple_descriptor_t sampleSwitch_simpleDesc =
 	0,										/* Reserved */
 	SAMPLESWITCH_IN_CLUSTER_NUM,           	/* Application input cluster count */
 	SAMPLESWITCH_OUT_CLUSTER_NUM,          	/* Application output cluster count */
-	(u16 *)sampleSwitch_inClusterList,    	/* Application input cluster list */
-	(u16 *)sampleSwitch_outClusterList,   	/* Application output cluster list */
+	(u16 *)watermeter_inClusterList,    	/* Application input cluster list */
+	(u16 *)watermeter_outClusterList,   	/* Application output cluster list */
 };
 
 
@@ -194,8 +193,8 @@ const zclAttrInfo_t zcl_watermeter_attrTbl[] = {
     { ZCL_ATTRID_HOT_WATER_VALUE,  ZCL_DATA_TYPE_BITMAP32,   ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE,  (u8*)&watermeter_config.counter_hot_water},
     { ZCL_ATTRID_COLD_WATER_VALUE,  ZCL_DATA_TYPE_BITMAP32,   ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE,  (u8*)&watermeter_config.counter_cold_water},
     { ZCL_ATTRID_WATER_STEP,  ZCL_DATA_TYPE_BITMAP8,   ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE,  (u8*)&watermeter_config.liters_per_pulse},
-    { ZCL_ATTRID_VOLTAGE_VALUE,  ZCL_DATA_TYPE_BITMAP16,   ACCESS_CONTROL_READ,  (u8*)&battery_mv},
-    { ZCL_ATTRID_BATTERY_LEVEL_VALUE,  ZCL_DATA_TYPE_BITMAP8,   ACCESS_CONTROL_READ,  (u8*)&battery_level},
+    { ZCL_ATTRID_VOLTAGE_VALUE,  ZCL_DATA_TYPE_BITMAP16,   ACCESS_CONTROL_READ,  (u8*)&g_watermeterCtx.battery_mv},
+    { ZCL_ATTRID_BATTERY_LEVEL_VALUE,  ZCL_DATA_TYPE_BITMAP8,   ACCESS_CONTROL_READ,  (u8*)&g_watermeterCtx.battery_level},
 };
 
 #define ZCL_WATERMETER_ATTR_NUM         sizeof(zcl_watermeter_attrTbl) / sizeof(zclAttrInfo_t)
@@ -204,23 +203,23 @@ const zclAttrInfo_t zcl_watermeter_attrTbl[] = {
 /**
  *  @brief Definition for simple switch ZCL specific cluster
  */
-const zcl_specClusterInfo_t g_sampleSwitchClusterList[] =
+const zcl_specClusterInfo_t g_watermeterClusterList[] =
 {
-	{ZCL_CLUSTER_GEN_BASIC,			MANUFACTURER_CODE_NONE,	ZCL_BASIC_ATTR_NUM, 	basic_attrTbl,  	zcl_basic_register,		sampleSwitch_basicCb},
-	{ZCL_CLUSTER_GEN_IDENTIFY,		MANUFACTURER_CODE_NONE,	ZCL_IDENTIFY_ATTR_NUM,	identify_attrTbl,	zcl_identify_register,	sampleSwitch_identifyCb},
+	{ZCL_CLUSTER_GEN_BASIC,			MANUFACTURER_CODE_NONE,	ZCL_BASIC_ATTR_NUM, 	basic_attrTbl,  	zcl_basic_register,		watermeter_basicCb},
+	{ZCL_CLUSTER_GEN_IDENTIFY,		MANUFACTURER_CODE_NONE,	ZCL_IDENTIFY_ATTR_NUM,	identify_attrTbl,	zcl_identify_register,	watermeter_identifyCb},
 #ifdef ZCL_GROUP
-	{ZCL_CLUSTER_GEN_GROUPS,		MANUFACTURER_CODE_NONE,	0, 						NULL,  				zcl_group_register,		sampleSwitch_groupCb},
+	{ZCL_CLUSTER_GEN_GROUPS,		MANUFACTURER_CODE_NONE,	0, 						NULL,  				zcl_group_register,		watermeter_groupCb},
 #endif
 #ifdef ZCL_SCENE
-	{ZCL_CLUSTER_GEN_SCENES,		MANUFACTURER_CODE_NONE,	0,						NULL,				zcl_scene_register,		sampleSwitch_sceneCb},
+	{ZCL_CLUSTER_GEN_SCENES,		MANUFACTURER_CODE_NONE,	0,						NULL,				zcl_scene_register,		watermeter_sceneCb},
 #endif
 #ifdef ZCL_POLL_CTRL
-	{ZCL_CLUSTER_GEN_POLL_CONTROL,	MANUFACTURER_CODE_NONE,	ZCL_POLLCTRL_ATTR_NUM,	pollCtrl_attrTbl, 	zcl_pollCtrl_register, 	sampleSwitch_pollCtrlCb},
+	{ZCL_CLUSTER_GEN_POLL_CONTROL,	MANUFACTURER_CODE_NONE,	ZCL_POLLCTRL_ATTR_NUM,	pollCtrl_attrTbl, 	zcl_pollCtrl_register, 	watermeter_pollCtrlCb},
 #endif
-//    {ZCL_CLUSTER_WATERMETER,  MANUFACTURER_CODE_NONE, ZCL_WATERMETER_ATTR_NUM,  zcl_watermeter_attrTbl,   zcl_watermeter_register,  NULL/*watermeter_customCb*/},
+    {ZCL_CLUSTER_WATERMETER,  MANUFACTURER_CODE_NONE, ZCL_WATERMETER_ATTR_NUM,  zcl_watermeter_attrTbl,   zcl_watermeter_register,  NULL/*watermeter_customCb*/},
 };
 
-u8 SAMPLE_SWITCH_CB_CLUSTER_NUM = (sizeof(g_sampleSwitchClusterList)/sizeof(g_sampleSwitchClusterList[0]));
+u8 SAMPLE_SWITCH_CB_CLUSTER_NUM = (sizeof(g_watermeterClusterList)/sizeof(g_watermeterClusterList[0]));
 
 /**********************************************************************
  * FUNCTIONS

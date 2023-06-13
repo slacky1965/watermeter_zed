@@ -45,7 +45,7 @@
 #define APP_BUILD                           0x01        //app build 01
 #define STACK_RELEASE						0x30        //stack release 3.0
 #define STACK_BUILD							0x01        //stack build 01
-#define HW_VERSION                          0x10
+#define HW_VERSION                          0x01
 
 /*********************************************************************************************
  * During OTA upgrade, the upgraded device will check the rules of the following three fields.

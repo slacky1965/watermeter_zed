@@ -8,21 +8,25 @@
 #include "zbhci.h"
 #endif
 
+#include "app_ui.h"
 #include "watermeter.h"
-#include "button.h"
-#include "cfg.h"
-#include "pulse.h"
-#include "battery.h"
 
-//app_ctx_t g_switchAppCtx;
+app_ctx_t g_watermeterCtx = {
+        .bdbFBTimerEvt = NULL,
+        .timerBatteryEvt = NULL,
+        .timerPollRateEvt = NULL,
+        .short_poll = POLL_RATE * 3,
+        .long_poll = POLL_RATE * 300,
+        .oriSta = false,
+};
 
-u32 count_restart = 0;
+//u32 count_restart = 0;
 
 #ifdef ZCL_OTA
-extern ota_callBack_t sampleSwitch_otaCb;
+extern ota_callBack_t watermeter_otaCb;
 
 //running code firmware information
-ota_preamble_t sampleSwitch_otaInfo = {
+ota_preamble_t watermeter_otaInfo = {
     .fileVer            = FILE_VERSION,
     .imageType          = IMAGE_TYPE,
     .manufacturerCode   = MANUFACTURER_CODE_TELINK,
@@ -35,8 +39,8 @@ const zdo_appIndCb_t appCbLst = {
     bdb_zdoStartDevCnf,//start device cnf cb
     NULL,//reset cnf cb
     NULL,//device announce indication cb
-    sampleSwitch_leaveIndHandler,//leave ind cb
-    sampleSwitch_leaveCnfHandler,//leave cnf cb
+    watermeter_leaveIndHandler,//leave ind cb
+    watermeter_leaveCnfHandler,//leave cnf cb
     NULL,//nwk update ind cb
     NULL,//permit join ind cb
     NULL,//nlme sync cnf cb
@@ -102,71 +106,11 @@ drv_pm_pinCfg_t pin_PmCfg[] = {
 
 static void app_lowPowerEnter() {
 
-//    u32 sleepTime = 0;
-//    bool longSleep = 0;
-
     for(u32 i = 0; i < 2; i++) {
         drv_pm_wakeupPinLevelChange(&pin_PmCfg[i], 2);
     }
 
     drv_pm_lowPowerEnter();
-
-//    drv_pm_wakeup_src_e wakeupSrc = PM_WAKEUP_SRC_PAD;
-//
-//#if !defined(__PROJECT_TL_BOOT_LOADER__) && !defined(__PROJECT_TL_SNIFFER__)
-//    if(tl_stackBusy() || !zb_isTaskDone()){
-//        return;
-//    }
-//
-//    apsCleanToStopSecondClock();
-//#endif
-//
-//    u32 r = drv_disable_irq();
-//    ev_timer_event_t *timerEvt = NULL;
-//
-//    if (zb_isDeviceJoinedNwk()) {
-//        longSleep = true;
-//        sleepTime = 0x07FFFFFF;
-//    } else {
-//        timerEvt = ev_timer_nearestGet();
-//        if(timerEvt){
-//            wakeupSrc |= PM_WAKEUP_SRC_TIMER;
-//            sleepTime = timerEvt->timeout;
-//        }
-//
-//        if(sleepTime){
-//            if(sleepTime > PM_NORMAL_SLEEP_MAX){
-//                longSleep = 1;
-//            }else{
-//                longSleep = 0;
-//            }
-//        }
-//    }
-//
-//
-//#if defined(MCU_CORE_826x)
-//    drv_pm_sleep_mode_e sleepMode = (wakeupSrc & PM_WAKEUP_SRC_TIMER) ? PM_SLEEP_MODE_SUSPEND : PM_SLEEP_MODE_DEEPSLEEP;
-//#elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278) || defined(MCU_CORE_B91)
-//    drv_pm_sleep_mode_e sleepMode = PM_SLEEP_MODE_DEEP_WITH_RETENTION; //(wakeupSrc & PM_WAKEUP_SRC_TIMER) ? PM_SLEEP_MODE_DEEP_WITH_RETENTION : PM_SLEEP_MODE_DEEPSLEEP;
-//#endif
-//
-//
-//
-//#if !defined(__PROJECT_TL_BOOT_LOADER__) && !defined(__PROJECT_TL_SNIFFER__)
-//    rf_paShutDown();
-//    if(sleepMode == PM_SLEEP_MODE_DEEPSLEEP){
-//        drv_pm_deepSleep_frameCnt_set(ss_outgoingFrameCntGet());
-//    }
-//#endif
-//
-//    if(!longSleep){
-//        drv_pm_sleep(sleepMode, wakeupSrc, sleepTime);
-//    }else{
-//        drv_pm_longSleep(sleepMode, wakeupSrc, sleepTime);
-//    }
-//
-//    drv_restore_irq(r);
-
 }
 
 #endif
@@ -218,21 +162,29 @@ void user_app_init(void)
 
     /* Initialize ZCL layer */
     /* Register Incoming ZCL Foundation command/response messages */
-    zcl_init(sampleSwitch_zclProcessIncomingMsg);
+    zcl_init(watermeter_zclProcessIncomingMsg);
 
     /* register endPoint */
-    af_endpointRegister(WATERMETER_ENDPOINT, (af_simple_descriptor_t *)&sampleSwitch_simpleDesc, zcl_rx_handler, NULL);
+    af_endpointRegister(WATERMETER_ENDPOINT, (af_simple_descriptor_t *)&watermeter_simpleDesc, zcl_rx_handler, NULL);
 
     /* Register ZCL specific cluster information */
-    zcl_register(WATERMETER_ENDPOINT, SAMPLE_SWITCH_CB_CLUSTER_NUM, (zcl_specClusterInfo_t *)g_sampleSwitchClusterList);
+    zcl_register(WATERMETER_ENDPOINT, SAMPLE_SWITCH_CB_CLUSTER_NUM, (zcl_specClusterInfo_t *)g_watermeterClusterList);
 
 #if ZCL_OTA_SUPPORT
-    ota_init(OTA_TYPE_CLIENT, (af_simple_descriptor_t *)&sampleSwitch_simpleDesc, &sampleSwitch_otaInfo, &sampleSwitch_otaCb);
+    ota_init(OTA_TYPE_CLIENT, (af_simple_descriptor_t *)&watermeter_simpleDesc, &watermeter_otaInfo, &watermeter_otaCb);
 #endif
 
-    init_pulse();
+    init_counters();
     init_config();
     init_button();
+
+    g_watermeterCtx.timerBatteryEvt = TL_ZB_TIMER_SCHEDULE(batteryCb, NULL, TIMEOUT_10MIN); // 10 min
+
+}
+
+void led_init(void)
+{
+    light_init();
 }
 
 
@@ -240,11 +192,10 @@ void app_task(void) {
 
     button_handler();
     counters_handler();
-    get_battery_mv();
 
     if(bdb_isIdle()){
 #if PM_ENABLE
-        if(!get_status_button()) {
+        if(!button_idle() && !counters_idle()) {
 //            printf("zb_isDeviceJoinedNwk: %s\r\n", zb_isDeviceJoinedNwk()?"true":"false");
             app_lowPowerEnter();
         }
@@ -254,7 +205,7 @@ void app_task(void) {
 //    sleep_ms(1000);
 }
 
-static void sampleSwitchSysException(void)
+static void watermeterSysException(void)
 {
 #if 1
     SYSTEM_RESET();
@@ -276,11 +227,11 @@ static void sampleSwitchSysException(void)
 void user_init(bool isRetention)
 {
 #if UART_PRINTF_MODE
-    printf("[%d] isRetention: %s\r\n", count_restart++, isRetention?"true":"false");
+//    printf("[%d] isRetention: %s\r\n", count_restart++, isRetention?"true":"false");
 #endif /* UART_PRINTF_MODE */
 
-//    /* Initialize LEDs*/
-//    led_init();
+    /* Initialize LEDs*/
+    led_init();
 
 #if PA_ENABLE
     rf_paInit(PA_TX, PA_RX);
@@ -302,7 +253,7 @@ void user_init(bool isRetention)
         user_app_init();
 
         /* Register except handler for test */
-        sys_exceptHandlerRegister(sampleSwitchSysException);
+        sys_exceptHandlerRegister(watermeterSysException);
 
         /* User's Task */
 #if ZBHCI_EN
@@ -311,16 +262,16 @@ void user_init(bool isRetention)
         ev_on_poll(EV_POLL_IDLE, app_task);
 
         /* Load the pre-install code from flash */
-//        if(bdb_preInstallCodeLoad(&g_switchAppCtx.tcLinkKey.keyType, g_switchAppCtx.tcLinkKey.key) == RET_OK){
-//            g_bdbCommissionSetting.linkKey.tcLinkKey.keyType = g_switchAppCtx.tcLinkKey.keyType;
-//            g_bdbCommissionSetting.linkKey.tcLinkKey.key = g_switchAppCtx.tcLinkKey.key;
-//        }
+        if(bdb_preInstallCodeLoad(&g_watermeterCtx.tcLinkKey.keyType, g_watermeterCtx.tcLinkKey.key) == RET_OK){
+            g_bdbCommissionSetting.linkKey.tcLinkKey.keyType = g_watermeterCtx.tcLinkKey.keyType;
+            g_bdbCommissionSetting.linkKey.tcLinkKey.key = g_watermeterCtx.tcLinkKey.key;
+        }
 
         bdb_findBindMatchClusterSet(FIND_AND_BIND_CLUSTER_NUM, bdb_findBindClusterList);
 
         /* Initialize BDB */
         u8 repower = drv_pm_deepSleep_flag_get() ? 0 : 1;
-        bdb_init((af_simple_descriptor_t *)&sampleSwitch_simpleDesc, &g_bdbCommissionSetting, &g_zbDemoBdbCb, repower);
+        bdb_init((af_simple_descriptor_t *)&watermeter_simpleDesc, &g_bdbCommissionSetting, &g_zbDemoBdbCb, repower);
 
     }else{
         /* Re-config phy when system recovery from deep sleep with retention */

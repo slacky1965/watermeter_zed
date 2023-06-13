@@ -2,7 +2,7 @@
 PROJECT_NAME := watermeter_zed
 
 # Set the serial port number for downloading the firmware
-DOWNLOAD_PORT := COM9
+DOWNLOAD_PORT := COM10
 
 COMPILE_PREFIX = C:/TelinkSDK/opt/tc32/bin/tc32
 
@@ -18,7 +18,7 @@ SIZE	= $(COMPILE_PREFIX)-elf-size
 LIBS := -lzb_ed -ldrivers_8258
 
 DEVICE_TYPE = -DEND_DEVICE=1
-MCU_TYPE = -DMCU_CORE_8258=1 -D__PROJECT_TL_SWITCH__=1
+MCU_TYPE = -DMCU_CORE_8258=1
 #-D__PROJECT_TL_CONTACT_SENSOR__=1 
 BOOT_FLAG = -DMCU_CORE_8258 -DMCU_STARTUP_8258
 
@@ -33,7 +33,6 @@ VERSION := V$(shell awk -F " " '/APP_RELEASE/ {gsub("0x",""); printf "%.1f", $$3
 TL_Check = $(TOOLS_PATH)/tl_check_fw.py
 
 INCLUDE_PATHS := \
--I$(SDK_PATH)/apps/common \
 -I$(SDK_PATH)/platform \
 -I$(SDK_PATH)/proj/common \
 -I$(SDK_PATH)/proj \
@@ -44,7 +43,8 @@ INCLUDE_PATHS := \
 -I$(SDK_PATH)/zigbee/ota \
 -I$(SDK_PATH)/zbhci \
 -I$(SRC_PATH) \
--I$(SRC_PATH)/include
+-I$(SRC_PATH)/include \
+-I$(SRC_PATH)/common
 
 LS_FLAGS := $(SDK_PATH)/platform/boot/8258/boot_8258.link
 
@@ -96,7 +96,6 @@ RM := rm -rf
 -include $(MAKE_INCLUDES)/platformS.mk
 -include $(MAKE_INCLUDES)/div_mod.mk
 -include $(MAKE_INCLUDES)/platform.mk
--include $(MAKE_INCLUDES)/apps.mk
 -include $(MAKE_INCLUDES)/project.mk
 
 # Add inputs and outputs from these tool invocations to the build variables 
@@ -130,6 +129,7 @@ $(ELF_FILE): $(OBJS) $(USER_OBJS)
 	$(LD) --gc-sections -L $(SDK_PATH)/zigbee/lib/tc32 -L $(SDK_PATH)/platform/lib -T $(LS_FLAGS) -o "$(ELF_FILE)" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
+	
 
 $(LST_FILE): $(ELF_FILE)
 	@echo 'Invoking: TC32 Create Extended Listing'
@@ -145,11 +145,6 @@ $(BIN_FILE): $(ELF_FILE)
 	@echo ' '
 	@cp $(BIN_FILE) $(PROJECT_NAME)_$(VERSION).bin
 
-#: $(ELF_FILE)
-#	@echo 'Create Flash image (binary format)'
-#	$(OBJCOPY) $(ELF_FILE)
-#	@echo 'Finished building: $@'
-#	@echo ' '
 
 sizedummy: $(ELF_FILE)
 	@echo 'Invoking: Print Size'
@@ -172,12 +167,12 @@ pre-build:
 #	-" $(SDK_PATH)/tools/tl_link_load.sh" " $(SDK_PATH)/platform/boot/8258/boot_8258.link" "C:\TelinkSDK\SDK\tl_zigbee_sdk\build\tlsr_tc32/boot.link"
 	-@echo ' '
 
-#post-build:
-#	$(TOOLS_PATH)/tl_check_fw.sh $(PROJECT_NAME) tc32
-#	-@echo ' '
+post-build:
+	-"$(TOOLS_PATH)/tl_check_fw.sh" $(OUT_PATH)/$(PROJECT_NAME) tc32
+	-@echo ' '
+	
+secondary-outputs: $(BIN_FILE) $(LST) $(FLASH_IMAGE) $(SIZEDUMMY)
 
-secondary-outputs: $(BIN_FILE) $(LST_FILE) $(SIZEDUMMY)
-
-.PHONY: all clean dependents pre-build 
-.SECONDARY: main-build 
+.PHONY: all clean dependents 
+.SECONDARY: main-build pre-build post-build
 

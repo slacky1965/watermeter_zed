@@ -31,9 +31,8 @@
 #include "zcl_include.h"
 #include "bdb.h"
 #include "ota.h"
-
+#include "app_ui.h"
 #include "watermeter.h"
-//#include "app_ui.h"
 
 /**********************************************************************
  * LOCAL CONSTANTS
@@ -66,9 +65,9 @@ bdb_appCb_t g_zbDemoBdbCb =
 };
 
 #ifdef ZCL_OTA
-ota_callBack_t sampleSwitch_otaCb =
+ota_callBack_t watermeter_otaCb =
 {
-	sampleSwitch_otaProcessMsgHandler,
+	watermeter_otaProcessMsgHandler,
 };
 #endif
 
@@ -76,14 +75,14 @@ ota_callBack_t sampleSwitch_otaCb =
 /**********************************************************************
  * FUNCTIONS
  */
-s32 sampleSwitch_bdbNetworkSteerStart(void *arg){
+s32 watermeter_bdbNetworkSteerStart(void *arg){
 	bdb_networkSteerStart();
 
 	return -1;
 }
 
 #if FIND_AND_BIND_SUPPORT
-s32 sampleSwitch_bdbFindAndBindStart(void *arg){
+s32 watermeter_bdbFindAndBindStart(void *arg){
 	BDB_ATTR_GROUP_ID_SET(0x1234);//only for initiator
 	bdb_findAndBindStart(BDB_COMMISSIONING_ROLE_INITIATOR);
 
@@ -93,7 +92,7 @@ s32 sampleSwitch_bdbFindAndBindStart(void *arg){
 #endif
 
 ev_timer_event_t *switchRejoinBackoffTimerEvt = NULL;
-s32 sampleSwitch_rejoinBacckoff(void *arg){
+s32 watermeter_rejoinBacckoff(void *arg){
 	if(zb_isDeviceFactoryNew()){
 		switchRejoinBackoffTimerEvt = NULL;
 		return -1;
@@ -115,7 +114,7 @@ s32 sampleSwitch_rejoinBacckoff(void *arg){
  * @return  None
  */
 void zbdemo_bdbInitCb(u8 status, u8 joinedNetwork){
-	printf("zbdemo_bdbInitCb: sta = %x, joined = %x\r\n", status, joinedNetwork);
+	printf("bdbInitCb: sta = %x, joined = %x\n", status, joinedNetwork);
 
 	if(status == BDB_INIT_STATUS_SUCCESS){
 		/*
@@ -127,27 +126,32 @@ void zbdemo_bdbInitCb(u8 status, u8 joinedNetwork){
 		 *
 		 */
 		if(joinedNetwork){
-			zb_setPollRate(POLL_RATE * 3);
+			zb_setPollRate(g_watermeterCtx.short_poll);
+			if (g_watermeterCtx.timerPollRateEvt) {
+			    TL_ZB_TIMER_CANCEL(&g_watermeterCtx.timerPollRateEvt);
+			}
+			g_watermeterCtx.timerPollRateEvt = TL_ZB_TIMER_SCHEDULE(poll_rateCb, NULL, TIMEOUT_2MIN);
 
 #ifdef ZCL_OTA
 			ota_queryStart(OTA_PERIODIC_QUERY_INTERVAL);
 #endif
 
 #ifdef ZCL_POLL_CTRL
-			sampleSwitch_zclCheckInStart();
+			watermeter_zclCheckInStart();
 #endif
 		}else{
 			u16 jitter = 0;
 			do{
 				jitter = zb_random() % 0x0fff;
 			}while(jitter == 0);
-			TL_ZB_TIMER_SCHEDULE(sampleSwitch_bdbNetworkSteerStart, NULL, jitter);
+			TL_ZB_TIMER_SCHEDULE(watermeter_bdbNetworkSteerStart, NULL, jitter);
 		}
 	}else{
 		if(joinedNetwork){
 //			zb_rejoinReqWithBackOff(zb_apsChannelMaskGet(), g_bdbAttrs.scanDuration);
+            printf("zbdemo_bdbInitCb() switchRejoinBackoffTimerEvt: %s\r\n", switchRejoinBackoffTimerEvt?"true":"false");
 			if(!switchRejoinBackoffTimerEvt){
-				switchRejoinBackoffTimerEvt = TL_ZB_TIMER_SCHEDULE(sampleSwitch_rejoinBacckoff, NULL, 60 * 1000);
+				switchRejoinBackoffTimerEvt = TL_ZB_TIMER_SCHEDULE(watermeter_rejoinBacckoff, NULL, 60 * 1000);
 			}
 		}
 	}
@@ -165,17 +169,21 @@ void zbdemo_bdbInitCb(u8 status, u8 joinedNetwork){
  * @return  None
  */
 void zbdemo_bdbCommissioningCb(u8 status, void *arg){
-	printf("zbdemo_bdbCommissioningCb: sta = %x\r\n", status);
+    printf("zbdemo_bdbCommissioningCb: sta = %x\r\n", status);
 
 	switch(status){
 		case BDB_COMMISSION_STA_SUCCESS:
-//			light_blink_start(2, 200, 200);
+			light_blink_start(2, 200, 200);
 
-//            zb_setPollRate(POLL_RATE * 300);
-            zb_setPollRate(0);
+			zb_setPollRate(g_watermeterCtx.short_poll);
+            if (g_watermeterCtx.timerPollRateEvt) {
+                TL_ZB_TIMER_CANCEL(&g_watermeterCtx.timerPollRateEvt);
+            }
+            g_watermeterCtx.timerPollRateEvt = TL_ZB_TIMER_SCHEDULE(poll_rateCb, NULL, TIMEOUT_2MIN);
+
 
 #ifdef ZCL_POLL_CTRL
-			sampleSwitch_zclCheckInStart();
+			watermeter_zclCheckInStart();
 #endif
 #ifdef ZCL_OTA
 			ota_queryStart(OTA_PERIODIC_QUERY_INTERVAL);
@@ -183,7 +191,7 @@ void zbdemo_bdbCommissioningCb(u8 status, void *arg){
 #if FIND_AND_BIND_SUPPORT
 			//start Finding & Binding
 			if(!g_switchAppCtx.bdbFBTimerEvt){
-				g_switchAppCtx.bdbFBTimerEvt = TL_ZB_TIMER_SCHEDULE(sampleSwitch_bdbFindAndBindStart, NULL, 50);
+				g_switchAppCtx.bdbFBTimerEvt = TL_ZB_TIMER_SCHEDULE(watermeter_bdbFindAndBindStart, NULL, 50);
 			}
 #endif
 			if(switchRejoinBackoffTimerEvt){
@@ -202,8 +210,8 @@ void zbdemo_bdbCommissioningCb(u8 status, void *arg){
 				do{
 					jitter = zb_random() % 0x0fff;
 				}while(jitter == 0);
-				printf("jitter: %d\r\n", jitter);
-				TL_ZB_TIMER_SCHEDULE(sampleSwitch_bdbNetworkSteerStart, NULL, jitter);
+                printf("BDB_COMMISSION_STA_NO_NETWORK - jitter: %d\r\n", jitter);
+				TL_ZB_TIMER_SCHEDULE(watermeter_bdbNetworkSteerStart, NULL, jitter);
 			}
 			break;
 		case BDB_COMMISSION_STA_FORMATION_FAILURE:
@@ -222,9 +230,8 @@ void zbdemo_bdbCommissioningCb(u8 status, void *arg){
 //			zb_rejoinReqWithBackOff(zb_apsChannelMaskGet(), g_bdbAttrs.scanDuration);
 			break;
 		case BDB_COMMISSION_STA_REJOIN_FAILURE:
-            printf("switchRejoinBackoffTimerEvt: %s\r\n", switchRejoinBackoffTimerEvt?"true":"false");
 			if(!switchRejoinBackoffTimerEvt){
-				switchRejoinBackoffTimerEvt = TL_ZB_TIMER_SCHEDULE(sampleSwitch_rejoinBacckoff, NULL, 10 /*60*/ * 1000);
+				switchRejoinBackoffTimerEvt = TL_ZB_TIMER_SCHEDULE(watermeter_rejoinBacckoff, NULL, 60 * 1000);
 			}
 			break;
 		default:
@@ -233,10 +240,10 @@ void zbdemo_bdbCommissioningCb(u8 status, void *arg){
 }
 
 
-extern void sampleSwitch_zclIdentifyCmdHandler(u8 endpoint, u16 srcAddr, u16 identifyTime);
+extern void watermeter_zclIdentifyCmdHandler(u8 endpoint, u16 srcAddr, u16 identifyTime);
 void zbdemo_bdbIdentifyCb(u8 endpoint, u16 srcAddr, u16 identifyTime){
 #if FIND_AND_BIND_SUPPORT
-	sampleSwitch_zclIdentifyCmdHandler(endpoint, srcAddr, identifyTime);
+	watermeter_zclIdentifyCmdHandler(endpoint, srcAddr, identifyTime);
 #endif
 }
 
@@ -266,9 +273,9 @@ void zbdemo_bdbFindBindSuccessCb(findBindDst_t *pDstInfo){
 
 
 #ifdef ZCL_OTA
-void sampleSwitch_otaProcessMsgHandler(u8 evt, u8 status)
+void watermeter_otaProcessMsgHandler(u8 evt, u8 status)
 {
-	printf("sampleSwitch_otaProcessMsgHandler: status = %x\r\n", status);
+	//printf("watermeter_otaProcessMsgHandler: status = %x\n", status);
 	if(evt == OTA_EVT_START){
 		if(status == ZCL_STA_SUCCESS){
 			zb_setPollRate(QUEUE_POLL_RATE);
@@ -288,7 +295,7 @@ void sampleSwitch_otaProcessMsgHandler(u8 evt, u8 status)
 #endif
 
 /*********************************************************************
- * @fn      sampleSwitch_leaveCnfHandler
+ * @fn      watermeter_leaveCnfHandler
  *
  * @brief   Handler for ZDO Leave Confirm message.
  *
@@ -296,7 +303,7 @@ void sampleSwitch_otaProcessMsgHandler(u8 evt, u8 status)
  *
  * @return  None
  */
-void sampleSwitch_leaveCnfHandler(nlme_leave_cnf_t *pLeaveCnf)
+void watermeter_leaveCnfHandler(nlme_leave_cnf_t *pLeaveCnf)
 {
     if(pLeaveCnf->status == SUCCESS){
     	//SYSTEM_RESET();
@@ -308,7 +315,7 @@ void sampleSwitch_leaveCnfHandler(nlme_leave_cnf_t *pLeaveCnf)
 }
 
 /*********************************************************************
- * @fn      sampleSwitch_leaveIndHandler
+ * @fn      watermeter_leaveIndHandler
  *
  * @brief   Handler for ZDO leave indication message.
  *
@@ -316,9 +323,9 @@ void sampleSwitch_leaveCnfHandler(nlme_leave_cnf_t *pLeaveCnf)
  *
  * @return  None
  */
-void sampleSwitch_leaveIndHandler(nlme_leave_ind_t *pLeaveInd)
+void watermeter_leaveIndHandler(nlme_leave_ind_t *pLeaveInd)
 {
-    printf("sampleSwitch_leaveIndHandler, rejoin = %d\r\n", pLeaveInd->rejoin);
+    //printf("watermeter_leaveIndHandler, rejoin = %d\n", pLeaveInd->rejoin);
     //printfArray(pLeaveInd->device_address, 8);
 }
 

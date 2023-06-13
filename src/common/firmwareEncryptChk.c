@@ -1,7 +1,7 @@
 /********************************************************************************************************
- * @file    main.c
+ * @file    firmwareEncryptChk.c
  *
- * @brief   This is the source file for main
+ * @brief   This is the source file for firmwareEncryptChk
  *
  * @author  Zigbee Group
  * @date    2021
@@ -23,61 +23,35 @@
  *
  *******************************************************************************************************/
 
-#include "zb_common.h"
-
-extern void user_init(bool isRetention);
-
-
-/*
- * main:
- * */
-int main(void){
-	startup_state_e state = drv_platform_init();
-
-	u8 isRetention = (state == SYSTEM_DEEP_RETENTION) ? 1 : 0;
-
-	os_init(isRetention);
-
-#if 0
-	extern void moduleTest_start(void);
-	moduleTest_start();
+#include "tl_common.h"
+#if UID_ENABLE
+#include "firmware_encrypt.h"
 #endif
+#include "firmwareEncryptChk.h"
 
-	user_init(isRetention);
 
-	drv_enable_irq();
-
-#if (MODULE_WATCHDOG_ENABLE)
-	drv_wd_setInterval(600);
-    drv_wd_start();
-#endif
-
-#if VOLTAGE_DETECT_ENABLE
-    u32 tick = clock_time();
-#endif
-
-	while(1){
-#if VOLTAGE_DETECT_ENABLE
-		if(clock_time_exceed(tick, 200 * 1000)){
-			voltage_detect(0);
-			tick = clock_time();
-		}
-#endif
-
-    	ev_main();
-
-#if (MODULE_WATCHDOG_ENABLE)
-		drv_wd_clear();
-#endif
-
-		tl_zbTaskProcedure();
-
-#if	(MODULE_WATCHDOG_ENABLE)
-		drv_wd_clear();
-#endif
+/**
+ *  @brief Only support for 8258/8278/b91, if you want to this function, please contact to us.
+ */
+u8 firmwareCheckWithUID(void)
+{
+#if UID_ENABLE
+	u32 flash_mid = 0;
+	u8 flash_uid[16] = {0};
+	int flag = flash_read_mid_uid_with_check(&flash_mid, flash_uid);
+	if(flag == 0){
+		return 1;
 	}
+	u8 ciphertext[16] = {0};
+	firmware_encrypt_based_on_uid(flash_uid, ciphertext);
+
+	u8 code[16] = {0};
+	flash_read(CFG_FIRMWARE_ENCRYPTION, 16, code);
+
+	if(memcmp(ciphertext, code, 16)){
+		return 1;
+	}
+#endif
 
 	return 0;
 }
-
-

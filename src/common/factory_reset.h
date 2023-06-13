@@ -1,7 +1,7 @@
 /********************************************************************************************************
- * @file    app_ui.h
+ * @file    factory_reset.h
  *
- * @brief   This is the header file for app_ui
+ * @brief   This is the header file for factory_reset
  *
  * @author  Zigbee Group
  * @date    2021
@@ -23,39 +23,10 @@
  *
  *******************************************************************************************************/
 
-#ifndef _APP_UI_H_
-#define _APP_UI_H_
+#ifndef FACTORY_RESET_H
+#define FACTORY_RESET_H
 
-/**********************************************************************
- * CONSTANT
- */
-#define LED_ON						1
-#define LED_OFF						0
+void factroyRst_init(void);
+void factroyRst_handler(void);
 
-
-/**********************************************************************
- * TYPEDEFS
- */
-enum{
-	APP_STATE_NORMAL,
-	APP_FACTORY_NEW_SET_CHECK,
-	APP_FACTORY_NEW_DOING
-};
-
-
-/**********************************************************************
- * FUNCTIONS
- */
-void light_blink_start(u8 times, u16 ledOnTime, u16 ledOffTime);
-void light_blink_stop(void);
-
-void light_init(void);
-void light_on(void);
-void light_off(void);
-
-void led_on(u32 pin);
-void led_off(u32 pin);
-
-void app_key_handler(void);
-
-#endif	/* _APP_UI_H_ */
+#endif	/* FACTORY_RESET_H */

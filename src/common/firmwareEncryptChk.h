@@ -1,7 +1,7 @@
 /********************************************************************************************************
- * @file    main.c
+ * @file    firmwareEncryptChk.h
  *
- * @brief   This is the source file for main
+ * @brief   This is the header file for firmwareEncryptChk
  *
  * @author  Zigbee Group
  * @date    2021
@@ -23,61 +23,9 @@
  *
  *******************************************************************************************************/
 
-#include "zb_common.h"
+#ifndef _FIRMWARE_ENCRYPT_CHECK_H_
+#define _FIRMWARE_ENCRYPT_CHECK_H_
 
-extern void user_init(bool isRetention);
+u8 firmwareCheckWithUID(void);
 
-
-/*
- * main:
- * */
-int main(void){
-	startup_state_e state = drv_platform_init();
-
-	u8 isRetention = (state == SYSTEM_DEEP_RETENTION) ? 1 : 0;
-
-	os_init(isRetention);
-
-#if 0
-	extern void moduleTest_start(void);
-	moduleTest_start();
-#endif
-
-	user_init(isRetention);
-
-	drv_enable_irq();
-
-#if (MODULE_WATCHDOG_ENABLE)
-	drv_wd_setInterval(600);
-    drv_wd_start();
-#endif
-
-#if VOLTAGE_DETECT_ENABLE
-    u32 tick = clock_time();
-#endif
-
-	while(1){
-#if VOLTAGE_DETECT_ENABLE
-		if(clock_time_exceed(tick, 200 * 1000)){
-			voltage_detect(0);
-			tick = clock_time();
-		}
-#endif
-
-    	ev_main();
-
-#if (MODULE_WATCHDOG_ENABLE)
-		drv_wd_clear();
-#endif
-
-		tl_zbTaskProcedure();
-
-#if	(MODULE_WATCHDOG_ENABLE)
-		drv_wd_clear();
-#endif
-	}
-
-	return 0;
-}
-
-
+#endif	/* _FIRMWARE_ENCRYPT_CHECK_H_ */
