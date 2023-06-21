@@ -47,21 +47,21 @@
 /**********************************************************************
  * LOCAL FUNCTIONS
  */
-void zbdemo_bdbInitCb(u8 status, u8 joinedNetwork);
-void zbdemo_bdbCommissioningCb(u8 status, void *arg);
-void zbdemo_bdbIdentifyCb(u8 endpoint, u16 srcAddr, u16 identifyTime);
-void zbdemo_bdbFindBindSuccessCb(findBindDst_t *pDstInfo);
+void zb_bdbInitCb(u8 status, u8 joinedNetwork);
+void zb_bdbCommissioningCb(u8 status, void *arg);
+void zb_bdbIdentifyCb(u8 endpoint, u16 srcAddr, u16 identifyTime);
+void zb_bdbFindBindSuccessCb(findBindDst_t *pDstInfo);
 
 
 /**********************************************************************
  * LOCAL VARIABLES
  */
-bdb_appCb_t g_zbDemoBdbCb =
+bdb_appCb_t g_zbBdbCb =
 {
-	zbdemo_bdbInitCb,
-	zbdemo_bdbCommissioningCb,
-	zbdemo_bdbIdentifyCb,
-	zbdemo_bdbFindBindSuccessCb
+	zb_bdbInitCb,
+	zb_bdbCommissioningCb,
+	zb_bdbIdentifyCb,
+	zb_bdbFindBindSuccessCb
 };
 
 #ifdef ZCL_OTA
@@ -103,7 +103,7 @@ s32 watermeter_rejoinBacckoff(void *arg){
 }
 
 /*********************************************************************
- * @fn      zbdemo_bdbInitCb
+ * @fn      zb_bdbInitCb
  *
  * @brief   application callback for bdb initiation
  *
@@ -113,7 +113,7 @@ s32 watermeter_rejoinBacckoff(void *arg){
  *
  * @return  None
  */
-void zbdemo_bdbInitCb(u8 status, u8 joinedNetwork){
+void zb_bdbInitCb(u8 status, u8 joinedNetwork){
 	printf("bdbInitCb: sta = %x, joined = %x\n", status, joinedNetwork);
 
 	if(status == BDB_INIT_STATUS_SUCCESS){
@@ -130,7 +130,7 @@ void zbdemo_bdbInitCb(u8 status, u8 joinedNetwork){
 			if (g_watermeterCtx.timerPollRateEvt) {
 			    TL_ZB_TIMER_CANCEL(&g_watermeterCtx.timerPollRateEvt);
 			}
-			g_watermeterCtx.timerPollRateEvt = TL_ZB_TIMER_SCHEDULE(poll_rateCb, NULL, TIMEOUT_2MIN);
+			g_watermeterCtx.timerPollRateEvt = TL_ZB_TIMER_SCHEDULE(poll_rateAppCb, NULL, TIMEOUT_30SEC);
 
 #ifdef ZCL_OTA
 			ota_queryStart(OTA_PERIODIC_QUERY_INTERVAL);
@@ -149,7 +149,7 @@ void zbdemo_bdbInitCb(u8 status, u8 joinedNetwork){
 	}else{
 		if(joinedNetwork){
 //			zb_rejoinReqWithBackOff(zb_apsChannelMaskGet(), g_bdbAttrs.scanDuration);
-            printf("zbdemo_bdbInitCb() switchRejoinBackoffTimerEvt: %s\r\n", switchRejoinBackoffTimerEvt?"true":"false");
+            printf("zb_bdbInitCb() switchRejoinBackoffTimerEvt: %s\r\n", switchRejoinBackoffTimerEvt?"true":"false");
 			if(!switchRejoinBackoffTimerEvt){
 				switchRejoinBackoffTimerEvt = TL_ZB_TIMER_SCHEDULE(watermeter_rejoinBacckoff, NULL, 60 * 1000);
 			}
@@ -158,7 +158,7 @@ void zbdemo_bdbInitCb(u8 status, u8 joinedNetwork){
 }
 
 /*********************************************************************
- * @fn      zbdemo_bdbCommissioningCb
+ * @fn      zb_bdbCommissioningCb
  *
  * @brief   application callback for bdb commissioning
  *
@@ -168,8 +168,8 @@ void zbdemo_bdbInitCb(u8 status, u8 joinedNetwork){
  *
  * @return  None
  */
-void zbdemo_bdbCommissioningCb(u8 status, void *arg){
-    printf("zbdemo_bdbCommissioningCb: sta = %x\r\n", status);
+void zb_bdbCommissioningCb(u8 status, void *arg){
+    printf("zb_bdbCommissioningCb: sta = %x\r\n", status);
 
 	switch(status){
 		case BDB_COMMISSION_STA_SUCCESS:
@@ -179,7 +179,7 @@ void zbdemo_bdbCommissioningCb(u8 status, void *arg){
             if (g_watermeterCtx.timerPollRateEvt) {
                 TL_ZB_TIMER_CANCEL(&g_watermeterCtx.timerPollRateEvt);
             }
-            g_watermeterCtx.timerPollRateEvt = TL_ZB_TIMER_SCHEDULE(poll_rateCb, NULL, TIMEOUT_2MIN);
+            g_watermeterCtx.timerPollRateEvt = TL_ZB_TIMER_SCHEDULE(poll_rateAppCb, NULL, TIMEOUT_30SEC);
 
 
 #ifdef ZCL_POLL_CTRL
@@ -241,14 +241,14 @@ void zbdemo_bdbCommissioningCb(u8 status, void *arg){
 
 
 extern void watermeter_zclIdentifyCmdHandler(u8 endpoint, u16 srcAddr, u16 identifyTime);
-void zbdemo_bdbIdentifyCb(u8 endpoint, u16 srcAddr, u16 identifyTime){
+void zb_bdbIdentifyCb(u8 endpoint, u16 srcAddr, u16 identifyTime){
 #if FIND_AND_BIND_SUPPORT
 	watermeter_zclIdentifyCmdHandler(endpoint, srcAddr, identifyTime);
 #endif
 }
 
 /*********************************************************************
- * @fn      zbdemo_bdbFindBindSuccessCb
+ * @fn      zb_bdbFindBindSuccessCb
  *
  * @brief   application callback for finding & binding
  *
@@ -256,7 +256,7 @@ void zbdemo_bdbIdentifyCb(u8 endpoint, u16 srcAddr, u16 identifyTime){
  *
  * @return  None
  */
-void zbdemo_bdbFindBindSuccessCb(findBindDst_t *pDstInfo){
+void zb_bdbFindBindSuccessCb(findBindDst_t *pDstInfo){
 #if FIND_AND_BIND_SUPPORT
 	epInfo_t dstEpInfo;
 	TL_SETSTRUCTCONTENT(dstEpInfo, 0);

@@ -81,7 +81,7 @@ extern "C" {
 *********************8258Dongle with 48 Pins: Start*****************************************************
 *******************************************************************************************************/
 //KEY
-#define	BUTTON 					GPIO_PD6
+#define	BUTTON 					    GPIO_PD6
 #define PD6_FUNC					AS_GPIO
 #define PD6_OUTPUT_ENABLE			0
 #define PD6_INPUT_ENABLE			1

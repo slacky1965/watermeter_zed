@@ -40,10 +40,12 @@
 #define ID_CONFIG   0x0FED1410
 #define TOP_MASK    0xFFFFFFFF
 
-#define MAX_VBAT_MV 3100                        /* 3100 mV - > battery = 100%   */
-#define MIN_VBAT_MV BATTERY_SAFETY_THRESHOLD    /* 2200 mV - > battery = 0%     */
+#define MAX_VBAT_MV 3100                        /* 3100 mV - > battery = 100%         */
+#define MIN_VBAT_MV BATTERY_SAFETY_THRESHOLD    /* 2200 mV - > battery = 0%           */
 
-#define BIT_COUNT   32768                       /* number of polls for debounce */
+#define BIT_COUNT   32768                       /* number of polls for debounce       */
+
+#define COUNT_FACTORY_RESET 5                   /* number of clicks for factory reset */
 
 /**********************************************************************
  * TYPEDEFS
@@ -77,25 +79,34 @@ u8 mcuBootAddrGet(void);
  *  Timers callback
  */
 
-s32 poll_rateCb(void *arg) {
+s32 poll_rateAppCb(void *arg) {
+
+    u32 poll_rate = zb_getPollRate();
+
+    if (poll_rate == g_watermeterCtx.long_poll) {
+        zb_setPollRate(g_watermeterCtx.short_poll);
+        battery_check();
+        return TIMEOUT_30SEC;
+    }
 
     zb_setPollRate(g_watermeterCtx.long_poll);
-    g_watermeterCtx.timerPollRateEvt = NULL;
 
-    return -1;
+    return g_watermeterCtx.long_poll;
 }
+
 
 static s32 delayedMcuResetCb(void *arg) {
 
-//    zb_resetDevice();
     printf("mcu reset\r\n");
+    zb_resetDevice();
     return -1;
 }
 
 static s32 delayedFactoryResetCb(void *arg) {
 
-    zb_factoryReset();
     printf("factory reset\r\n");
+    zb_factoryReset();
+    zb_resetDevice();
     return -1;
 }
 
@@ -104,6 +115,14 @@ static s32 delayedFullResetCb(void *arg) {
     printf("full reset\r\n");
     return -1;
 }
+
+static s32 forcedReportCb(void *arg) {
+
+    g_watermeterCtx.timerReportEvt = NULL;
+
+    return -1;
+}
+
 
 /**********************************************************************
  *  For LED
@@ -163,7 +182,6 @@ void light_blink_start(u8 times, u16 ledOnTime, u16 ledOffTime)
 {
     u32 interval = 0;
     g_watermeterCtx.times = times;
-//    g_watermeterCtx.oriSta = drv_gpio_read(LED1);
 
     if(!g_watermeterCtx.timerLedEvt){
         if(g_watermeterCtx.oriSta){
@@ -198,37 +216,65 @@ void light_blink_stop(void)
 
 
 /**********************************************************************
- *  For check battery
+ *  For battery
  */
+
+static void batteryCmd() {
+    if(zb_isDeviceJoinedNwk()){
+        epInfo_t dstEpInfo;
+        TL_SETSTRUCTCONTENT(dstEpInfo, 0);
+
+        dstEpInfo.profileId = HA_PROFILE_ID;
+#if FIND_AND_BIND_SUPPORT
+        dstEpInfo.dstAddrMode = APS_DSTADDR_EP_NOTPRESETNT;
+#else
+        dstEpInfo.dstAddrMode = APS_SHORT_DSTADDR_WITHEP;
+        dstEpInfo.dstEp = WATERMETER_ENDPOINT;
+        dstEpInfo.dstAddr.shortAddr = 0xfffc;
+#endif
+        zclAttrInfo_t *pAttrEntry;
+        pAttrEntry = zcl_findAttribute(WATERMETER_ENDPOINT, ZCL_CLUSTER_GEN_POWER_CFG, ZCL_ATTRID_BATTERY_VOLTAGE);
+        zcl_sendReportCmd(WATERMETER_ENDPOINT, &dstEpInfo,  TRUE, ZCL_FRAME_SERVER_CLIENT_DIR,
+                ZCL_CLUSTER_GEN_POWER_CFG, pAttrEntry->id, pAttrEntry->type, pAttrEntry->data);
+        pAttrEntry = zcl_findAttribute(WATERMETER_ENDPOINT, ZCL_CLUSTER_GEN_POWER_CFG, ZCL_ATTRID_BATTERY_PERCENTAGE_REMAINING);
+        zcl_sendReportCmd(WATERMETER_ENDPOINT, &dstEpInfo,  TRUE, ZCL_FRAME_SERVER_CLIENT_DIR,
+                ZCL_CLUSTER_GEN_POWER_CFG, pAttrEntry->id, pAttrEntry->type, pAttrEntry->data);
+    }
+}
 
 // 2200..3100 mv - 0..100%
 static u8 get_battery_level(u16 battery_mv) {
-    u8 battery_level = 0;
+    /* Zigbee 0% - 0x0, 50% - 0x64, 100% - 0xc8 */
+    u16 battery_level = 0;
     if (battery_mv > MIN_VBAT_MV) {
-        battery_level = (battery_mv - MIN_VBAT_MV) / ((MAX_VBAT_MV - MIN_VBAT_MV) / 100);
-        if (battery_level > 100)
-            battery_level = 100;
+        battery_level = (battery_mv - MIN_VBAT_MV) / ((MAX_VBAT_MV - MIN_VBAT_MV) / 0xC8);
+        if (battery_level > 0xC8)
+            battery_level = 0xC8;
     }
     return battery_level;
 }
 
 static u16 get_battery_mv(void) {
 
-    g_watermeterCtx.battery_mv = drv_get_adc_data();
-    g_watermeterCtx.battery_level = get_battery_level(g_watermeterCtx.battery_mv);
-
-    return g_watermeterCtx.battery_mv;
+    return drv_get_adc_data();
 }
 
-s32 batteryCb(void) {
+void battery_check(void) {
+
+//    static u16 p_v = 0;
+
+    u16 voltage_raw = get_battery_mv();// - p_v;
+//    p_v += 100;
+    u8 voltage = (u8)(voltage_raw/100);
+    u8 level = get_battery_level(voltage_raw);
 
 #if UART_PRINTF_MODE
-    printf("Timer check battery 10 min.\r\n");
+    printf("Voltage: %d\r\n", voltage);
+    printf("Level: %d\r\n", level);
 #endif
 
-    get_battery_mv();
-
-    return 0;
+    zcl_setAttrVal(WATERMETER_ENDPOINT, ZCL_CLUSTER_GEN_POWER_CFG, ZCL_ATTRID_BATTERY_VOLTAGE, &voltage);
+    zcl_setAttrVal(WATERMETER_ENDPOINT, ZCL_CLUSTER_GEN_POWER_CFG, ZCL_ATTRID_BATTERY_PERCENTAGE_REMAINING, &level);
 }
 
 
@@ -253,7 +299,6 @@ void button_handler() {
             if (g_watermeterCtx.button.bit == BIT_COUNT) {
                 g_watermeterCtx.button.pressed = true;
                 g_watermeterCtx.button.pressed_time = clock_time();
-//                light_on();
                 if (!clock_time_exceed(g_watermeterCtx.button.released_time, TIMEOUT_TICK_1SEC)) {
                     g_watermeterCtx.button.counter++;
                 } else {
@@ -265,7 +310,6 @@ void button_handler() {
         if (g_watermeterCtx.button.bit != 1) {
             g_watermeterCtx.button.bit >>= 1;
             if (g_watermeterCtx.button.bit == 1 && g_watermeterCtx.button.pressed) {
-//                light_off();
                 g_watermeterCtx.button.released = true;
                 g_watermeterCtx.button.released_time = clock_time();
             }
@@ -288,28 +332,28 @@ void button_handler() {
 #if UART_PRINTF_MODE
             printf("MCU reset!\r\n");
 #endif
-//            zb_resetDevice();
             TL_ZB_TIMER_SCHEDULE(delayedMcuResetCb, NULL, TIMEOUT_1SEC);
         } else { /* short pressed < 5 sec. */
             light_blink_start(1, 30, 30);
             if (g_watermeterCtx.timerPollRateEvt) {
                 TL_ZB_TIMER_CANCEL(&g_watermeterCtx.timerPollRateEvt);
             }
-            g_watermeterCtx.timerPollRateEvt = TL_ZB_TIMER_SCHEDULE(poll_rateCb, NULL, TIMEOUT_2MIN);
             zb_setPollRate(g_watermeterCtx.short_poll);
+            g_watermeterCtx.timerPollRateEvt = TL_ZB_TIMER_SCHEDULE(poll_rateAppCb, NULL, TIMEOUT_2MIN);
 
+            if (!g_watermeterCtx.timerReportEvt) {
+                g_watermeterCtx.timerReportEvt = TL_ZB_TIMER_SCHEDULE(forcedReportCb, NULL, TIMEOUT_5SEC);
+                batteryCmd();
+            }
         }
     } else if (!g_watermeterCtx.button.pressed) {
         if (clock_time_exceed(g_watermeterCtx.button.released_time, TIMEOUT_TICK_1SEC)) {
-            if (g_watermeterCtx.button.counter == 3) {
+            if (g_watermeterCtx.button.counter == COUNT_FACTORY_RESET) {
                 light_blink_start(3, 30, 250);
                 g_watermeterCtx.button.counter = 0;
 #if UART_PRINTF_MODE
                 printf("Factory reset!\r\n");
 #endif
-//                zb_factoryReset();
-//                sleep_ms(100);
-//                zb_resetDevice();
                 TL_ZB_TIMER_SCHEDULE(delayedFactoryResetCb, NULL, TIMEOUT_1SEC);
             } else {
                 g_watermeterCtx.button.counter = 0;

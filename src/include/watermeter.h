@@ -15,17 +15,21 @@ typedef struct{
     u8 key[16]; /* the key used */
 }app_linkKey_info_t;
 
+typedef struct {
+    ev_timer_event_t *timerReportMinEvt;
+    ev_timer_event_t *timerReportMaxEvt;
+    reportCfgInfo_t  *pEntry;
+} app_reporting_t;
+
 typedef struct{
     ev_timer_event_t *bdbFBTimerEvt;
-    ev_timer_event_t *timerBatteryEvt;
+    ev_timer_event_t *timerReportEvt;
     ev_timer_event_t *timerPollRateEvt;
     ev_timer_event_t *timerLedEvt;
 
     u32 short_poll;
     u32 long_poll;
-
-    u16 battery_mv;         /* 2200 ... 3100 mv                 */
-    u8  battery_level;      /* 0 ... 100 %                      */
+    u32 current_poll;
 
     button_t button;
 
@@ -49,9 +53,13 @@ typedef struct{
     u8  hwVersion;
     u8  manuName[ZCL_BASIC_MAX_LENGTH];
     u8  modelId[ZCL_BASIC_MAX_LENGTH];
+    u8  dateCode[ZCL_BASIC_MAX_LENGTH];
     u8  powerSource;
+    u8  genDevClass;                        //attr 8
+    u8  genDevType;                         //attr 9
     u8  deviceEnable;
-}zcl_basicAttr_t;
+    u8  swBuildId[ZCL_BASIC_MAX_LENGTH];    //attr 4000
+} zcl_basicAttr_t;
 
 /**
  *  @brief Defined for identify cluster attributes
@@ -59,6 +67,20 @@ typedef struct{
 typedef struct{
     u16 identifyTime;
 }zcl_identifyAttr_t;
+
+/**
+ *  @brief Defined for power configuration cluster attributes
+ */
+typedef struct{
+#ifdef POWER_MAINS
+    u16 mainsVoltage;
+    u8  mainsFrequency;
+#endif
+    u8  batteryVoltage;      //0x20
+    u8  batteryPercentage;   //0x21
+}zcl_powerAttr_t;
+
+
 
 /**
  *  @brief  Defined for poll control cluster attributes
@@ -76,13 +98,15 @@ typedef struct{
 /**********************************************************************
  * GLOBAL VARIABLES
  */
+extern app_reporting_t app_reporting[ZCL_REPORTING_TABLE_NUM];
+
 extern app_ctx_t g_watermeterCtx;
 
-extern bdb_appCb_t g_zbDemoBdbCb;
+extern bdb_appCb_t g_zbBdbCb;
 
 extern bdb_commissionSetting_t g_bdbCommissionSetting;
 
-extern u8 SAMPLE_SWITCH_CB_CLUSTER_NUM;
+extern u8 WATERMETER_CB_CLUSTER_NUM;
 extern const zcl_specClusterInfo_t g_watermeterClusterList[];
 extern const af_simple_descriptor_t watermeter_simpleDesc;
 
@@ -99,6 +123,7 @@ void watermeter_zclProcessIncomingMsg(zclIncoming_t *pInHdlrMsg);
 
 status_t watermeter_basicCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload);
 status_t watermeter_identifyCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload);
+status_t watermeter_powerCfgCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload);
 status_t watermeter_groupCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload);
 status_t watermeter_sceneCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload);
 status_t watermeter_pollCtrlCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload);

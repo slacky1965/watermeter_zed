@@ -41,7 +41,7 @@
 		#define CHIP_TYPE					TLSR_B91
 #endif
 
-#define APP_RELEASE                         0x12        //app release 1.0
+#define APP_RELEASE                         0x10        //app release 1.0
 #define APP_BUILD                           0x01        //app build 01
 #define STACK_RELEASE						0x30        //stack release 3.0
 #define STACK_BUILD							0x01        //stack build 01
@@ -51,9 +51,10 @@
  * During OTA upgrade, the upgraded device will check the rules of the following three fields.
  * Refer to ZCL OTA specification for details.
  */
-#define MANUFACTURER_CODE_TELINK           	0x1141//Telink ID
-#define	IMAGE_TYPE							((CHIP_TYPE << 8) | IMAGE_TYPE_SWITCH)
-#define	FILE_VERSION					  	((APP_RELEASE << 24) | (APP_BUILD << 16) | (STACK_RELEASE << 8) | STACK_BUILD)
+#define MANUFACTURER_CODE_TELINK    0x1141//Telink ID
+#define	IMAGE_TYPE					((CHIP_TYPE << 8) | IMAGE_TYPE_WATERMETER)
+#define	FILE_VERSION				((APP_RELEASE << 24) | (APP_BUILD << 16) | (STACK_RELEASE << 8) | STACK_BUILD)
+#define ZCL_BASIC_SW_BUILD_ID       {8,'v',(APP_RELEASE >> 4) + 0x30,'.',APP_BUILD + 0x30,'s',(STACK_RELEASE >> 4) + 0x30,'.',STACK_BUILD + 0x30}
 
 /* Pre-compiled link configuration. */
 #define IS_BOOT_LOADER_IMAGE				0

@@ -214,8 +214,26 @@ static void watermeter_zclDfltRspCmd(u16 clusterId, zclDefaultRspCmd_t *pDftRspC
  */
 static void watermeter_zclCfgReportCmd(u16 clusterId, zclCfgReportCmd_t *pCfgReportCmd)
 {
-    //printf("watermeter_zclCfgReportCmd\n");
-
+    //printf("watermeter_zclCfgReportCmd\r\n");
+    for(u8 i = 0; i < pCfgReportCmd->numAttr; i++) {
+        for (u8 ii = 0; ii < ZCL_REPORTING_TABLE_NUM; ii++) {
+            if (app_reporting[ii].pEntry->used) {
+                if (app_reporting[ii].pEntry->attrID == pCfgReportCmd->attrList[i].attrID) {
+                    if (app_reporting[ii].timerReportMinEvt) {
+                        TL_ZB_TIMER_CANCEL(&app_reporting[ii].timerReportMinEvt);
+                    }
+                    if (app_reporting[ii].timerReportMaxEvt) {
+                        TL_ZB_TIMER_CANCEL(&app_reporting[ii].timerReportMaxEvt);
+                    }
+                }
+            }
+        }
+//        printf("(%d) - attrID:           %d\r\n", i, pCfgReportCmd->attrList[i].attrID);
+//        printf("(%d) - minReportInt:     %d\r\n", i, pCfgReportCmd->attrList[i].minReportInt);
+//        printf("(%d) - maxReportInt:     %d\r\n", i, pCfgReportCmd->attrList[i].maxReportInt);
+//        printf("(%d) - timeoutPeriod:    %d\r\n", i, pCfgReportCmd->attrList[i].timeoutPeriod);
+//        printf("(%d) - reportableChange: %d\r\n", i, *pCfgReportCmd->attrList[i].reportableChange);
+    }
 }
 
 /*********************************************************************
@@ -229,7 +247,7 @@ static void watermeter_zclCfgReportCmd(u16 clusterId, zclCfgReportCmd_t *pCfgRep
  */
 static void watermeter_zclCfgReportRspCmd(u16 clusterId, zclCfgReportRspCmd_t *pCfgReportRspCmd)
 {
-    //printf("watermeter_zclCfgReportRspCmd\n");
+    //printf("watermeter_zclCfgReportRspCmd\r\n");
 
 }
 
@@ -413,6 +431,24 @@ status_t watermeter_identifyCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void 
 	return ZCL_STA_SUCCESS;
 }
 #endif	/* ZCL_IDENTIFY */
+
+/*********************************************************************
+ * @fn      watermeter_powerCfgCb
+ *
+ * @brief   Handler for ZCL Identify command.
+ *
+ * @param   pAddrInfo
+ * @param   cmdId
+ * @param   cmdPayload
+ *
+ * @return  status_t
+ */
+status_t watermeter_powerCfgCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload)
+{
+
+    return ZCL_STA_SUCCESS;
+}
+
 
 #ifdef ZCL_GROUP
 /*********************************************************************

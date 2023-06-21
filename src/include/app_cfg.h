@@ -45,6 +45,7 @@ extern "C" {
 #define ZCL_BASIC_MODEL_ID     {19,'W','a','t','e','r','m','e','t','e','r','_','T','L','S','R','8','2','5','8'}
 #define ZCL_BASIC_DATE_CODE    {8,'2','0','2','3','0','6','0','7'}
 
+
 /**********************************************************************
  * Version configuration
  */
@@ -180,9 +181,9 @@ extern "C" {
 /**********************************************************************
  * ZCL cluster support setting
  */
-#define ZCL_POWER_CFG_SUPPORT           1
 #define ZCL_LEVEL_CTRL_SUPPORT			1
 #define ZCL_GROUP_SUPPORT               1
+#define ZCL_POWER_CFG_SUPPORT           1
 //#define ZCL_OTA_SUPPORT                 1
 #if TOUCHLINK_SUPPORT
 #define ZCL_ZLL_COMMISSIONING_SUPPORT   1

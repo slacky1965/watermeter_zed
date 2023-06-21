@@ -30,6 +30,13 @@
  * CONSTANT
  */
 
+/* for reporting */
+#define REPORTING_MIN       30             /* 5 min            */
+#define REPORTING_MAX       90//3600            /* 60 min           */
+
+/* for polling */
+#define LONG_POLL           REPORTING_MIN*2
+
 /* for clock_time_exceed() */
 #define TIMEOUT_TICK_1SEC   1000*1000       /* timeout 1 sec    */
 #define TIMEOUT_TICK_5SEC   5*1000*1000     /* timeout 5 sec    */
@@ -43,6 +50,8 @@
 #define TIMEOUT_5SEC        5*1000          /* timeout 5 sec    */
 #define TIMEOUT_10SEC       10*1000         /* timeout 10 sec   */
 #define TIMEOUT_15SEC       15*1000         /* timeout 15 sec   */
+#define TIMEOUT_30SEC       30*1000         /* timeout 30 sec   */
+#define TIMEOUT_1MIN        60*1000         /* timeout 1 min    */
 #define TIMEOUT_2MIN        120*1000        /* timeout 2 min    */
 #define TIMEOUT_5MIN        300*1000        /* timeout 5 min    */
 #define TIMEOUT_10MIN       600*1000        /* timeout 10 min   */
@@ -103,9 +112,10 @@ void light_off(void);
 void led_on(u32 pin);
 void led_off(u32 pin);
 
-s32 poll_rateCb(void *arg);
+//s32 poll_rateLongCb(void *arg);
+s32 poll_rateAppCb(void *arg);
 
-s32 batteryCb();
+void battery_check();
 
 void init_button();
 void button_handler();

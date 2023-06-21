@@ -27,8 +27,10 @@ SRC_PATH := ./src
 OUT_PATH := ./out
 MAKE_INCLUDES := ./make
 TOOLS_PATH := ./tools
-VERSION := V$(shell awk -F " " '/APP_RELEASE/ {gsub("0x",""); printf "%.1f", $$3/10.0; exit}' $(SRC_PATH)/include/version_cfg.h)
+VERSION_RELEASE := V$(shell awk -F " " '/APP_RELEASE/ {gsub("0x",""); printf "%d", $$3/10; exit}' $(SRC_PATH)/include/version_cfg.h)
+VERSION_BUILD := $(shell awk -F " " '/APP_BUILD/ {gsub("0x",""); printf "%d", $$3; exit}' ./src/include/version_cfg.h)
 
+ 
 
 TL_Check = $(TOOLS_PATH)/tl_check_fw.py
 
@@ -44,7 +46,9 @@ INCLUDE_PATHS := \
 -I$(SDK_PATH)/zbhci \
 -I$(SRC_PATH) \
 -I$(SRC_PATH)/include \
--I$(SRC_PATH)/common
+-I$(SRC_PATH)/common \
+-I./common
+ 
 
 LS_FLAGS := $(SDK_PATH)/platform/boot/8258/boot_8258.link
 
@@ -143,7 +147,7 @@ $(BIN_FILE): $(ELF_FILE)
 	@python3 $(TL_Check) $(BIN_FILE)
 	@echo 'Finished building: $@'
 	@echo ' '
-	@cp $(BIN_FILE) $(PROJECT_NAME)_$(VERSION).bin
+	@cp $(BIN_FILE) $(PROJECT_NAME)_$(VERSION_RELEASE).$(VERSION_BUILD).bin
 
 
 sizedummy: $(ELF_FILE)
@@ -173,6 +177,6 @@ post-build:
 	
 secondary-outputs: $(BIN_FILE) $(LST) $(FLASH_IMAGE) $(SIZEDUMMY)
 
-.PHONY: all clean dependents 
+.PHONY: all clean dependents pre-build
 .SECONDARY: main-build pre-build post-build
 
