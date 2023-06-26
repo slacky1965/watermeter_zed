@@ -100,7 +100,7 @@ RM := rm -rf
 -include $(MAKE_INCLUDES)/platformS.mk
 -include $(MAKE_INCLUDES)/div_mod.mk
 -include $(MAKE_INCLUDES)/platform.mk
--include $(MAKE_INCLUDES)/project.mk
+-include ./project.mk
 
 # Add inputs and outputs from these tool invocations to the build variables 
 LST_FILE := $(OUT_PATH)/$(PROJECT_NAME).lst
