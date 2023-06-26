@@ -55,7 +55,7 @@ static void watermeter_zclWriteRspCmd(u16 clusterId, zclWriteRspCmd_t *pWriteRsp
 static void watermeter_zclWriteReqCmd(u16 clusterId, zclWriteCmd_t *pWriteReqCmd);
 #endif
 #ifdef ZCL_REPORT
-static void watermeter_zclCfgReportCmd(u16 clusterId, zclCfgReportCmd_t *pCfgReportCmd);
+static void watermeter_zclCfgReportCmd(u16 clusterId, zclCfgReportCmd_t *pCfgReportCmd, u8 dst_ep);
 static void watermeter_zclCfgReportRspCmd(u16 clusterId, zclCfgReportRspCmd_t *pCfgReportRspCmd);
 static void watermeter_zclReportCmd(u16 clusterId, zclReportCmd_t *pReportCmd);
 #endif
@@ -92,6 +92,7 @@ void watermeter_zclProcessIncomingMsg(zclIncoming_t *pInHdlrMsg)
 	//printf("watermeter_zclProcessIncomingMsg\n");
 
 	u16 cluster = pInHdlrMsg->msg->indInfo.cluster_id;
+	u8 dst_ep = pInHdlrMsg->msg->indInfo.dst_ep;
 	switch(pInHdlrMsg->hdr.cmd)
 	{
 #ifdef ZCL_READ
@@ -109,7 +110,7 @@ void watermeter_zclProcessIncomingMsg(zclIncoming_t *pInHdlrMsg)
 #endif
 #ifdef ZCL_REPORT
 		case ZCL_CMD_CONFIG_REPORT:
-			watermeter_zclCfgReportCmd(cluster, pInHdlrMsg->attrCmd);
+			watermeter_zclCfgReportCmd(cluster, pInHdlrMsg->attrCmd, dst_ep);
 			break;
 		case ZCL_CMD_CONFIG_REPORT_RSP:
 			watermeter_zclCfgReportRspCmd(cluster, pInHdlrMsg->attrCmd);
@@ -209,16 +210,17 @@ static void watermeter_zclDfltRspCmd(u16 clusterId, zclDefaultRspCmd_t *pDftRspC
  * @brief   Handler for ZCL Configure Report command.
  *
  * @param   pInHdlrMsg - incoming message to process
+ * @param   dst_ep     - number of endPoint
  *
  * @return  None
  */
-static void watermeter_zclCfgReportCmd(u16 clusterId, zclCfgReportCmd_t *pCfgReportCmd)
+static void watermeter_zclCfgReportCmd(u16 clusterId, zclCfgReportCmd_t *pCfgReportCmd, u8 dst_ep)
 {
     //printf("watermeter_zclCfgReportCmd\r\n");
     for(u8 i = 0; i < pCfgReportCmd->numAttr; i++) {
         for (u8 ii = 0; ii < ZCL_REPORTING_TABLE_NUM; ii++) {
             if (app_reporting[ii].pEntry->used) {
-                if (app_reporting[ii].pEntry->attrID == pCfgReportCmd->attrList[i].attrID) {
+                if (app_reporting[ii].pEntry->endPoint == dst_ep && app_reporting[ii].pEntry->attrID == pCfgReportCmd->attrList[i].attrID) {
                     if (app_reporting[ii].timerReportMinEvt) {
                         TL_ZB_TIMER_CANCEL(&app_reporting[ii].timerReportMinEvt);
                     }
@@ -228,11 +230,6 @@ static void watermeter_zclCfgReportCmd(u16 clusterId, zclCfgReportCmd_t *pCfgRep
                 }
             }
         }
-//        printf("(%d) - attrID:           %d\r\n", i, pCfgReportCmd->attrList[i].attrID);
-//        printf("(%d) - minReportInt:     %d\r\n", i, pCfgReportCmd->attrList[i].minReportInt);
-//        printf("(%d) - maxReportInt:     %d\r\n", i, pCfgReportCmd->attrList[i].maxReportInt);
-//        printf("(%d) - timeoutPeriod:    %d\r\n", i, pCfgReportCmd->attrList[i].timeoutPeriod);
-//        printf("(%d) - reportableChange: %d\r\n", i, *pCfgReportCmd->attrList[i].reportableChange);
     }
 }
 
