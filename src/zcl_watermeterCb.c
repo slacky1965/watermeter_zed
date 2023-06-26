@@ -409,7 +409,7 @@ static void watermeter_zclIdentifyQueryRspCmdHandler(u8 endpoint, u16 srcAddr, z
  */
 status_t watermeter_identifyCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload)
 {
-	if(pAddrInfo->dstEp == WATERMETER_ENDPOINT){
+	if(pAddrInfo->dstEp == WATERMETER_ENDPOINT1){
 		if(pAddrInfo->dirCluster == ZCL_FRAME_CLIENT_SERVER_DIR){
 			switch(cmdId){
 				case ZCL_CMD_IDENTIFY:
@@ -520,7 +520,7 @@ static void watermeter_zclGetGroupMembershipRspCmdHandler(zcl_getGroupMembership
  */
 status_t watermeter_groupCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload)
 {
-	if(pAddrInfo->dstEp == WATERMETER_ENDPOINT){
+	if(pAddrInfo->dstEp == WATERMETER_ENDPOINT1){
 		if(pAddrInfo->dirCluster == ZCL_FRAME_SERVER_CLIENT_DIR){
 			switch(cmdId){
 				case ZCL_CMD_GROUP_ADD_GROUP_RSP:
@@ -857,3 +857,22 @@ status_t watermeter_pollCtrlCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void 
 	return status;
 }
 #endif	/* ZCL_POLL_CTRL */
+
+/*********************************************************************
+ * @fn      watermeter_powerCfgCb
+ *
+ * @brief   Handler for ZCL Identify command.
+ *
+ * @param   pAddrInfo
+ * @param   cmdId
+ * @param   cmdPayload
+ *
+ * @return  status_t
+ */
+status_t watermeter_meteringCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload)
+{
+
+    return ZCL_STA_SUCCESS;
+}
+
+

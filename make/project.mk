@@ -11,7 +11,6 @@ $(OUT_PATH)/$(SRC_PATH)/watermeterEpCfg.o \
 $(OUT_PATH)/$(SRC_PATH)/zb_appCb.o \
 $(OUT_PATH)/$(SRC_PATH)/zcl_watermeterCb.o
 
-
 # Each subdirectory must supply rules for building sources it contributes
 $(OUT_PATH)/$(SRC_PATH)/%.o: $(SRC_PATH)/%.c 
 	@echo 'Building file: $<'

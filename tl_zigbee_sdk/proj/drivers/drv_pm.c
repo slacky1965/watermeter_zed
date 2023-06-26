@@ -370,10 +370,6 @@ void drv_pm_lowPowerEnter(void)
 		}
 	}
 
-#if UART_PRINTF_MODE
-    printf("sleepTime: %d\r\n", sleepTime);
-#endif /* UART_PRINTF_MODE */
-
 #if !defined(__PROJECT_TL_BOOT_LOADER__) && !defined(__PROJECT_TL_SNIFFER__)
 	rf_paShutDown();
 	if(sleepMode == PM_SLEEP_MODE_DEEPSLEEP){

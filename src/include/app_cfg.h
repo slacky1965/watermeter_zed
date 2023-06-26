@@ -37,6 +37,13 @@ extern "C" {
 #define MCU_CORE_8258   1
 #endif
 
+/* for reporting */
+#define REPORTING_MIN       300             /* 5 min            */
+#define REPORTING_MAX       3600            /* 60 min           */
+
+/* for polling */
+#define LONG_POLL           REPORTING_MIN
+
 /**********************************************************************
  * Product Information
  */
@@ -62,7 +69,7 @@ extern "C" {
 #define PA_ENABLE						0
 
 /* BDB */
-#define TOUCHLINK_SUPPORT				0
+#define TOUCHLINK_SUPPORT				1
 #define FIND_AND_BIND_SUPPORT			0
 
 /* Board ID */
@@ -184,11 +191,11 @@ extern "C" {
 #define ZCL_LEVEL_CTRL_SUPPORT			1
 #define ZCL_GROUP_SUPPORT               1
 #define ZCL_POWER_CFG_SUPPORT           1
+#define ZCL_METERING_SUPPORT            1
 //#define ZCL_OTA_SUPPORT                 1
 #if TOUCHLINK_SUPPORT
 #define ZCL_ZLL_COMMISSIONING_SUPPORT   1
 #endif
-#define ZCL_WATERMETER_SUPPORT          1
 
 
 /**********************************************************************

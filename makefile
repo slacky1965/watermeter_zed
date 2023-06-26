@@ -175,7 +175,7 @@ post-build:
 	-"$(TOOLS_PATH)/tl_check_fw.sh" $(OUT_PATH)/$(PROJECT_NAME) tc32
 	-@echo ' '
 	
-secondary-outputs: $(BIN_FILE) $(LST) $(FLASH_IMAGE) $(SIZEDUMMY)
+secondary-outputs: $(BIN_FILE) $(LST_FILE) $(FLASH_IMAGE) $(SIZEDUMMY)
 
 .PHONY: all clean dependents pre-build
 .SECONDARY: main-build pre-build post-build

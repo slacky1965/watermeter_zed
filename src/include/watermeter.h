@@ -1,10 +1,14 @@
 #ifndef SRC_INCLUDE_WATERMETER_H_
 #define SRC_INCLUDE_WATERMETER_H_
 
+#include "app_utility.h"
+
 /**********************************************************************
  * CONSTANT
  */
-#define WATERMETER_ENDPOINT  0x01
+#define WATERMETER_ENDPOINT1 0x01
+#define WATERMETER_ENDPOINT2 0x02
+#define SE_PROFILE_ID        0x0109
 
 /**********************************************************************
  * TYPEDEFS
@@ -19,6 +23,7 @@ typedef struct {
     ev_timer_event_t *timerReportMinEvt;
     ev_timer_event_t *timerReportMaxEvt;
     reportCfgInfo_t  *pEntry;
+    u32               time_posted;
 } app_reporting_t;
 
 typedef struct{
@@ -80,7 +85,14 @@ typedef struct{
     u8  batteryPercentage;   //0x21
 }zcl_powerAttr_t;
 
+//typedef struct __attribute__((packed)) _u48 {
+//    u64 x:48;
+//} u48;
 
+typedef struct {
+    u64  water_counter;
+    u16 per_pulse;
+} zcl_watermeterAttr_t;
 
 /**
  *  @brief  Defined for poll control cluster attributes
@@ -106,9 +118,12 @@ extern bdb_appCb_t g_zbBdbCb;
 
 extern bdb_commissionSetting_t g_bdbCommissionSetting;
 
-extern u8 WATERMETER_CB_CLUSTER_NUM;
-extern const zcl_specClusterInfo_t g_watermeterClusterList[];
-extern const af_simple_descriptor_t watermeter_simpleDesc;
+extern u8 WATERMETER_EP1_CB_CLUSTER_NUM;
+extern u8 WATERMETER_EP2_CB_CLUSTER_NUM;
+extern const zcl_specClusterInfo_t g_watermeterEp1ClusterList[];
+extern const zcl_specClusterInfo_t g_watermeterEp2ClusterList[];
+extern const af_simple_descriptor_t watermeter_ep1Desc;
+extern const af_simple_descriptor_t watermeter_ep2Desc;
 
 /* Attributes */
 extern zcl_basicAttr_t g_zcl_basicAttrs;
@@ -127,6 +142,7 @@ status_t watermeter_powerCfgCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void 
 status_t watermeter_groupCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload);
 status_t watermeter_sceneCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload);
 status_t watermeter_pollCtrlCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload);
+status_t watermeter_meteringCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload);
 
 void watermeter_leaveCnfHandler(nlme_leave_cnf_t *pLeaveCnf);
 void watermeter_leaveIndHandler(nlme_leave_ind_t *pLeaveInd);

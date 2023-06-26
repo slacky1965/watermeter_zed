@@ -32,6 +32,7 @@
 
 #include "app_ui.h"
 #include "watermeter.h"
+//#include "zcl_watermeter.h"
 
 /**********************************************************************
  * LOCAL CONSTANTS
@@ -85,7 +86,6 @@ s32 poll_rateAppCb(void *arg) {
 
     if (poll_rate == g_watermeterCtx.long_poll) {
         zb_setPollRate(g_watermeterCtx.short_poll);
-        battery_check();
         return TIMEOUT_30SEC;
     }
 
@@ -229,15 +229,15 @@ static void batteryCmd() {
         dstEpInfo.dstAddrMode = APS_DSTADDR_EP_NOTPRESETNT;
 #else
         dstEpInfo.dstAddrMode = APS_SHORT_DSTADDR_WITHEP;
-        dstEpInfo.dstEp = WATERMETER_ENDPOINT;
+        dstEpInfo.dstEp = WATERMETER_ENDPOINT1;
         dstEpInfo.dstAddr.shortAddr = 0xfffc;
 #endif
         zclAttrInfo_t *pAttrEntry;
-        pAttrEntry = zcl_findAttribute(WATERMETER_ENDPOINT, ZCL_CLUSTER_GEN_POWER_CFG, ZCL_ATTRID_BATTERY_VOLTAGE);
-        zcl_sendReportCmd(WATERMETER_ENDPOINT, &dstEpInfo,  TRUE, ZCL_FRAME_SERVER_CLIENT_DIR,
+        pAttrEntry = zcl_findAttribute(WATERMETER_ENDPOINT1, ZCL_CLUSTER_GEN_POWER_CFG, ZCL_ATTRID_BATTERY_VOLTAGE);
+        zcl_sendReportCmd(WATERMETER_ENDPOINT1, &dstEpInfo,  TRUE, ZCL_FRAME_SERVER_CLIENT_DIR,
                 ZCL_CLUSTER_GEN_POWER_CFG, pAttrEntry->id, pAttrEntry->type, pAttrEntry->data);
-        pAttrEntry = zcl_findAttribute(WATERMETER_ENDPOINT, ZCL_CLUSTER_GEN_POWER_CFG, ZCL_ATTRID_BATTERY_PERCENTAGE_REMAINING);
-        zcl_sendReportCmd(WATERMETER_ENDPOINT, &dstEpInfo,  TRUE, ZCL_FRAME_SERVER_CLIENT_DIR,
+        pAttrEntry = zcl_findAttribute(WATERMETER_ENDPOINT1, ZCL_CLUSTER_GEN_POWER_CFG, ZCL_ATTRID_BATTERY_PERCENTAGE_REMAINING);
+        zcl_sendReportCmd(WATERMETER_ENDPOINT1, &dstEpInfo,  TRUE, ZCL_FRAME_SERVER_CLIENT_DIR,
                 ZCL_CLUSTER_GEN_POWER_CFG, pAttrEntry->id, pAttrEntry->type, pAttrEntry->data);
     }
 }
@@ -259,12 +259,12 @@ static u16 get_battery_mv(void) {
     return drv_get_adc_data();
 }
 
-void battery_check(void) {
+s32 batteryCb(void) {
 
-//    static u16 p_v = 0;
+    static u16 p_v = 0;
 
     u16 voltage_raw = get_battery_mv();// - p_v;
-//    p_v += 100;
+    p_v += 100;
     u8 voltage = (u8)(voltage_raw/100);
     u8 level = get_battery_level(voltage_raw);
 
@@ -273,9 +273,12 @@ void battery_check(void) {
     printf("Level: %d\r\n", level);
 #endif
 
-    zcl_setAttrVal(WATERMETER_ENDPOINT, ZCL_CLUSTER_GEN_POWER_CFG, ZCL_ATTRID_BATTERY_VOLTAGE, &voltage);
-    zcl_setAttrVal(WATERMETER_ENDPOINT, ZCL_CLUSTER_GEN_POWER_CFG, ZCL_ATTRID_BATTERY_PERCENTAGE_REMAINING, &level);
+    zcl_setAttrVal(WATERMETER_ENDPOINT1, ZCL_CLUSTER_GEN_POWER_CFG, ZCL_ATTRID_BATTERY_VOLTAGE, &voltage);
+    zcl_setAttrVal(WATERMETER_ENDPOINT1, ZCL_CLUSTER_GEN_POWER_CFG, ZCL_ATTRID_BATTERY_PERCENTAGE_REMAINING, &level);
+
+    return 0;
 }
+
 
 
 /**********************************************************************
@@ -418,6 +421,7 @@ void init_counters() {
 u8 counters_handler() {
 
     u8 save_config = false;
+    zcl_watermeterAttr_t water_count;
 
 #if 0
     gpio_setup_up_down_resistor(HOT_GPIO, PM_PIN_PULLUP_10K);
@@ -469,6 +473,8 @@ u8 counters_handler() {
 #if UART_PRINTF_MODE
         printf("hot counter - %d\r\n", watermeter_config.counter_hot_water);
 #endif /* UART_PRINTF_MODE */
+        water_count.water_counter = watermeter_config.counter_hot_water & 0xffffffffffff;
+        zcl_setAttrVal(WATERMETER_ENDPOINT1, ZCL_CLUSTER_SE_METERING, ZCL_ATTRID_CURRENT_SUMMATION_DELIVERD, (u8*)&water_count.water_counter);
     }
 
     if (cold_counter.counter) {
@@ -482,6 +488,8 @@ u8 counters_handler() {
 #if UART_PRINTF_MODE
         printf("cold counter - %d\r\n", watermeter_config.counter_cold_water);
 #endif /* UART_PRINTF_MODE */
+        water_count.water_counter = watermeter_config.counter_cold_water & 0xffffffffffff;
+        zcl_setAttrVal(WATERMETER_ENDPOINT2, ZCL_CLUSTER_SE_METERING, ZCL_ATTRID_CURRENT_SUMMATION_DELIVERD, (u8*)&water_count.water_counter);
     }
 
     if (save_config) {

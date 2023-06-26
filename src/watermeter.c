@@ -10,6 +10,7 @@
 
 #include "app_ui.h"
 #include "watermeter.h"
+//#include "zcl_watermeter.h"
 
 app_reporting_t app_reporting[ZCL_REPORTING_TABLE_NUM];
 
@@ -103,7 +104,7 @@ drv_pm_pinCfg_t pin_PmCfg[] = {
     {
         BUTTON,
         PM_WAKEUP_LEVEL
-    }
+    },
 };
 
 static void app_lowPowerEnter() {
@@ -142,6 +143,29 @@ static void app_reporting_init() {
     }
 }
 
+static u8 app_reportableChangeValueChk(u8 dataType, u8 *curValue, u8 *prevValue, u8 *reportableChange) {
+    u8 needReport = false;
+
+    switch(dataType) {
+        case ZCL_DATA_TYPE_UINT48:
+        {
+            u64 P = BUILD_U48(prevValue[0], prevValue[1], prevValue[2], prevValue[3], prevValue[4], prevValue[5]);
+            u64 C = BUILD_U48(curValue[0], curValue[1], curValue[2], curValue[3], curValue[4], curValue[5]);
+            u64 R = BUILD_U48(reportableChange[0], reportableChange[1], reportableChange[2], reportableChange[3], reportableChange[4], reportableChange[5]);
+            if(P >= C){
+                needReport = ((P - C) > R) ? true : false;
+            }else{
+                needReport = ((C - P) > R) ? true : false;
+            }
+            break;
+        }
+        default:
+            break;
+    }
+
+    return needReport;
+}
+
 static s32 app_reportMinAttrTimerCb(void *arg) {
     app_reporting_t *app_reporting = (app_reporting_t*)arg;
     reportCfgInfo_t *pEntry = app_reporting->pEntry;
@@ -149,7 +173,11 @@ static s32 app_reportMinAttrTimerCb(void *arg) {
     app_reporting->timerReportMinEvt = NULL;
 
     if (pEntry->minInterval == pEntry->maxInterval) {
+#if UART_PRINTF_MODE
+        printf("Report has been sent. attrID: 0x%x. minInterval: %d\r\n", pEntry->attrID, pEntry->minInterval);
+#endif
         reportAttr(pEntry);
+        app_reporting->time_posted = clock_time();
         return -1;
     }
 
@@ -166,8 +194,14 @@ static s32 app_reportMinAttrTimerCb(void *arg) {
 
     if( (!zcl_analogDataType(pAttrEntry->type) && (memcmp(pEntry->prevData, pAttrEntry->data, len) != SUCCESS)) ||
                     ((zcl_analogDataType(pAttrEntry->type) && reportableChangeValueChk(pAttrEntry->type,
-                    pAttrEntry->data, pEntry->prevData, pEntry->reportableChange)))) {
+                    pAttrEntry->data, pEntry->prevData, pEntry->reportableChange))) ||
+                    ((zcl_analogDataType(pAttrEntry->type) && pAttrEntry->type == ZCL_DATA_TYPE_UINT48 &&
+                    app_reportableChangeValueChk(pAttrEntry->type, pAttrEntry->data, pEntry->prevData, pEntry->reportableChange)))) {
+#if UART_PRINTF_MODE
+        printf("Report has been sent. clusterID: %x, attrID: 0x%x. minInterval: %d\r\n", pEntry->clusterID, pEntry->attrID, pEntry->minInterval);
+#endif
         reportAttr(pEntry);
+        app_reporting->time_posted = clock_time();
     }
 
     return -1;
@@ -175,8 +209,17 @@ static s32 app_reportMinAttrTimerCb(void *arg) {
 
 static s32 app_reportMaxAttrTimerCb(void *arg) {
     app_reporting_t *app_reporting = (app_reporting_t*)arg;
+    reportCfgInfo_t *pEntry = app_reporting->pEntry;
 
-    reportAttr(app_reporting->pEntry);
+    if (clock_time_exceed(app_reporting->time_posted, pEntry->minInterval*1000*1000)) {
+        if (app_reporting->timerReportMinEvt) {
+            TL_ZB_TIMER_CANCEL(&app_reporting->timerReportMinEvt);
+        }
+#if UART_PRINTF_MODE
+        printf("Report has been sent. clusterID: %x, attrID: 0x%x. maxInterval: %d\r\n", pEntry->clusterID, pEntry->attrID, pEntry->maxInterval);
+#endif
+        reportAttr(pEntry);
+    }
 
     app_reporting->timerReportMaxEvt = NULL;
 
@@ -190,24 +233,29 @@ static void app_reportAttrTimerStart() {
             app_reporting[i].pEntry = pEntry;
             if(pEntry->used && (pEntry->maxInterval != 0xFFFF) && (pEntry->minInterval || pEntry->maxInterval)){
                 if(zb_bindingTblSearched(pEntry->clusterID, pEntry->endPoint)) {
-                    //printf("min: %d, max: %d\r\n", pEntry->minInterval, pEntry->maxInterval);
+//                    printf("pEntry->clusterID: %x, min: %d, max: %d\r\n", pEntry->clusterID, pEntry->minInterval, pEntry->maxInterval);
                     if (!app_reporting[i].timerReportMinEvt) {
                         if (pEntry->minInterval && pEntry->maxInterval) {
-                            printf("%d. pEntry->minInterval: %d\r\n", i, pEntry->minInterval);
+                            //printf("%d. pEntry->minInterval: %d\r\n", i, pEntry->minInterval);
                             app_reporting[i].timerReportMinEvt = TL_ZB_TIMER_SCHEDULE(app_reportMinAttrTimerCb, &app_reporting[i], pEntry->minInterval*1000);
                         }
+                    }
+                    if (!pEntry->maxInterval) {
+                        //printf("pEntry->clusterID: %x, min: %d, max: %d\r\n", pEntry->clusterID, pEntry->minInterval, pEntry->maxInterval);
+                        if (app_reporting[i].timerReportMinEvt) {
+                            TL_ZB_TIMER_CANCEL(&app_reporting[i].timerReportMinEvt);
+                        }
+                        if (app_reporting[i].timerReportMaxEvt) {
+                            TL_ZB_TIMER_CANCEL(&app_reporting[i].timerReportMaxEvt);
+                        }
+                        app_reportMinAttrTimerCb(&app_reporting[i]);
                     }
                     if (!app_reporting[i].timerReportMaxEvt) {
                         if (pEntry->maxInterval) {
                             if (pEntry->maxInterval != pEntry->minInterval && pEntry->maxInterval > pEntry->minInterval) {
-                                printf("%d. pEntry->maxInterval: %d\r\n", i, pEntry->maxInterval);
+                                //printf("%d. pEntry->maxInterval: %d\r\n", i, pEntry->maxInterval);
                                 app_reporting[i].timerReportMaxEvt = TL_ZB_TIMER_SCHEDULE(app_reportMaxAttrTimerCb, &app_reporting[i], pEntry->maxInterval*1000);
                             }
-                        } else {
-                            if (app_reporting[i].timerReportMinEvt) {
-                                TL_ZB_TIMER_CANCEL(&app_reporting[i].timerReportMinEvt);
-                            }
-                            app_reportMinAttrTimerCb(&app_reporting[i]);
                         }
 
                     }
@@ -259,22 +307,25 @@ void user_app_init(void)
     zcl_init(watermeter_zclProcessIncomingMsg);
 
     /* register endPoint */
-    af_endpointRegister(WATERMETER_ENDPOINT, (af_simple_descriptor_t *)&watermeter_simpleDesc, zcl_rx_handler, NULL);
+    af_endpointRegister(WATERMETER_ENDPOINT1, (af_simple_descriptor_t *)&watermeter_ep1Desc, zcl_rx_handler, NULL);
+    af_endpointRegister(WATERMETER_ENDPOINT2, (af_simple_descriptor_t *)&watermeter_ep2Desc, zcl_rx_handler, NULL);
 
     zcl_reportingTabInit();
 
     /* Register ZCL specific cluster information */
-    zcl_register(WATERMETER_ENDPOINT, WATERMETER_CB_CLUSTER_NUM, (zcl_specClusterInfo_t *)g_watermeterClusterList);
+    zcl_register(WATERMETER_ENDPOINT1, WATERMETER_EP1_CB_CLUSTER_NUM, (zcl_specClusterInfo_t *)g_watermeterEp1ClusterList);
+    zcl_register(WATERMETER_ENDPOINT2, WATERMETER_EP2_CB_CLUSTER_NUM, (zcl_specClusterInfo_t *)g_watermeterEp2ClusterList);
 
 #if ZCL_OTA_SUPPORT
-    ota_init(OTA_TYPE_CLIENT, (af_simple_descriptor_t *)&watermeter_simpleDesc, &watermeter_otaInfo, &watermeter_otaCb);
+    ota_init(OTA_TYPE_CLIENT, (af_simple_descriptor_t *)&watermeter_ep1Desc, &watermeter_otaInfo, &watermeter_otaCb);
 #endif
 
     init_counters();
     init_config();
     init_button();
 
-    battery_check();
+    batteryCb();
+    TL_ZB_TIMER_SCHEDULE(batteryCb, NULL, TIMEOUT_15MIN);
 }
 
 void led_init(void)
@@ -376,17 +427,19 @@ void user_init(bool isRetention)
 
         /* Set default reporting configuration */
         u8 reportableChange = 0x00;
-        bdb_defaultReportingCfg(WATERMETER_ENDPOINT, HA_PROFILE_ID, ZCL_CLUSTER_GEN_POWER_CFG, ZCL_ATTRID_BATTERY_VOLTAGE,
+        bdb_defaultReportingCfg(WATERMETER_ENDPOINT1, HA_PROFILE_ID, ZCL_CLUSTER_GEN_POWER_CFG, ZCL_ATTRID_BATTERY_VOLTAGE,
                 REPORTING_MIN, REPORTING_MAX, (u8 *)&reportableChange);
-        bdb_defaultReportingCfg(WATERMETER_ENDPOINT, HA_PROFILE_ID, ZCL_CLUSTER_GEN_POWER_CFG, ZCL_ATTRID_BATTERY_PERCENTAGE_REMAINING,
+        bdb_defaultReportingCfg(WATERMETER_ENDPOINT1, HA_PROFILE_ID, ZCL_CLUSTER_GEN_POWER_CFG, ZCL_ATTRID_BATTERY_PERCENTAGE_REMAINING,
                 REPORTING_MIN, REPORTING_MAX, (u8 *)&reportableChange);
+        bdb_defaultReportingCfg(WATERMETER_ENDPOINT1, HA_PROFILE_ID, ZCL_CLUSTER_SE_METERING, ZCL_ATTRID_CURRENT_SUMMATION_DELIVERD,
+                REPORTING_MIN, 0, (u8 *)&reportableChange);
 
         /* custom reporting application (non SDK) */
         app_reporting_init();
 
         /* Initialize BDB */
         u8 repower = drv_pm_deepSleep_flag_get() ? 0 : 1;
-        bdb_init((af_simple_descriptor_t *)&watermeter_simpleDesc, &g_bdbCommissionSetting, &g_zbBdbCb, repower);
+        bdb_init((af_simple_descriptor_t *)&watermeter_ep1Desc, &g_bdbCommissionSetting, &g_zbBdbCb, repower);
 
     }else{
         /* Re-config phy when system recovery from deep sleep with retention */
