@@ -133,6 +133,7 @@ extern void reportAttr(reportCfgInfo_t *pEntry);
  */
 
 static void app_reporting_init() {
+
     TL_SETSTRUCTCONTENT(app_reporting, 0);
 
     for (u8 i = 0; i < ZCL_REPORTING_TABLE_NUM; i++) {
@@ -432,6 +433,8 @@ void user_init(bool isRetention)
         bdb_defaultReportingCfg(WATERMETER_ENDPOINT1, HA_PROFILE_ID, ZCL_CLUSTER_GEN_POWER_CFG, ZCL_ATTRID_BATTERY_PERCENTAGE_REMAINING,
                 REPORTING_MIN, REPORTING_MAX, (u8 *)&reportableChange);
         bdb_defaultReportingCfg(WATERMETER_ENDPOINT1, HA_PROFILE_ID, ZCL_CLUSTER_SE_METERING, ZCL_ATTRID_CURRENT_SUMMATION_DELIVERD,
+                REPORTING_MIN, 0, (u8 *)&reportableChange);
+        bdb_defaultReportingCfg(WATERMETER_ENDPOINT2, HA_PROFILE_ID, ZCL_CLUSTER_SE_METERING, ZCL_ATTRID_CURRENT_SUMMATION_DELIVERD,
                 REPORTING_MIN, 0, (u8 *)&reportableChange);
 
         /* custom reporting application (non SDK) */
