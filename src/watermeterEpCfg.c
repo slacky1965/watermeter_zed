@@ -100,7 +100,7 @@ const u16 watermeter_ep1_outClusterList[] =
 #define WATERMETER_EP1_OUT_CLUSTER_NUM	(sizeof(watermeter_ep1_outClusterList)/sizeof(watermeter_ep1_outClusterList[0]))
 
 const u16 watermeter_ep2_inClusterList[] = {
-    ZCL_CLUSTER_SE_METERING
+    ZCL_CLUSTER_SE_METERING,
 };
 
 const u16 watermeter_ep2_outClusterList[] = {
@@ -242,19 +242,19 @@ const zclAttrInfo_t pollCtrl_attrTbl[] =
 zcl_watermeterAttr_t g_zcl_hotWaterMeterAttrs =
 {
         .water_counter = 0,
-        .per_pulse = 10,
+        .per_pulse = LITERS_PER_PULSE,
 };
 
 zcl_watermeterAttr_t g_zcl_coldWaterMeterAttrs =
 {
         .water_counter = 0,
-        .per_pulse = 10,
+        .per_pulse = LITERS_PER_PULSE,
 };
 
 /* Attribute record list */
 const zclAttrInfo_t zcl_hotWaterMeter_attrTbl[] = {
-    { ZCL_ATTRID_CURRENT_SUMMATION_DELIVERD,  ZCL_DATA_TYPE_UINT48,   ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE | ACCESS_CONTROL_REPORTABLE,  (u8*)&g_zcl_hotWaterMeterAttrs.water_counter},
-    { ZCL_ATTRID_VOLUME_PER_REPORT,  ZCL_DATA_TYPE_UINT16,   ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE | ACCESS_CONTROL_REPORTABLE,  (u8*)&g_zcl_hotWaterMeterAttrs.per_pulse},
+    { ZCL_ATTRID_CURRENT_SUMMATION_DELIVERD,  ZCL_DATA_TYPE_UINT48,   ACCESS_CONTROL_READ | ACCESS_CONTROL_REPORTABLE,  (u8*)&g_zcl_hotWaterMeterAttrs.water_counter},
+    { ZCL_ATTRID_VOLUME_PER_REPORT,  ZCL_DATA_TYPE_UINT16,   ACCESS_CONTROL_READ,  (u8*)&g_zcl_hotWaterMeterAttrs.per_pulse},
 
     { ZCL_ATTRID_GLOBAL_CLUSTER_REVISION, ZCL_DATA_TYPE_UINT16,  ACCESS_CONTROL_READ, (u8*)&zcl_attr_global_clusterRevision},
 };
@@ -262,8 +262,8 @@ const zclAttrInfo_t zcl_hotWaterMeter_attrTbl[] = {
 #define ZCL_HOT_WATERMETER_ATTR_NUM         sizeof(zcl_hotWaterMeter_attrTbl) / sizeof(zclAttrInfo_t)
 
 const zclAttrInfo_t zcl_coldWaterMeter_attrTbl[] = {
-    { ZCL_ATTRID_CURRENT_SUMMATION_DELIVERD,  ZCL_DATA_TYPE_UINT48,   ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE | ACCESS_CONTROL_REPORTABLE,  (u8*)&g_zcl_coldWaterMeterAttrs.water_counter},
-    { ZCL_ATTRID_VOLUME_PER_REPORT,  ZCL_DATA_TYPE_UINT16,   ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE | ACCESS_CONTROL_REPORTABLE,  (u8*)&g_zcl_coldWaterMeterAttrs.per_pulse},
+    { ZCL_ATTRID_CURRENT_SUMMATION_DELIVERD,  ZCL_DATA_TYPE_UINT48,   ACCESS_CONTROL_READ | ACCESS_CONTROL_REPORTABLE,  (u8*)&g_zcl_coldWaterMeterAttrs.water_counter},
+    { ZCL_ATTRID_VOLUME_PER_REPORT,  ZCL_DATA_TYPE_UINT16,   ACCESS_CONTROL_READ,  (u8*)&g_zcl_coldWaterMeterAttrs.per_pulse},
 
     { ZCL_ATTRID_GLOBAL_CLUSTER_REVISION, ZCL_DATA_TYPE_UINT16,  ACCESS_CONTROL_READ, (u8*)&zcl_attr_global_clusterRevision},
 };

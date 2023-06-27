@@ -421,7 +421,7 @@ void init_counters() {
 u8 counters_handler() {
 
     u8 save_config = false;
-    zcl_watermeterAttr_t water_count;
+    u64 water_counter = 0;
 
 #if 0
     gpio_setup_up_down_resistor(HOT_GPIO, PM_PIN_PULLUP_10K);
@@ -468,13 +468,13 @@ u8 counters_handler() {
         /* detect hot counter overflow */
         watermeter_config.counter_hot_water =
                 check_counter_overflow(watermeter_config.counter_hot_water +
-                (watermeter_config.liters_per_pulse * hot_counter.counter));
+                (watermeter_config.hot_liters_per_pulse * hot_counter.counter));
         hot_counter.counter = 0;
 #if UART_PRINTF_MODE
         printf("hot counter - %d\r\n", watermeter_config.counter_hot_water);
 #endif /* UART_PRINTF_MODE */
-        water_count.water_counter = watermeter_config.counter_hot_water & 0xffffffffffff;
-        zcl_setAttrVal(WATERMETER_ENDPOINT1, ZCL_CLUSTER_SE_METERING, ZCL_ATTRID_CURRENT_SUMMATION_DELIVERD, (u8*)&water_count.water_counter);
+        water_counter = watermeter_config.counter_hot_water & 0xffffffffffff;
+        zcl_setAttrVal(WATERMETER_ENDPOINT1, ZCL_CLUSTER_SE_METERING, ZCL_ATTRID_CURRENT_SUMMATION_DELIVERD, (u8*)&water_counter);
     }
 
     if (cold_counter.counter) {
@@ -483,13 +483,13 @@ u8 counters_handler() {
         /* detect cold counter overflow */
         watermeter_config.counter_cold_water =
                 check_counter_overflow(watermeter_config.counter_cold_water +
-                (watermeter_config.liters_per_pulse * cold_counter.counter));
+                (watermeter_config.cold_liters_per_pulse * cold_counter.counter));
         cold_counter.counter = 0;
 #if UART_PRINTF_MODE
         printf("cold counter - %d\r\n", watermeter_config.counter_cold_water);
 #endif /* UART_PRINTF_MODE */
-        water_count.water_counter = watermeter_config.counter_cold_water & 0xffffffffffff;
-        zcl_setAttrVal(WATERMETER_ENDPOINT2, ZCL_CLUSTER_SE_METERING, ZCL_ATTRID_CURRENT_SUMMATION_DELIVERD, (u8*)&water_count.water_counter);
+        water_counter = watermeter_config.counter_cold_water & 0xffffffffffff;
+        zcl_setAttrVal(WATERMETER_ENDPOINT2, ZCL_CLUSTER_SE_METERING, ZCL_ATTRID_CURRENT_SUMMATION_DELIVERD, (u8*)&water_counter);
     }
 
     if (save_config) {
@@ -579,9 +579,10 @@ static void init_default_config() {
     watermeter_config.id = ID_CONFIG;
     watermeter_config.top = 0;
     watermeter_config.new_ota = 0;
-    watermeter_config.liters_per_pulse = LITERS_PER_PULSE;
     watermeter_config.counter_hot_water = 0;
+    watermeter_config.hot_liters_per_pulse = LITERS_PER_PULSE;
     watermeter_config.counter_cold_water = 0;
+    watermeter_config.cold_liters_per_pulse = LITERS_PER_PULSE;
     watermeter_config.flash_addr_start = config_addr_start;
     watermeter_config.flash_addr_end = config_addr_end;
     default_config = true;
@@ -685,6 +686,7 @@ void write_config() {
         watermeter_config.crc = checksum((u8*)&(watermeter_config), sizeof(watermeter_config_t));
         flash_write(watermeter_config.flash_addr_start, sizeof(watermeter_config_t), (u8*)&(watermeter_config));
     }
+
 #if UART_PRINTF_MODE
     printf("Save config to flash address - 0x%x\r\n", watermeter_config.flash_addr_start);
 #endif /* UART_PRINTF_MODE */

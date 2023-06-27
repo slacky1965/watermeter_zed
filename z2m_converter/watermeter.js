@@ -50,12 +50,13 @@ const definition = {
     configure: async (device, coordinatorEndpoint, logger) => {
       const firstEndpoint = device.getEndpoint(1);
       await reporting.bind(firstEndpoint, coordinatorEndpoint, ['genPowerCfg', 'seMetering' ]);
-      await reporting.batteryVoltage(firstEndpoint, {min: 300, max: 3600, change: 0});
-      await reporting.batteryPercentageRemaining(firstEndpoint, {min: 300, max: 3600, change: 0});
-      await reporting.currentSummDelivered(firstEndpoint, {min: 60, max: 0, change: 0});
+      const overides = {min: 300, max: 3600, change: 0};
+      await reporting.batteryVoltage(firstEndpoint, overides);
+      await reporting.batteryPercentageRemaining(firstEndpoint, overides);
+      await reporting.currentSummDelivered(firstEndpoint, {min: 0, max: 3600, change: 0});
       const secondEndpoint = device.getEndpoint(2);
       await reporting.bind(secondEndpoint, coordinatorEndpoint, ['seMetering' ]);
-      await reporting.currentSummDelivered(secondEndpoint, {min: 60, max: 0, change: 0});
+      await reporting.currentSummDelivered(secondEndpoint, {min: 0, max: 3600, change: 0});
     },
 // Should be empty, unless device can be controlled (e.g. lights, switches).
     exposes: [e.battery(), e.battery_voltage()], // Defines what this device exposes, used for e.g. Home Assistant discovery and in the frontend
