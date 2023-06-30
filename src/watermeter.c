@@ -178,7 +178,15 @@ static s32 app_reportMinAttrTimerCb(void *arg) {
     app_reporting_t *app_reporting = (app_reporting_t*)arg;
     reportCfgInfo_t *pEntry = app_reporting->pEntry;
 
-    app_reporting->timerReportMinEvt = NULL;
+//    app_reporting->timerReportMinEvt = NULL;
+
+    zclAttrInfo_t *pAttrEntry = zcl_findAttribute(pEntry->endPoint, pEntry->clusterID, pEntry->attrID);
+    if(!pAttrEntry){
+        //should not happen.
+        ZB_EXCEPTION_POST(SYS_EXCEPTTION_ZB_ZCL_ENTRY);
+        app_reporting->timerReportMinEvt = NULL;
+        return -1;
+    }
 
     if (pEntry->minInterval == pEntry->maxInterval) {
         reportAttr(pEntry);
@@ -187,14 +195,7 @@ static s32 app_reportMinAttrTimerCb(void *arg) {
         printf("Report has been sent. endPoint: %d, clusterID: 0x%x, attrID: 0x%x, minInterval: %d, maxInterval: %d\r\n",
                 pEntry->endPoint, pEntry->clusterID, pEntry->attrID, pEntry->minInterval, pEntry->maxInterval);
 #endif
-        return -1;
-    }
-
-    zclAttrInfo_t *pAttrEntry = zcl_findAttribute(pEntry->endPoint, pEntry->clusterID, pEntry->attrID);
-    if(!pAttrEntry){
-        //should not happen.
-        ZB_EXCEPTION_POST(SYS_EXCEPTTION_ZB_ZCL_ENTRY);
-        return -1;
+        return 0;
     }
 
     u8 len = zcl_getAttrSize(pAttrEntry->type, pAttrEntry->data);
@@ -215,7 +216,7 @@ static s32 app_reportMinAttrTimerCb(void *arg) {
 #endif
     }
 
-    return -1;
+    return 0;
 }
 
 static s32 app_reportMaxAttrTimerCb(void *arg) {
@@ -233,9 +234,9 @@ static s32 app_reportMaxAttrTimerCb(void *arg) {
         reportAttr(pEntry);
     }
 
-    app_reporting->timerReportMaxEvt = NULL;
+//    app_reporting->timerReportMaxEvt = NULL;
 
-    return -1;
+    return 0;
 }
 
 static void app_reportAttrTimerStart() {
@@ -245,29 +246,26 @@ static void app_reportAttrTimerStart() {
             app_reporting[i].pEntry = pEntry;
             if(pEntry->used && (pEntry->maxInterval != 0xFFFF) && (pEntry->minInterval || pEntry->maxInterval)){
                 if(zb_bindingTblSearched(pEntry->clusterID, pEntry->endPoint)) {
-                    //printf("endPoint: %d, clusterID: %x, min: %d, max: %d\r\n", pEntry->endPoint, pEntry->clusterID, pEntry->minInterval, pEntry->maxInterval);
                     if (!app_reporting[i].timerReportMinEvt) {
-                        if (pEntry->minInterval && pEntry->maxInterval) {
-                            //printf("%d. pEntry->minInterval: %d\r\n", i, pEntry->minInterval);
+                        if (pEntry->minInterval && pEntry->maxInterval && pEntry->minInterval <= pEntry->maxInterval) {
+#if UART_PRINTF_MODE
+                            printf("Start minTimer. endPoint: %d, clusterID: 0x%x, attrID: 0x%x, min: %d, max: %d\r\n", pEntry->endPoint, pEntry->clusterID, pEntry->attrID, pEntry->minInterval, pEntry->maxInterval);
+#endif
                             app_reporting[i].timerReportMinEvt = TL_ZB_TIMER_SCHEDULE(app_reportMinAttrTimerCb, &app_reporting[i], pEntry->minInterval*1000);
                         }
                     }
-                    if (!pEntry->maxInterval) {
-                        //printf("pEntry->clusterID: %x, min: %d, max: %d\r\n", pEntry->clusterID, pEntry->minInterval, pEntry->maxInterval);
-                        if (app_reporting[i].timerReportMinEvt) {
-                            TL_ZB_TIMER_CANCEL(&app_reporting[i].timerReportMinEvt);
-                        }
-                        if (app_reporting[i].timerReportMaxEvt) {
-                            TL_ZB_TIMER_CANCEL(&app_reporting[i].timerReportMaxEvt);
-                        }
-                        app_reportMinAttrTimerCb(&app_reporting[i]);
-                    }
                     if (!app_reporting[i].timerReportMaxEvt) {
                         if (pEntry->maxInterval) {
-                            if (pEntry->maxInterval != pEntry->minInterval && pEntry->maxInterval > pEntry->minInterval) {
-                                //printf("%d. pEntry->maxInterval: %d\r\n", i, pEntry->maxInterval);
-                                app_reporting[i].timerReportMaxEvt = TL_ZB_TIMER_SCHEDULE(app_reportMaxAttrTimerCb, &app_reporting[i], pEntry->maxInterval*1000);
+                            if (pEntry->minInterval < pEntry->maxInterval) {
+                                if (pEntry->maxInterval != pEntry->minInterval && pEntry->maxInterval > pEntry->minInterval) {
+#if UART_PRINTF_MODE
+                                    printf("Start maxTimer. endPoint: %d, clusterID: 0x%x, attrID: 0x%x, min: %d, max: %d\r\n", pEntry->endPoint, pEntry->clusterID, pEntry->attrID, pEntry->minInterval, pEntry->maxInterval);
+#endif
+                                    app_reporting[i].timerReportMaxEvt = TL_ZB_TIMER_SCHEDULE(app_reportMaxAttrTimerCb, &app_reporting[i], pEntry->maxInterval*1000);
+                                }
                             }
+                        } else {
+                            app_reportMinAttrTimerCb(&app_reporting[i]);
                         }
 
                     }
@@ -309,7 +307,13 @@ void app_reportNoMinLimit(void)
                     printf("Report has been sent. endPoint: %d, clusterID: 0x%x, attrID: 0x%x, minInterval: %d, maxInterval: %d\r\n",
                             pEntry->endPoint, pEntry->clusterID, pEntry->attrID, pEntry->minInterval, pEntry->maxInterval);
 #endif
-
+                    if (app_reporting[i].timerReportMaxEvt) {
+                        TL_ZB_TIMER_CANCEL(&app_reporting[i].timerReportMaxEvt);
+                    }
+                    app_reporting[i].timerReportMaxEvt = TL_ZB_TIMER_SCHEDULE(app_reportMaxAttrTimerCb, &app_reporting[i], pEntry->maxInterval*1000);
+#if UART_PRINTF_MODE
+                    printf("Start maxTimer. endPoint: %d, clusterID: 0x%x, attrID: 0x%x, min: %d, max: %d\r\n", pEntry->endPoint, pEntry->clusterID, pEntry->attrID, pEntry->minInterval, pEntry->maxInterval);
+#endif
                 }
             }
         }
@@ -377,6 +381,11 @@ void user_app_init(void)
 
     batteryCb();
     TL_ZB_TIMER_SCHEDULE(batteryCb, NULL, TIMEOUT_15MIN);
+
+    u64 water_counter = watermeter_config.counter_hot_water & 0xffffffffffff;
+    zcl_setAttrVal(WATERMETER_ENDPOINT1, ZCL_CLUSTER_SE_METERING, ZCL_ATTRID_CURRENT_SUMMATION_DELIVERD, (u8*)&water_counter);
+    water_counter = watermeter_config.counter_cold_water & 0xffffffffffff;
+    zcl_setAttrVal(WATERMETER_ENDPOINT2, ZCL_CLUSTER_SE_METERING, ZCL_ATTRID_CURRENT_SUMMATION_DELIVERD, (u8*)&water_counter);
 }
 
 void led_init(void)
