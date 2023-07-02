@@ -178,8 +178,6 @@ static s32 app_reportMinAttrTimerCb(void *arg) {
     app_reporting_t *app_reporting = (app_reporting_t*)arg;
     reportCfgInfo_t *pEntry = app_reporting->pEntry;
 
-//    app_reporting->timerReportMinEvt = NULL;
-
     zclAttrInfo_t *pAttrEntry = zcl_findAttribute(pEntry->endPoint, pEntry->clusterID, pEntry->attrID);
     if(!pAttrEntry){
         //should not happen.
@@ -233,8 +231,6 @@ static s32 app_reportMaxAttrTimerCb(void *arg) {
 #endif
         reportAttr(pEntry);
     }
-
-//    app_reporting->timerReportMaxEvt = NULL;
 
     return 0;
 }
@@ -365,6 +361,7 @@ void user_app_init(void)
     af_endpointRegister(WATERMETER_ENDPOINT1, (af_simple_descriptor_t *)&watermeter_ep1Desc, zcl_rx_handler, NULL);
     af_endpointRegister(WATERMETER_ENDPOINT2, (af_simple_descriptor_t *)&watermeter_ep2Desc, zcl_rx_handler, NULL);
 
+
     zcl_reportingTabInit();
 
     /* Register ZCL specific cluster information */
@@ -492,9 +489,9 @@ void user_init(bool isRetention)
         bdb_defaultReportingCfg(WATERMETER_ENDPOINT1, HA_PROFILE_ID, ZCL_CLUSTER_GEN_POWER_CFG, ZCL_ATTRID_BATTERY_PERCENTAGE_REMAINING,
                 REPORTING_MIN, REPORTING_MAX, (u8 *)&reportableChange);
         bdb_defaultReportingCfg(WATERMETER_ENDPOINT1, HA_PROFILE_ID, ZCL_CLUSTER_SE_METERING, ZCL_ATTRID_CURRENT_SUMMATION_DELIVERD,
-                0, REPORTING_MAX, (u8 *)&reportableChange);
+                0, REPORTING_MIN, (u8 *)&reportableChange);
         bdb_defaultReportingCfg(WATERMETER_ENDPOINT2, HA_PROFILE_ID, ZCL_CLUSTER_SE_METERING, ZCL_ATTRID_CURRENT_SUMMATION_DELIVERD,
-                0, REPORTING_MAX, (u8 *)&reportableChange);
+                0, REPORTING_MIN, (u8 *)&reportableChange);
 
         /* custom reporting application (non SDK) */
         app_reporting_init();
