@@ -8,6 +8,7 @@
  */
 #define WATERMETER_ENDPOINT1 0x01
 #define WATERMETER_ENDPOINT2 0x02
+#define WATERMETER_ENDPOINT3 0x03
 #define SE_PROFILE_ID        0x0109
 
 /**********************************************************************
@@ -85,12 +86,9 @@ typedef struct{
     u8  batteryPercentage;   //0x21
 }zcl_powerAttr_t;
 
-//typedef struct __attribute__((packed)) _u48 {
-//    u64 x:48;
-//} u48;
-
 typedef struct {
-    u64  water_counter;
+    u64 hot_water_counter;
+    u64 cold_water_counter;
     u16 per_pulse;
 } zcl_watermeterAttr_t;
 
@@ -124,11 +122,13 @@ extern const zcl_specClusterInfo_t g_watermeterEp1ClusterList[];
 extern const zcl_specClusterInfo_t g_watermeterEp2ClusterList[];
 extern const af_simple_descriptor_t watermeter_ep1Desc;
 extern const af_simple_descriptor_t watermeter_ep2Desc;
+extern const af_simple_descriptor_t watermeter_ep3Desc;
 
 /* Attributes */
 extern zcl_basicAttr_t g_zcl_basicAttrs;
 extern zcl_identifyAttr_t g_zcl_identifyAttrs;
 extern zcl_pollCtrlAttr_t g_zcl_pollCtrlAttrs;
+extern zcl_watermeterAttr_t g_zcl_watermeterAttrs;
 
 #define zcl_pollCtrlAttrGet()   &g_zcl_pollCtrlAttrs
 /**********************************************************************
