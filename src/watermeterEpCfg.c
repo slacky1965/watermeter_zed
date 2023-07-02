@@ -63,7 +63,6 @@ const u16 watermeter_ep1_inClusterList[] =
 	ZCL_CLUSTER_GEN_POLL_CONTROL,
 #endif
     ZCL_CLUSTER_GEN_POWER_CFG,
-//    ZCL_CLUSTER_CUSTOM_WATERMETER,
     ZCL_CLUSTER_SE_METERING,
 };
 
@@ -139,7 +138,6 @@ const af_simple_descriptor_t watermeter_ep2Desc =
     (u16 *)watermeter_ep2_inClusterList,    /* Application input cluster list */
     (u16 *)watermeter_ep2_outClusterList,   /* Application output cluster list */
 };
-
 
 /* Basic */
 zcl_basicAttr_t g_zcl_basicAttrs =
@@ -239,47 +237,29 @@ const zclAttrInfo_t pollCtrl_attrTbl[] =
 #define	ZCL_POLLCTRL_ATTR_NUM			sizeof(pollCtrl_attrTbl) / sizeof(zclAttrInfo_t)
 #endif
 
-zcl_watermeterAttr_t g_zcl_hotWaterMeterAttrs =
-{
-        .water_counter = 0,
-        .per_pulse = LITERS_PER_PULSE,
-};
-
-zcl_watermeterAttr_t g_zcl_coldWaterMeterAttrs =
-{
-        .water_counter = 0,
+zcl_watermeterAttr_t g_zcl_watermeterAttrs = {
+        .hot_water_counter = 1,
+        .cold_water_counter = 1,
         .per_pulse = LITERS_PER_PULSE,
 };
 
 /* Attribute record list */
-const zclAttrInfo_t zcl_hotWaterMeter_attrTbl[] = {
-    { ZCL_ATTRID_CURRENT_SUMMATION_DELIVERD,  ZCL_DATA_TYPE_UINT48,   ACCESS_CONTROL_READ | ACCESS_CONTROL_REPORTABLE,  (u8*)&g_zcl_hotWaterMeterAttrs.water_counter},
-    { ZCL_ATTRID_VOLUME_PER_REPORT,  ZCL_DATA_TYPE_UINT16,   ACCESS_CONTROL_READ,  (u8*)&g_zcl_hotWaterMeterAttrs.per_pulse},
+const zclAttrInfo_t zcl_hotWater_attrTbl[] = {
+    { ZCL_ATTRID_CURRENT_SUMMATION_DELIVERD,  ZCL_DATA_TYPE_UINT48,   ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE | ACCESS_CONTROL_REPORTABLE,  (u8*)&g_zcl_watermeterAttrs.hot_water_counter},
+    { ZCL_ATTRID_VOLUME_PER_REPORT,  ZCL_DATA_TYPE_UINT16,   ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE,  (u8*)&g_zcl_watermeterAttrs.per_pulse},
 
     { ZCL_ATTRID_GLOBAL_CLUSTER_REVISION, ZCL_DATA_TYPE_UINT16,  ACCESS_CONTROL_READ, (u8*)&zcl_attr_global_clusterRevision},
 };
 
-#define ZCL_HOT_WATERMETER_ATTR_NUM         sizeof(zcl_hotWaterMeter_attrTbl) / sizeof(zclAttrInfo_t)
+#define ZCL_HOT_WATERMETER_ATTR_NUM         sizeof(zcl_hotWater_attrTbl) / sizeof(zclAttrInfo_t)
 
-const zclAttrInfo_t zcl_coldWaterMeter_attrTbl[] = {
-    { ZCL_ATTRID_CURRENT_SUMMATION_DELIVERD,  ZCL_DATA_TYPE_UINT48,   ACCESS_CONTROL_READ | ACCESS_CONTROL_REPORTABLE,  (u8*)&g_zcl_coldWaterMeterAttrs.water_counter},
-    { ZCL_ATTRID_VOLUME_PER_REPORT,  ZCL_DATA_TYPE_UINT16,   ACCESS_CONTROL_READ,  (u8*)&g_zcl_coldWaterMeterAttrs.per_pulse},
+const zclAttrInfo_t zcl_coldWater_attrTbl[] = {
+    { ZCL_ATTRID_CURRENT_SUMMATION_DELIVERD,  ZCL_DATA_TYPE_UINT48,   ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE | ACCESS_CONTROL_REPORTABLE,  (u8*)&g_zcl_watermeterAttrs.cold_water_counter},
 
     { ZCL_ATTRID_GLOBAL_CLUSTER_REVISION, ZCL_DATA_TYPE_UINT16,  ACCESS_CONTROL_READ, (u8*)&zcl_attr_global_clusterRevision},
 };
 
-#define ZCL_COLD_WATERMETER_ATTR_NUM         sizeof(zcl_coldWaterMeter_attrTbl) / sizeof(zclAttrInfo_t)
-
-
-///* Attribute record list */
-//const zclAttrInfo_t zcl_custom_watermeter_attrTbl[] = {
-//    { ZCL_ATTRID_CUSTOM_HOT_WATER_VALUE,  ZCL_DATA_TYPE_BITMAP32,   ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE | ACCESS_CONTROL_REPORTABLE,  (u8*)&g_zcl_watermeterAttrs.hot_water},
-//    { ZCL_ATTRID_CUSTOM_COLD_WATER_VALUE,  ZCL_DATA_TYPE_BITMAP32,   ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE | ACCESS_CONTROL_REPORTABLE,  (u8*)&g_zcl_watermeterAttrs.cold_water},
-//    { ZCL_ATTRID_CUSTOM_WATER_STEP,  ZCL_DATA_TYPE_BITMAP8,   ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE,  (u8*)&g_zcl_watermeterAttrs.per_pulse},
-//};
-//
-//#define ZCL_CUSTOM_WATERMETER_ATTR_NUM         sizeof(zcl_custom_watermeter_attrTbl) / sizeof(zclAttrInfo_t)
-
+#define ZCL_COLD_WATERMETER_ATTR_NUM         sizeof(zcl_coldWater_attrTbl) / sizeof(zclAttrInfo_t)
 
 /**
  *  @brief Definition for simple switch ZCL specific cluster
@@ -298,14 +278,14 @@ const zcl_specClusterInfo_t g_watermeterEp1ClusterList[] =
 #ifdef ZCL_POLL_CTRL
 	{ZCL_CLUSTER_GEN_POLL_CONTROL,	MANUFACTURER_CODE_NONE,	ZCL_POLLCTRL_ATTR_NUM,	pollCtrl_attrTbl, 	zcl_pollCtrl_register, 	watermeter_pollCtrlCb},
 #endif
-    {ZCL_CLUSTER_SE_METERING,  MANUFACTURER_CODE_NONE, ZCL_HOT_WATERMETER_ATTR_NUM,  zcl_hotWaterMeter_attrTbl,   zcl_metering_register,  watermeter_meteringCb},
+    {ZCL_CLUSTER_SE_METERING,  MANUFACTURER_CODE_NONE, ZCL_HOT_WATERMETER_ATTR_NUM,  zcl_hotWater_attrTbl,   zcl_metering_register,  watermeter_meteringCb},
 };
 
 u8 WATERMETER_EP1_CB_CLUSTER_NUM = (sizeof(g_watermeterEp1ClusterList)/sizeof(g_watermeterEp1ClusterList[0]));
 
 const zcl_specClusterInfo_t g_watermeterEp2ClusterList[] =
 {
-    {ZCL_CLUSTER_SE_METERING,  MANUFACTURER_CODE_NONE, ZCL_COLD_WATERMETER_ATTR_NUM,  zcl_coldWaterMeter_attrTbl,   zcl_metering_register,  watermeter_meteringCb},
+    {ZCL_CLUSTER_SE_METERING,  MANUFACTURER_CODE_NONE, ZCL_COLD_WATERMETER_ATTR_NUM,  zcl_coldWater_attrTbl,   zcl_metering_register,  watermeter_meteringCb},
 };
 
 u8 WATERMETER_EP2_CB_CLUSTER_NUM = (sizeof(g_watermeterEp2ClusterList)/sizeof(g_watermeterEp2ClusterList[0]));
