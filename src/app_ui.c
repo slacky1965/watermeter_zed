@@ -38,15 +38,16 @@
  * LOCAL CONSTANTS
  */
 
-#define ID_CONFIG   0x0FED1410
-#define TOP_MASK    0xFFFFFFFF
+#define ID_CONFIG           0x0FED1410
+#define TOP_MASK            0xFFFFFFFF
 
-#define MAX_VBAT_MV 3100                        /* 3100 mV - > battery = 100%         */
-#define MIN_VBAT_MV BATTERY_SAFETY_THRESHOLD    /* 2200 mV - > battery = 0%           */
+#define MAX_VBAT_MV         3100                        /* 3100 mV - > battery = 100%         */
+#define MIN_VBAT_MV         BATTERY_SAFETY_THRESHOLD    /* 2200 mV - > battery = 0%           */
 
-#define BIT_COUNT   32768                       /* number of polls for debounce       */
+#define DEBOUNCE_COUNTER    32                          /* number of polls for debounce       */
+#define DEBOUNCE_BUTTON     16                          /* number of polls for debounce       */
 
-#define COUNT_FACTORY_RESET 5                   /* number of clicks for factory reset */
+#define COUNT_FACTORY_RESET 5                           /* number of clicks for factory reset */
 
 /**********************************************************************
  * TYPEDEFS
@@ -289,7 +290,7 @@ void init_button() {
 
     memset(&g_watermeterCtx.button, 0, sizeof(button_t));
 
-    g_watermeterCtx.button.bit = 1;
+    g_watermeterCtx.button.debounce = 1;
     g_watermeterCtx.button.released_time = clock_time();
 
 }
@@ -297,9 +298,9 @@ void init_button() {
 void button_handler() {
 
     if (!drv_gpio_read(BUTTON)) {
-        if (g_watermeterCtx.button.bit != BIT_COUNT) {
-            g_watermeterCtx.button.bit <<= 1;
-            if (g_watermeterCtx.button.bit == BIT_COUNT) {
+        if (g_watermeterCtx.button.debounce != DEBOUNCE_BUTTON) {
+            g_watermeterCtx.button.debounce++;
+            if (g_watermeterCtx.button.debounce == DEBOUNCE_BUTTON) {
                 g_watermeterCtx.button.pressed = true;
                 g_watermeterCtx.button.pressed_time = clock_time();
                 if (!clock_time_exceed(g_watermeterCtx.button.released_time, TIMEOUT_TICK_1SEC)) {
@@ -310,9 +311,9 @@ void button_handler() {
             }
         }
     } else {
-        if (g_watermeterCtx.button.bit != 1) {
-            g_watermeterCtx.button.bit >>= 1;
-            if (g_watermeterCtx.button.bit == 1 && g_watermeterCtx.button.pressed) {
+        if (g_watermeterCtx.button.debounce != 1) {
+            g_watermeterCtx.button.debounce--;
+            if (g_watermeterCtx.button.debounce == 1 && g_watermeterCtx.button.pressed) {
                 g_watermeterCtx.button.released = true;
                 g_watermeterCtx.button.released_time = clock_time();
             }
@@ -367,7 +368,7 @@ void button_handler() {
 }
 
 u8 button_idle() {
-    if ((g_watermeterCtx.button.bit != 1 && g_watermeterCtx.button.bit != BIT_COUNT)
+    if ((g_watermeterCtx.button.debounce != 1 && g_watermeterCtx.button.debounce != DEBOUNCE_BUTTON)
             || g_watermeterCtx.button.pressed
             || g_watermeterCtx.button.counter) {
         return true;
@@ -399,19 +400,19 @@ void init_counters() {
 
     hot_counter.counter = 0;
     if (!drv_gpio_read(HOT_GPIO)) {
-        hot_counter.bit = BIT_COUNT;
+        hot_counter.debounce = DEBOUNCE_COUNTER;
         hot_counter.pressed = true;
     } else {
-        hot_counter.bit = 1;
+        hot_counter.debounce = 1;
         hot_counter.pressed = false;
     }
 
     cold_counter.counter = 0;
     if (!drv_gpio_read(COLD_GPIO)) {
-        cold_counter.bit = BIT_COUNT;
+        cold_counter.debounce = DEBOUNCE_COUNTER;
         cold_counter.pressed = true;
     } else {
-        cold_counter.bit = 1;
+        cold_counter.debounce = 1;
         cold_counter.pressed = false;
     }
 
@@ -429,36 +430,30 @@ u8 counters_handler() {
 #endif
 
     if (!drv_gpio_read(HOT_GPIO)) {
-        if (hot_counter.bit != BIT_COUNT) {
-            hot_counter.bit <<= 1;
-            if (hot_counter.bit == BIT_COUNT) {
+        if (hot_counter.debounce != DEBOUNCE_COUNTER) {
+            hot_counter.debounce++;
+            if (hot_counter.debounce == DEBOUNCE_COUNTER) {
                 hot_counter.pressed = true;
                 hot_counter.counter++;
             }
         }
     } else {
-        if (hot_counter.bit != 1) {
-            hot_counter.bit >>= 1;
-//            if (hot_counter.bit == 1 && hot_counter.pressed) {
-//                hot_counter.release = true;
-//            }
+        if (hot_counter.debounce != 1) {
+            hot_counter.debounce--;
         }
     }
 
     if (!drv_gpio_read(COLD_GPIO)) {
-        if (cold_counter.bit != BIT_COUNT) {
-            cold_counter.bit <<= 1;
-            if (cold_counter.bit == BIT_COUNT) {
+        if (cold_counter.debounce != DEBOUNCE_COUNTER) {
+            cold_counter.debounce++;
+            if (cold_counter.debounce == DEBOUNCE_COUNTER) {
                 cold_counter.pressed = true;
                 cold_counter.counter++;
             }
         }
     } else {
-        if (cold_counter.bit != 1) {
-            cold_counter.bit >>= 1;
-//            if (cold_counter.bit == 1 && cold_counter.pressed) {
-//                cold_counter.release = true;
-//            }
+        if (cold_counter.debounce != 1) {
+            cold_counter.debounce--;
         }
     }
 
@@ -468,7 +463,7 @@ u8 counters_handler() {
         /* detect hot counter overflow */
         watermeter_config.counter_hot_water =
                 check_counter_overflow(watermeter_config.counter_hot_water +
-                (watermeter_config.hot_liters_per_pulse * hot_counter.counter));
+                (watermeter_config.liters_per_pulse * hot_counter.counter));
         hot_counter.counter = 0;
 #if UART_PRINTF_MODE
         printf("hot counter - %d\r\n", watermeter_config.counter_hot_water);
@@ -483,7 +478,7 @@ u8 counters_handler() {
         /* detect cold counter overflow */
         watermeter_config.counter_cold_water =
                 check_counter_overflow(watermeter_config.counter_cold_water +
-                (watermeter_config.cold_liters_per_pulse * cold_counter.counter));
+                (watermeter_config.liters_per_pulse * cold_counter.counter));
         cold_counter.counter = 0;
 #if UART_PRINTF_MODE
         printf("cold counter - %d\r\n", watermeter_config.counter_cold_water);
@@ -505,8 +500,8 @@ u8 counters_handler() {
 }
 
 u8 counters_idle() {
-    if (((hot_counter.bit != 1 && hot_counter.bit != BIT_COUNT) || hot_counter.pressed || hot_counter.counter) ||
-        ((cold_counter.bit != 1 && cold_counter.bit != BIT_COUNT) || cold_counter.pressed || cold_counter.counter)  ) {
+    if (((hot_counter.debounce != 1 && hot_counter.debounce != DEBOUNCE_COUNTER) || hot_counter.pressed || hot_counter.counter) ||
+        ((cold_counter.debounce != 1 && cold_counter.debounce != DEBOUNCE_COUNTER) || cold_counter.pressed || cold_counter.counter)  ) {
         return true;
     }
     return false;
@@ -580,9 +575,8 @@ static void init_default_config() {
     watermeter_config.top = 0;
     watermeter_config.new_ota = 0;
     watermeter_config.counter_hot_water = 0;
-    watermeter_config.hot_liters_per_pulse = LITERS_PER_PULSE;
     watermeter_config.counter_cold_water = 0;
-    watermeter_config.cold_liters_per_pulse = LITERS_PER_PULSE;
+    watermeter_config.liters_per_pulse = LITERS_PER_PULSE;
     watermeter_config.flash_addr_start = config_addr_start;
     watermeter_config.flash_addr_end = config_addr_end;
     default_config = true;
