@@ -98,14 +98,14 @@ s32 poll_rateAppCb(void *arg) {
 
 static s32 delayedMcuResetCb(void *arg) {
 
-    printf("mcu reset\r\n");
+    //printf("mcu reset\r\n");
     zb_resetDevice();
     return -1;
 }
 
 static s32 delayedFactoryResetCb(void *arg) {
 
-    printf("factory reset\r\n");
+    //printf("factory reset\r\n");
     zb_factoryReset();
     zb_resetDevice();
     return -1;
@@ -113,7 +113,7 @@ static s32 delayedFactoryResetCb(void *arg) {
 
 static s32 delayedFullResetCb(void *arg) {
 
-    printf("full reset\r\n");
+    //printf("full reset\r\n");
     return -1;
 }
 
