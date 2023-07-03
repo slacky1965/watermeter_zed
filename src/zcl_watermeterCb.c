@@ -32,6 +32,7 @@
 
 #include "app_ui.h"
 #include "watermeter.h"
+#include "se_custom_attr.h"
 
 
 /**********************************************************************
@@ -173,41 +174,56 @@ static void watermeter_zclWriteReqCmd(u8 endPoint, u16 clusterId, zclWriteCmd_t 
     u8 numAttr = pWriteReqCmd->numAttr;
     zclWriteRec_t *attr = pWriteReqCmd->attrList;
 
-    if (clusterId == ZCL_CLUSTER_SE_METERING) {
+    if (clusterId == ZCL_CLUSTER_SE_METERING && endPoint == WATERMETER_ENDPOINT3) {
         u32 water_value;
-        if (endPoint == WATERMETER_ENDPOINT1) {
-            for(u8 i = 0; i < numAttr; i++) {
-                if (attr[i].attrID == ZCL_ATTRID_CURRENT_SUMMATION_DELIVERD && attr[i].dataType == ZCL_DATA_TYPE_UINT48) {
+        u64 water_counter;
+        for(u8 i = 0; i < numAttr; i++) {
+            //printf("(%d) attrID: 0x%x\r\n", i, attr->attrID);
+            if (attr[i].attrID == ZCL_ATTRID_CUSTOM_HOT_WATER_PRESET && attr[i].dataType == ZCL_DATA_TYPE_UINT32) {
+                water_value = BUILD_U32(attr->attrData[0], attr->attrData[1], attr->attrData[2], attr->attrData[3]);
+                water_value /= watermeter_config.liters_per_pulse;
+                water_value *= watermeter_config.liters_per_pulse;
 
-                    water_value = g_zcl_watermeterAttrs.hot_water_counter & 0xffffffff;
-                    water_value /= watermeter_config.liters_per_pulse;
-                    water_value *= watermeter_config.liters_per_pulse;
-
-                    watermeter_config.counter_hot_water = check_counter_overflow(water_value);
-
-#if UART_PRINTF_MODE
-                    printf("New hot water value: %d\r\n", watermeter_config.counter_hot_water);
-#endif
-
-                    return;
-                }
-            }
-        } else if (endPoint == WATERMETER_ENDPOINT2) {
-            for(u8 i = 0; i < numAttr; i++) {
-                if (attr[i].attrID == ZCL_ATTRID_CURRENT_SUMMATION_DELIVERD && attr[i].dataType == ZCL_DATA_TYPE_UINT48) {
-
-                    water_value = g_zcl_watermeterAttrs.cold_water_counter & 0xffffffff;
-                    water_value /= watermeter_config.liters_per_pulse;
-                    water_value *= watermeter_config.liters_per_pulse;
-
-                    watermeter_config.counter_cold_water = check_counter_overflow(water_value);
+                watermeter_config.counter_hot_water = check_counter_overflow(water_value);
+                zcl_setAttrVal(WATERMETER_ENDPOINT3, ZCL_CLUSTER_SE_METERING, ZCL_ATTRID_CUSTOM_HOT_WATER_PRESET, (u8*)&watermeter_config.counter_hot_water);
+                water_counter = watermeter_config.counter_hot_water & 0xffffffffffff;
+                zcl_setAttrVal(WATERMETER_ENDPOINT1, ZCL_CLUSTER_SE_METERING, ZCL_ATTRID_CURRENT_SUMMATION_DELIVERD, (u8*)&water_counter);
 
 #if UART_PRINTF_MODE
-                    printf("New cold water value: %d\r\n", watermeter_config.counter_cold_water);
+                printf("New hot water value: %d\r\n", watermeter_config.counter_hot_water);
 #endif
+//                return;
+            } else if (attr[i].attrID == ZCL_ATTRID_CUSTOM_COLD_WATER_PRESET && attr[i].dataType == ZCL_DATA_TYPE_UINT32) {
 
-                    return;
-                }
+                water_value = BUILD_U32(attr->attrData[0], attr->attrData[1], attr->attrData[2], attr->attrData[3]);
+                water_value /= watermeter_config.liters_per_pulse;
+                water_value *= watermeter_config.liters_per_pulse;
+
+                watermeter_config.counter_cold_water = check_counter_overflow(water_value);
+                zcl_setAttrVal(WATERMETER_ENDPOINT3, ZCL_CLUSTER_SE_METERING, ZCL_ATTRID_CUSTOM_COLD_WATER_PRESET, (u8*)&watermeter_config.counter_cold_water);
+                water_counter = watermeter_config.counter_cold_water & 0xffffffffffff;
+                zcl_setAttrVal(WATERMETER_ENDPOINT2, ZCL_CLUSTER_SE_METERING, ZCL_ATTRID_CURRENT_SUMMATION_DELIVERD, (u8*)&water_counter);
+
+#if UART_PRINTF_MODE
+                printf("New cold water value: %d\r\n", watermeter_config.counter_cold_water);
+#endif
+//                return;
+            } else if (attr[i].attrID == ZCL_ATTRID_CUSTOM_WATER_STEP_PRESET && attr[i].dataType == ZCL_DATA_TYPE_UINT16) {
+
+                u16 water_step = BUILD_U16(attr->attrData[0], attr->attrData[1]);
+
+                water_step /= 10;
+                water_step *= 10;
+                if (water_step == 0) water_step = 1;
+                if (water_step > 100) water_step = 100;
+
+                watermeter_config.liters_per_pulse = water_step;
+                zcl_setAttrVal(WATERMETER_ENDPOINT3, ZCL_CLUSTER_SE_METERING, ZCL_ATTRID_CUSTOM_WATER_STEP_PRESET, (u8*)&watermeter_config.liters_per_pulse);
+
+#if UART_PRINTF_MODE
+                printf("New water step value: %d\r\n", watermeter_config.liters_per_pulse);
+#endif
+//                return;
             }
         }
     }
@@ -895,7 +911,7 @@ status_t watermeter_pollCtrlCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void 
 #endif	/* ZCL_POLL_CTRL */
 
 /*********************************************************************
- * @fn      watermeter_powerCfgCb
+ * @fn      watermeter_meteringCb
  *
  * @brief   Handler for ZCL Identify command.
  *
@@ -910,5 +926,23 @@ status_t watermeter_meteringCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void 
 
     return ZCL_STA_SUCCESS;
 }
+
+/*********************************************************************
+ * @fn      watermeter_cfgCb
+ *
+ * @brief   Handler for ZCL Identify command.
+ *
+ * @param   pAddrInfo
+ * @param   cmdId
+ * @param   cmdPayload
+ *
+ * @return  status_t
+ */
+status_t watermeter_cfgCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload)
+{
+
+    return ZCL_STA_SUCCESS;
+}
+
 
 

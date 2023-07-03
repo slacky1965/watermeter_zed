@@ -135,7 +135,6 @@ static void app_reporting_init() {
 
     TL_SETSTRUCTCONTENT(app_reporting, 0);
 
-    printf("reportingTab.reportNum: 0x%x\r\n", reportingTab.reportNum);
     for (u8 i = 0; i < ZCL_REPORTING_TABLE_NUM; i++) {
         reportCfgInfo_t *pEntry = &reportingTab.reportCfgInfo[i];
 //        printf("(%d) used: %s\r\n", i, pEntry->used?"true":"false");
@@ -360,13 +359,14 @@ void user_app_init(void)
     /* register endPoint */
     af_endpointRegister(WATERMETER_ENDPOINT1, (af_simple_descriptor_t *)&watermeter_ep1Desc, zcl_rx_handler, NULL);
     af_endpointRegister(WATERMETER_ENDPOINT2, (af_simple_descriptor_t *)&watermeter_ep2Desc, zcl_rx_handler, NULL);
-
+    af_endpointRegister(WATERMETER_ENDPOINT3, (af_simple_descriptor_t *)&watermeter_ep3Desc, zcl_rx_handler, NULL);
 
     zcl_reportingTabInit();
 
     /* Register ZCL specific cluster information */
     zcl_register(WATERMETER_ENDPOINT1, WATERMETER_EP1_CB_CLUSTER_NUM, (zcl_specClusterInfo_t *)g_watermeterEp1ClusterList);
     zcl_register(WATERMETER_ENDPOINT2, WATERMETER_EP2_CB_CLUSTER_NUM, (zcl_specClusterInfo_t *)g_watermeterEp2ClusterList);
+    zcl_register(WATERMETER_ENDPOINT3, WATERMETER_EP3_CB_CLUSTER_NUM, (zcl_specClusterInfo_t *)g_watermeterEp3ClusterList);
 
 #if ZCL_OTA_SUPPORT
     ota_init(OTA_TYPE_CLIENT, (af_simple_descriptor_t *)&watermeter_ep1Desc, &watermeter_otaInfo, &watermeter_otaCb);

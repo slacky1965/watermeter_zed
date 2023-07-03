@@ -89,8 +89,14 @@ typedef struct{
 typedef struct {
     u64 hot_water_counter;
     u64 cold_water_counter;
-    u16 per_pulse;
 } zcl_watermeterAttr_t;
+
+typedef struct {
+    u32 hot_water_preset;
+    u32 cold_water_preset;
+    u16 water_step_preset;
+} zcl_watermeterCfgAttr_t;
+
 
 /**
  *  @brief  Defined for poll control cluster attributes
@@ -118,8 +124,10 @@ extern bdb_commissionSetting_t g_bdbCommissionSetting;
 
 extern u8 WATERMETER_EP1_CB_CLUSTER_NUM;
 extern u8 WATERMETER_EP2_CB_CLUSTER_NUM;
+extern u8 WATERMETER_EP3_CB_CLUSTER_NUM;
 extern const zcl_specClusterInfo_t g_watermeterEp1ClusterList[];
 extern const zcl_specClusterInfo_t g_watermeterEp2ClusterList[];
+extern const zcl_specClusterInfo_t g_watermeterEp3ClusterList[];
 extern const af_simple_descriptor_t watermeter_ep1Desc;
 extern const af_simple_descriptor_t watermeter_ep2Desc;
 extern const af_simple_descriptor_t watermeter_ep3Desc;
@@ -129,6 +137,7 @@ extern zcl_basicAttr_t g_zcl_basicAttrs;
 extern zcl_identifyAttr_t g_zcl_identifyAttrs;
 extern zcl_pollCtrlAttr_t g_zcl_pollCtrlAttrs;
 extern zcl_watermeterAttr_t g_zcl_watermeterAttrs;
+extern zcl_watermeterCfgAttr_t g_zcl_watermeterCfgAttrs;
 
 #define zcl_pollCtrlAttrGet()   &g_zcl_pollCtrlAttrs
 /**********************************************************************
@@ -143,6 +152,7 @@ status_t watermeter_groupCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cm
 status_t watermeter_sceneCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload);
 status_t watermeter_pollCtrlCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload);
 status_t watermeter_meteringCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload);
+status_t watermeter_cfgCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload);
 
 void watermeter_leaveCnfHandler(nlme_leave_cnf_t *pLeaveCnf);
 void watermeter_leaveIndHandler(nlme_leave_ind_t *pLeaveInd);
