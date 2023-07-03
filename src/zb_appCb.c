@@ -114,7 +114,7 @@ s32 watermeter_rejoinBacckoff(void *arg){
  * @return  None
  */
 void zb_bdbInitCb(u8 status, u8 joinedNetwork){
-	printf("bdbInitCb: sta = %x, joined = %x\n", status, joinedNetwork);
+	//printf("bdbInitCb: sta = %x, joined = %x\n", status, joinedNetwork);
 
 	if(status == BDB_INIT_STATUS_SUCCESS){
 		/*
@@ -149,7 +149,6 @@ void zb_bdbInitCb(u8 status, u8 joinedNetwork){
 	}else{
 		if(joinedNetwork){
 //			zb_rejoinReqWithBackOff(zb_apsChannelMaskGet(), g_bdbAttrs.scanDuration);
-            printf("zb_bdbInitCb() switchRejoinBackoffTimerEvt: %s\r\n", switchRejoinBackoffTimerEvt?"true":"false");
 			if(!switchRejoinBackoffTimerEvt){
 				switchRejoinBackoffTimerEvt = TL_ZB_TIMER_SCHEDULE(watermeter_rejoinBacckoff, NULL, 60 * 1000);
 			}
@@ -169,7 +168,7 @@ void zb_bdbInitCb(u8 status, u8 joinedNetwork){
  * @return  None
  */
 void zb_bdbCommissioningCb(u8 status, void *arg){
-    printf("zb_bdbCommissioningCb: sta = %x\r\n", status);
+    //printf("zb_bdbCommissioningCb: sta = %x\r\n", status);
 
 	switch(status){
 		case BDB_COMMISSION_STA_SUCCESS:
@@ -210,7 +209,6 @@ void zb_bdbCommissioningCb(u8 status, void *arg){
 				do{
 					jitter = zb_random() % 0x0fff;
 				}while(jitter == 0);
-                printf("BDB_COMMISSION_STA_NO_NETWORK - jitter: %d\r\n", jitter);
 				TL_ZB_TIMER_SCHEDULE(watermeter_bdbNetworkSteerStart, NULL, jitter);
 			}
 			break;
