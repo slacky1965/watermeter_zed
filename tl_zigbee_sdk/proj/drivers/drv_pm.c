@@ -368,6 +368,9 @@ void drv_pm_lowPowerEnter(void)
 		}else{
 			longSleep = 0;
 		}
+#if UART_PRINTF_MODE && DEBUG_LEVEL && DEBUG_SLEEP_TIME
+            printf("sleep time: %d\r\n", sleepTime);
+#endif
 	}
 
 #if !defined(__PROJECT_TL_BOOT_LOADER__) && !defined(__PROJECT_TL_SNIFFER__)
