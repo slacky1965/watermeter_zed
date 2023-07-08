@@ -60,6 +60,8 @@ extern "C" {
 /* Debug mode config */
 #define	UART_PRINTF_MODE				1
 #define USB_PRINTF_MODE         		0
+#define DEBUG_LEVEL                     1
+#define DEBUG_SLEEP_TIME                0
 
 /* PM */
 #define PM_ENABLE						1
