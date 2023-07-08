@@ -85,7 +85,7 @@ extern "C" {
 #define PD6_FUNC					AS_GPIO
 #define PD6_OUTPUT_ENABLE			0
 #define PD6_INPUT_ENABLE			1
-#define	PULL_WAKEUP_SRC_PD6			PM_PIN_PULLUP_10K
+#define	PULL_WAKEUP_SRC_PD6			PM_PIN_PULLUP_1M //PM_PIN_PULLUP_10K
 
 //#define BUTTON  BUTTON1
 
@@ -93,7 +93,7 @@ extern "C" {
 #define PD5_FUNC					AS_GPIO
 #define PD5_OUTPUT_ENABLE			0
 #define PD5_INPUT_ENABLE			1
-#define	PULL_WAKEUP_SRC_PD5			PM_PIN_PULLUP_10K
+#define	PULL_WAKEUP_SRC_PD5			PM_PIN_PULLUP_1M //PM_PIN_PULLUP_10K
 
 /************************* Configure counters ***************************************/
 #define LITERS_PER_PULSE        10              /* How many liters per one pulse */
