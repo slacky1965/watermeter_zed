@@ -122,6 +122,6 @@ u8 counters_idle();
 
 void init_config();
 void write_config();
-void write_config_after_ota();
+void write_restory_config();
 
 #endif /* SRC_INCLUDE_APP_UI_H_ */
