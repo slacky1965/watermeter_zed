@@ -22,7 +22,7 @@
 
 <img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/E180-Z5812SP.jpg" alt="E-BYTE E180-Z5812SP"/>
 
-Испытывалось все на вот таком модуле от Ai-Thinker TB-04-KIT
+Испытывалось все на вот таком dongle от Telink
 
 <img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/telink_tlsr8258_dongle.jpg" alt="Telink TLSR8258 dongle"/>
 
