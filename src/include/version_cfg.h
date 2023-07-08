@@ -54,7 +54,7 @@
     #define ZCL_BASIC_MODEL_ID     {8,'T','L','S','R','8','2','6','x'}
 #endif
 #ifndef ZCL_BASIC_DATE_CODE
-    #define ZCL_BASIC_DATE_CODE    {8,'2','0','2','3','0','7','0','3'}
+    #define ZCL_BASIC_DATE_CODE    {8,'2','0','2','3','0','7','0','7'}
 #endif
 #ifndef ZCL_BASIC_LOC_DESC
     #define ZCL_BASIC_LOC_DESC     {7,'U','N','K','N','O','W','N'}
