@@ -273,10 +273,28 @@ void zb_bdbFindBindSuccessCb(findBindDst_t *pDstInfo){
 #ifdef ZCL_OTA
 void watermeter_otaProcessMsgHandler(u8 evt, u8 status)
 {
-	//printf("watermeter_otaProcessMsgHandler: status = %x\n", status);
+	//printf("watermeter_otaProcessMsgHandler: status = %x\r\n", status);
 	if(evt == OTA_EVT_START){
 		if(status == ZCL_STA_SUCCESS){
-			zb_setPollRate(QUEUE_POLL_RATE);
+#if UART_PRINTF_MODE && DEBUG_LEVEL
+		    printf("OTA update start.\r\n");
+#endif /* UART_PRINTF_MODE */
+		    ota_processing = true;
+            if (g_watermeterCtx.timerPollRateEvt) {
+                TL_ZB_TIMER_CANCEL(&g_watermeterCtx.timerPollRateEvt);
+            }
+//            if (g_watermeterCtx.timerBatteryEvt) {
+//                TL_ZB_TIMER_CANCEL(&g_watermeterCtx.timerBatteryEvt);
+//            }
+//            for (u8 i = 0; i < ZCL_REPORTING_TABLE_NUM; i++) {
+//                if (app_reporting[i].timerReportMinEvt) {
+//                    TL_ZB_TIMER_CANCEL(&app_reporting[i].timerReportMinEvt);
+//                }
+//                if (app_reporting[i].timerReportMaxEvt) {
+//                    TL_ZB_TIMER_CANCEL(&app_reporting[i].timerReportMaxEvt);
+//                }
+//            }
+            zb_setPollRate(QUEUE_POLL_RATE);
 		}else{
 
 		}
@@ -284,9 +302,19 @@ void watermeter_otaProcessMsgHandler(u8 evt, u8 status)
 		zb_setPollRate(POLL_RATE * 3);
 
 		if(status == ZCL_STA_SUCCESS){
+#if UART_PRINTF_MODE && DEBUG_LEVEL
+            printf("OTA update successful.\r\n");
+#endif /* UART_PRINTF_MODE */
+		    watermeter_config.new_ota = true;
+		    write_restory_config();
 			ota_mcuReboot();
 		}else{
+#if UART_PRINTF_MODE && DEBUG_LEVEL
+            printf("OTA update failure. Try again.\r\n");
+#endif /* UART_PRINTF_MODE */
 			ota_queryStart(OTA_PERIODIC_QUERY_INTERVAL);
+//		    g_watermeterCtx.timerBatteryEvt = TL_ZB_TIMER_SCHEDULE(batteryCb, NULL, TIMEOUT_15MIN);
+//            g_watermeterCtx.timerPollRateEvt = TL_ZB_TIMER_SCHEDULE(poll_rateAppCb, NULL, TIMEOUT_30SEC);
 		}
 	}
 }
