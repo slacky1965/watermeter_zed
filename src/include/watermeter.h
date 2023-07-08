@@ -31,6 +31,7 @@ typedef struct{
     ev_timer_event_t *bdbFBTimerEvt;
     ev_timer_event_t *timerReportEvt;
     ev_timer_event_t *timerPollRateEvt;
+    ev_timer_event_t *timerBatteryEvt;
     ev_timer_event_t *timerLedEvt;
 
     u32 short_poll;
@@ -115,6 +116,7 @@ typedef struct{
  * GLOBAL VARIABLES
  */
 extern app_reporting_t app_reporting[ZCL_REPORTING_TABLE_NUM];
+extern u8 ota_processing;
 
 extern app_ctx_t g_watermeterCtx;
 
