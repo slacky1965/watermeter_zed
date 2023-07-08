@@ -269,7 +269,7 @@ s32 batteryCb(void) {
     u8 voltage = (u8)(voltage_raw/100);
     u8 level = get_battery_level(voltage_raw);
 
-#if UART_PRINTF_MODE
+#if UART_PRINTF_MODE && DEBUG_LEVEL
     printf("Voltage: %d\r\n", voltage);
     printf("Level: %d\r\n", level);
 #endif
@@ -342,8 +342,10 @@ void button_handler() {
             if (g_watermeterCtx.timerPollRateEvt) {
                 TL_ZB_TIMER_CANCEL(&g_watermeterCtx.timerPollRateEvt);
             }
-            zb_setPollRate(g_watermeterCtx.short_poll);
-            g_watermeterCtx.timerPollRateEvt = TL_ZB_TIMER_SCHEDULE(poll_rateAppCb, NULL, TIMEOUT_2MIN);
+            if (!ota_processing) {
+                zb_setPollRate(g_watermeterCtx.short_poll);
+                g_watermeterCtx.timerPollRateEvt = TL_ZB_TIMER_SCHEDULE(poll_rateAppCb, NULL, TIMEOUT_2MIN);
+            }
 
             if (!g_watermeterCtx.timerReportEvt) {
                 g_watermeterCtx.timerReportEvt = TL_ZB_TIMER_SCHEDULE(forcedReportCb, NULL, TIMEOUT_5SEC);
@@ -387,7 +389,7 @@ u32 check_counter_overflow(u32 check_count) {
     if (check_count >= COUNTERS_OVERFLOW) {
         count = check_count - COUNTERS_OVERFLOW;
 #if UART_PRINTF_MODE
-        printf("Counter overflow\r\n");
+        printf("Counter overflow. Old value: %d, new value: %d\r\n", check_count, count);
 #endif /* UART_PRINTF_MODE */
     } else {
         count = check_count;
@@ -465,7 +467,7 @@ u8 counters_handler() {
                 check_counter_overflow(watermeter_config.counter_hot_water +
                 (watermeter_config.liters_per_pulse * hot_counter.counter));
         hot_counter.counter = 0;
-#if UART_PRINTF_MODE
+#if UART_PRINTF_MODE && DEBUG_LEVEL
         printf("hot counter - %d\r\n", watermeter_config.counter_hot_water);
 #endif /* UART_PRINTF_MODE */
         water_counter = watermeter_config.counter_hot_water & 0xffffffffffff;
@@ -480,7 +482,7 @@ u8 counters_handler() {
                 check_counter_overflow(watermeter_config.counter_cold_water +
                 (watermeter_config.liters_per_pulse * cold_counter.counter));
         cold_counter.counter = 0;
-#if UART_PRINTF_MODE
+#if UART_PRINTF_MODE && DEBUG_LEVEL
         printf("cold counter - %d\r\n", watermeter_config.counter_cold_water);
 #endif /* UART_PRINTF_MODE */
         water_counter = watermeter_config.counter_cold_water & 0xffffffffffff;
@@ -545,7 +547,7 @@ static void get_user_data_addr() {
         config_addr_start = BEGIN_USER_DATA2;
         config_addr_end = END_USER_DATA2;
 #if UART_PRINTF_MODE
-        printf("MCU boot from address: 0x%x\r\n", BEGIN_USER_DATA1);
+        printf("OTA mode enabled. MCU boot from address: 0x%x\r\n", BEGIN_USER_DATA1);
 #endif /* UART_PRINTF_MODE */
     }
 #else
@@ -661,34 +663,43 @@ void init_config() {
 
 void write_config() {
     if (default_config) {
-        watermeter_config.crc = checksum((u8*)&(watermeter_config), sizeof(watermeter_config_t));
-        flash_erase(GEN_USER_CFG_DATA);
-        flash_write(GEN_USER_CFG_DATA, sizeof(watermeter_config_t), (u8*)&(watermeter_config));
+        write_restory_config();
         flash_erase(watermeter_config.flash_addr_start);
         flash_write(watermeter_config.flash_addr_start, sizeof(watermeter_config_t), (u8*)&(watermeter_config));
         default_config = false;
+#if UART_PRINTF_MODE && DEBUG_LEVEL
+        printf("Save config to flash address - 0x%x\r\n", watermeter_config.flash_addr_start);
+#endif /* UART_PRINTF_MODE */
     } else {
-        watermeter_config.flash_addr_start += FLASH_PAGE_SIZE;
-        if (watermeter_config.flash_addr_start == config_addr_end) {
-            watermeter_config.flash_addr_start = config_addr_start;
+        if (!ota_processing) {
+            watermeter_config.flash_addr_start += FLASH_PAGE_SIZE;
+            if (watermeter_config.flash_addr_start == config_addr_end) {
+                watermeter_config.flash_addr_start = config_addr_start;
+            }
+            if (watermeter_config.flash_addr_start % FLASH_SECTOR_SIZE == 0) {
+                flash_erase(watermeter_config.flash_addr_start);
+            }
+            watermeter_config.top++;
+            watermeter_config.top &= TOP_MASK;
+            watermeter_config.crc = checksum((u8*)&(watermeter_config), sizeof(watermeter_config_t));
+            flash_write(watermeter_config.flash_addr_start, sizeof(watermeter_config_t), (u8*)&(watermeter_config));
+#if UART_PRINTF_MODE && DEBUG_LEVEL
+            printf("Save config to flash address - 0x%x\r\n", watermeter_config.flash_addr_start);
+#endif /* UART_PRINTF_MODE */
+        } else {
+            write_restory_config();
         }
-        if (watermeter_config.flash_addr_start % FLASH_SECTOR_SIZE == 0) {
-            flash_erase(watermeter_config.flash_addr_start);
-        }
-        watermeter_config.top++;
-        watermeter_config.top &= TOP_MASK;
-        watermeter_config.crc = checksum((u8*)&(watermeter_config), sizeof(watermeter_config_t));
-        flash_write(watermeter_config.flash_addr_start, sizeof(watermeter_config_t), (u8*)&(watermeter_config));
     }
 
-#if UART_PRINTF_MODE
-    printf("Save config to flash address - 0x%x\r\n", watermeter_config.flash_addr_start);
-#endif /* UART_PRINTF_MODE */
 }
 
-void write_config_after_ota() {
-    watermeter_config.new_ota = true;
+void write_restory_config() {
     watermeter_config.crc = checksum((u8*)&(watermeter_config), sizeof(watermeter_config_t));
     flash_erase(GEN_USER_CFG_DATA);
     flash_write(GEN_USER_CFG_DATA, sizeof(watermeter_config_t), (u8*)&(watermeter_config));
+#if UART_PRINTF_MODE && DEBUG_LEVEL
+    printf("Save restory config to flash address - 0x%x\r\n", GEN_USER_CFG_DATA);
+#endif /* UART_PRINTF_MODE */
+
 }
+
