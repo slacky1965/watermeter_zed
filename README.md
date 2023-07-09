@@ -143,6 +143,14 @@
 
 ---
 
+## Home Assistant
+
+В Home Assistant счетчик будет выглядеть так.
+
+<img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/HA_device.jpg" alt="HA begin"/>
+
+---
+
 ## История версий
 
 - 1.0 - Начало.
