@@ -149,9 +149,13 @@
 
 <img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/HA_device.jpg" alt="HA begin"/>
 
-К сожалению я не знаю, как автоматически отключить пресеты в Control. Поэтому заходим в каждый и отключаем в ручную, чтобы не мешали. Получаем такую картинку.
+К сожалению я не знаю, как автоматически отключить пресеты в Control. Поэтому заходим в каждый и отключаем в ручную, чтобы не мешали. 
 
 <img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/HA_preset_disabled.jpg" alt="HA preset disabled"/>
+
+Получаем такую картинку.
+
+<img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/HA_all_preset_disabled.jpg" alt="HA all preset disabled"/>
 
 ---
 
