@@ -157,6 +157,10 @@
 
 <img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/HA_all_preset_disabled.jpg" alt="HA all preset disabled"/>
 
+Далее кастомизируем счетчики, если нужно. 
+
+Продолжение следует...
+
 ---
 
 ## История версий
