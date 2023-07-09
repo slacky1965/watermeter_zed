@@ -135,7 +135,7 @@
 
 ## OTA
 
-К сожадению автоматического обновления в zigbee2mqtt нет (ну или я не разобрался). Поэтому, если вышла новая версия, скачиваем обновленный файл [index.json](https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/zigbee2mqtt/ota/index.json). Кладем его там, где лежит `configuration.yaml` от zigbee2mqtt. Перегружаем zigbee2mqtt. Идем во вкладку OTA. И кликаем на `Check for new updates`
+К сожалению автоматического обновления в zigbee2mqtt нет (ну или я не разобрался). Поэтому, если вышла новая версия, скачиваем обновленный файл [index.json](https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/zigbee2mqtt/ota/index.json). Кладем его там, где лежит `configuration.yaml` от zigbee2mqtt. Перегружаем zigbee2mqtt. Идем во вкладку OTA. И кликаем на `Check for new updates`
 
 <img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/ota_update.jpg" alt="Check for new updates"/>
 
