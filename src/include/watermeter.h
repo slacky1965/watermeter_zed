@@ -47,6 +47,8 @@ typedef struct{
     u8  times;      //blink times
     u8  state;
 
+    u32 time_without_joined;
+
     app_linkKey_info_t tcLinkKey;
 }app_ctx_t;
 
@@ -116,7 +118,6 @@ typedef struct{
  * GLOBAL VARIABLES
  */
 extern app_reporting_t app_reporting[ZCL_REPORTING_TABLE_NUM];
-extern u8 ota_processing;
 
 extern app_ctx_t g_watermeterCtx;
 
