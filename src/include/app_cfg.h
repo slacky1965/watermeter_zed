@@ -58,20 +58,20 @@ extern "C" {
 #include "version_cfg.h"
 
 /* Debug mode config */
-#define	UART_PRINTF_MODE				1
-#define USB_PRINTF_MODE         		0
-#define DEBUG_LEVEL                     1
-#define DEBUG_SLEEP_TIME                0
+#define	UART_PRINTF_MODE				ON
+#define USB_PRINTF_MODE         		OFF
+#define DEBUG_LEVEL                     ON
+#define DEBUG_SLEEP_TIME                OFF
 
 /* PM */
-#define PM_ENABLE						1
+#define PM_ENABLE						ON
 
 /* PA */
-#define PA_ENABLE						0
+#define PA_ENABLE						OFF
 
 /* BDB */
-#define TOUCHLINK_SUPPORT				1
-#define FIND_AND_BIND_SUPPORT			0
+#define TOUCHLINK_SUPPORT				ON
+#define FIND_AND_BIND_SUPPORT			OFF
 
 /* Board ID */
 #define BOARD_826x_EVK                  0
@@ -165,7 +165,7 @@ extern "C" {
  * we need to configure the detection IO port, and the IO must be connected to the target under test,
  * such as VCC.
  */
-#define VOLTAGE_DETECT_ENABLE						1
+#define VOLTAGE_DETECT_ENABLE						ON
 
 #if defined(MCU_CORE_826x)
     #define VOLTAGE_DETECT_ADC_PIN                  0
@@ -177,10 +177,10 @@ extern "C" {
 
 
 /* Watch dog module */
-#define MODULE_WATCHDOG_ENABLE						0
+#define MODULE_WATCHDOG_ENABLE						OFF
 
 /* UART module */
-#define	MODULE_UART_ENABLE							0
+#define	MODULE_UART_ENABLE							OFF
 
 #if (ZBHCI_USB_PRINT || ZBHCI_USB_CDC || ZBHCI_USB_HID || ZBHCI_UART)
 	#define ZBHCI_EN								1
@@ -189,13 +189,13 @@ extern "C" {
 /**********************************************************************
  * ZCL cluster support setting
  */
-#define ZCL_LEVEL_CTRL_SUPPORT			1
-#define ZCL_GROUP_SUPPORT               1
-#define ZCL_POWER_CFG_SUPPORT           1
-#define ZCL_METERING_SUPPORT            1
-#define ZCL_OTA_SUPPORT                 1
+#define ZCL_LEVEL_CTRL_SUPPORT			ON
+#define ZCL_GROUP_SUPPORT               ON
+#define ZCL_POWER_CFG_SUPPORT           ON
+#define ZCL_METERING_SUPPORT            ON
+#define ZCL_OTA_SUPPORT                 ON
 #if TOUCHLINK_SUPPORT
-#define ZCL_ZLL_COMMISSIONING_SUPPORT   1
+#define ZCL_ZLL_COMMISSIONING_SUPPORT   ON
 #endif
 
 
