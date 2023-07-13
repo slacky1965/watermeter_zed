@@ -35,9 +35,13 @@
 #define TIMEOUT_TICK_5SEC   5*1000*1000     /* timeout 5 sec    */
 #define TIMEOUT_TICK_10SEC  10*1000*1000    /* timeout 10 sec   */
 #define TIMEOUT_TICK_15SEC  15*1000*1000    /* timeout 15 sec   */
+#define TIMEOUT_TICK_30SEC  30*1000*1000    /* timeout 30 sec   */
+#define TIMEOUT_TICK_5MIN   300*1000*1000   /* timeout 5  min   */
+#define TIMEOUT_TICK_30MIN  1800*1000*1000  /* timeout 30 min   */
 
 /* for TL_ZB_TIMER_SCHEDULE() */
 #define TIMEOUT_1SEC        1000            /* timeout 1 sec    */
+#define TIMEOUT_2SEC        2*1000          /* timeout 2 sec    */
 #define TIMEOUT_3SEC        3*1000          /* timeout 3 sec    */
 #define TIMEOUT_4SEC        4*1000          /* timeout 4 sec    */
 #define TIMEOUT_5SEC        5*1000          /* timeout 5 sec    */
@@ -106,7 +110,6 @@ void light_off(void);
 void led_on(u32 pin);
 void led_off(u32 pin);
 
-//s32 poll_rateLongCb(void *arg);
 s32 poll_rateAppCb(void *arg);
 
 s32 batteryCb();
@@ -120,8 +123,7 @@ u8 counters_handler();
 u32 check_counter_overflow(u32 check_count);
 u8 counters_idle();
 
-void init_config();
+void init_config(u8 print);
 void write_config();
-void write_restory_config();
 
 #endif /* SRC_INCLUDE_APP_UI_H_ */
