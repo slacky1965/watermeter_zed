@@ -12,7 +12,7 @@
 #include "watermeter.h"
 
 app_reporting_t app_reporting[ZCL_REPORTING_TABLE_NUM];
-u8 ota_processing = false;
+static u32 last_light = 0;
 
 app_ctx_t g_watermeterCtx = {
         .bdbFBTimerEvt = NULL,
@@ -21,6 +21,7 @@ app_ctx_t g_watermeterCtx = {
         .short_poll = POLL_RATE * 3,
         .long_poll = POLL_RATE * LONG_POLL,
         .oriSta = false,
+        .time_without_joined = 0,
 };
 
 //u32 count_restart = 0;
@@ -374,7 +375,7 @@ void user_app_init(void)
 #endif
 
     init_counters();
-    init_config();
+    init_config(true);
     init_button();
 
     batteryCb();
@@ -397,7 +398,39 @@ void led_init(void)
     light_init();
 }
 
-void report_handler(void) {
+//static void check_joined_handler() {
+//    if(zb_isDeviceJoinedNwk()) {
+//        g_watermeterCtx.time_without_joined = 0;
+//    } else {
+//        if (g_watermeterCtx.time_without_joined == 0) {
+//            g_watermeterCtx.time_without_joined = clock_time();
+//        } else {
+//            if (clock_time_exceed(g_watermeterCtx.time_without_joined, TIMEOUT_TICK_30SEC)) {
+//
+//                if(tl_stackBusy() || !zb_isTaskDone()){
+//                    return;
+//                }
+//
+//#if UART_PRINTF_MODE && DEBUG_LEVEL
+//                printf("Without network more then 30 minutes! Deep sleep ...\r\n");
+//#endif
+//
+//                apsCleanToStopSecondClock();
+//
+//                drv_disable_irq();
+//                rf_paShutDown();
+//                drv_pm_deepSleep_frameCnt_set(ss_outgoingFrameCntGet());
+//                drv_pm_longSleep(PM_SLEEP_MODE_DEEPSLEEP, PM_WAKEUP_SRC_PAD, 1);
+//
+//
+//
+//                g_watermeterCtx.time_without_joined = 0;
+//            }
+//        }
+//    }
+//}
+
+static void report_handler(void) {
     if(zb_isDeviceJoinedNwk()){
         if(zcl_reportingEntryActiveNumGet()) {
 
@@ -415,11 +448,24 @@ void app_task(void) {
     button_handler();
     counters_handler();
 
-    if(bdb_isIdle()){
+
+    if(bdb_isIdle()) {
         report_handler();
+//        check_joined_handler();
 #if PM_ENABLE
         if(!button_idle() && !counters_idle()) {
             app_lowPowerEnter();
+        }
+        if (clock_time_exceed(last_light, TIMEOUT_TICK_5SEC)) {
+            if (zb_isDeviceJoinedNwk()) {
+                light_blink_stop();
+                if (watermeter_config.new_ota) {
+                    light_blink_start(2, 30, 250);
+                } else {
+                    light_blink_start(1, 30, 30);
+                }
+            }
+            last_light = clock_time();
         }
 #endif
     }
@@ -510,6 +556,7 @@ void user_init(bool isRetention)
     }else{
         /* Re-config phy when system recovery from deep sleep with retention */
         mac_phyReconfig();
+
     }
 }
 

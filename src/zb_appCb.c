@@ -114,7 +114,7 @@ s32 watermeter_rejoinBacckoff(void *arg){
  * @return  None
  */
 void zb_bdbInitCb(u8 status, u8 joinedNetwork){
-	//printf("bdbInitCb: sta = %x, joined = %x\n", status, joinedNetwork);
+	printf("bdbInitCb: sta = %x, joined = %x\n", status, joinedNetwork);
 
 	if(status == BDB_INIT_STATUS_SUCCESS){
 		/*
@@ -133,7 +133,7 @@ void zb_bdbInitCb(u8 status, u8 joinedNetwork){
 			g_watermeterCtx.timerPollRateEvt = TL_ZB_TIMER_SCHEDULE(poll_rateAppCb, NULL, TIMEOUT_30SEC);
 
 #ifdef ZCL_OTA
-			ota_queryStart(OTA_PERIODIC_QUERY_INTERVAL);
+            ota_queryStart(OTA_PERIODIC_QUERY_INTERVAL);
 #endif
 
 #ifdef ZCL_POLL_CTRL
@@ -168,7 +168,7 @@ void zb_bdbInitCb(u8 status, u8 joinedNetwork){
  * @return  None
  */
 void zb_bdbCommissioningCb(u8 status, void *arg){
-    //printf("zb_bdbCommissioningCb: sta = %x\r\n", status);
+    printf("zb_bdbCommissioningCb: sta = %x\r\n", status);
 
 	switch(status){
 		case BDB_COMMISSION_STA_SUCCESS:
@@ -205,6 +205,8 @@ void zb_bdbCommissioningCb(u8 status, void *arg){
 		case BDB_COMMISSION_STA_TCLK_EX_FAILURE:
 		case BDB_COMMISSION_STA_TARGET_FAILURE:
 			{
+			    light_blink_stop();
+			    light_blink_start(3, 30, 250);
 				u16 jitter = 0;
 				do{
 					jitter = zb_random() % 0x0fff;
@@ -228,6 +230,8 @@ void zb_bdbCommissioningCb(u8 status, void *arg){
 //			zb_rejoinReqWithBackOff(zb_apsChannelMaskGet(), g_bdbAttrs.scanDuration);
 			break;
 		case BDB_COMMISSION_STA_REJOIN_FAILURE:
+            light_blink_stop();
+            light_blink_start(3, 30, 250);
 			if(!switchRejoinBackoffTimerEvt){
 				switchRejoinBackoffTimerEvt = TL_ZB_TIMER_SCHEDULE(watermeter_rejoinBacckoff, NULL, 60 * 1000);
 			}
@@ -271,52 +275,66 @@ void zb_bdbFindBindSuccessCb(findBindDst_t *pDstInfo){
 
 
 #ifdef ZCL_OTA
-void watermeter_otaProcessMsgHandler(u8 evt, u8 status)
-{
-	//printf("watermeter_otaProcessMsgHandler: status = %x\r\n", status);
-	if(evt == OTA_EVT_START){
-		if(status == ZCL_STA_SUCCESS){
+
+extern ota_clientInfo_t otaClientInfo;
+
+void watermeter_otaProcessMsgHandler(u8 evt, u8 status) {
+    //printf("watermeter_otaProcessMsgHandler: status = %x\r\n", status);
+    if (evt == OTA_EVT_START) {
+        if (status == ZCL_STA_SUCCESS) {
 #if UART_PRINTF_MODE && DEBUG_LEVEL
-		    printf("OTA update start.\r\n");
+            printf("OTA update start.\r\n");
 #endif /* UART_PRINTF_MODE */
-		    ota_processing = true;
+            watermeter_config.new_ota = true;
+            write_config();
+
             if (g_watermeterCtx.timerPollRateEvt) {
                 TL_ZB_TIMER_CANCEL(&g_watermeterCtx.timerPollRateEvt);
             }
-//            if (g_watermeterCtx.timerBatteryEvt) {
-//                TL_ZB_TIMER_CANCEL(&g_watermeterCtx.timerBatteryEvt);
-//            }
-//            for (u8 i = 0; i < ZCL_REPORTING_TABLE_NUM; i++) {
-//                if (app_reporting[i].timerReportMinEvt) {
-//                    TL_ZB_TIMER_CANCEL(&app_reporting[i].timerReportMinEvt);
-//                }
-//                if (app_reporting[i].timerReportMaxEvt) {
-//                    TL_ZB_TIMER_CANCEL(&app_reporting[i].timerReportMaxEvt);
-//                }
-//            }
             zb_setPollRate(QUEUE_POLL_RATE);
-		}else{
+        } else {
 
-		}
-	}else if(evt == OTA_EVT_COMPLETE){
-		zb_setPollRate(POLL_RATE * 3);
+        }
+    } else if (evt == OTA_EVT_COMPLETE) {
 
-		if(status == ZCL_STA_SUCCESS){
+//        zb_setPollRate(POLL_RATE * 3);
+        zb_setPollRate(g_watermeterCtx.short_poll);
+        if (g_watermeterCtx.timerPollRateEvt) {
+            TL_ZB_TIMER_CANCEL(&g_watermeterCtx.timerPollRateEvt);
+        }
+        g_watermeterCtx.timerPollRateEvt = TL_ZB_TIMER_SCHEDULE(poll_rateAppCb, NULL, TIMEOUT_2MIN);
+
+        if (status == ZCL_STA_SUCCESS) {
+
 #if UART_PRINTF_MODE && DEBUG_LEVEL
             printf("OTA update successful.\r\n");
 #endif /* UART_PRINTF_MODE */
-		    watermeter_config.new_ota = true;
-		    write_restory_config();
-			ota_mcuReboot();
-		}else{
+
+            ota_mcuReboot();
+
+        } else {
+
 #if UART_PRINTF_MODE && DEBUG_LEVEL
             printf("OTA update failure. Try again.\r\n");
 #endif /* UART_PRINTF_MODE */
-			ota_queryStart(OTA_PERIODIC_QUERY_INTERVAL);
-//		    g_watermeterCtx.timerBatteryEvt = TL_ZB_TIMER_SCHEDULE(batteryCb, NULL, TIMEOUT_15MIN);
-//            g_watermeterCtx.timerPollRateEvt = TL_ZB_TIMER_SCHEDULE(poll_rateAppCb, NULL, TIMEOUT_30SEC);
-		}
-	}
+
+            /* reset update OTA */
+            nv_resetModule(NV_MODULE_OTA);
+
+            memset((u8*) &otaClientInfo, 0, sizeof(otaClientInfo));
+            otaClientInfo.clientOtaFlg = OTA_FLAG_INIT_DONE;
+            otaClientInfo.crcValue = 0xffffffff;
+
+            zcl_attr_imageTypeID = 0xffff;
+            zcl_attr_fileOffset = 0xffffffff;
+            zcl_attr_downloadFileVer = 0xffffffff;
+
+            /* restore config */
+            init_config(false);
+
+            ota_queryStart(OTA_PERIODIC_QUERY_INTERVAL);
+        }
+    }
 }
 #endif
 
