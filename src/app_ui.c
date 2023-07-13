@@ -67,7 +67,7 @@ watermeter_config_t watermeter_config;
 static water_counter_t hot_counter;
 static water_counter_t cold_counter;
 
-static u8 default_config = false;
+static u8  default_config = false;
 static u32 config_addr_start = 0;
 static u32 config_addr_end = 0;
 
@@ -92,9 +92,8 @@ s32 poll_rateAppCb(void *arg) {
 
     zb_setPollRate(g_watermeterCtx.long_poll);
 
-    return g_watermeterCtx.long_poll;
+    return -1; //g_watermeterCtx.long_poll;
 }
-
 
 static s32 delayedMcuResetCb(void *arg) {
 
@@ -342,7 +341,7 @@ void button_handler() {
             if (g_watermeterCtx.timerPollRateEvt) {
                 TL_ZB_TIMER_CANCEL(&g_watermeterCtx.timerPollRateEvt);
             }
-            if (!ota_processing) {
+            if (!watermeter_config.new_ota) {
                 zb_setPollRate(g_watermeterCtx.short_poll);
                 g_watermeterCtx.timerPollRateEvt = TL_ZB_TIMER_SCHEDULE(poll_rateAppCb, NULL, TIMEOUT_2MIN);
             }
@@ -535,19 +534,19 @@ static u16 checksum(const u8 *src_buffer, u8 len) {
     return crc;
 }
 
-static void get_user_data_addr() {
+static void get_user_data_addr(u8 print) {
 #ifdef ZCL_OTA
     if (mcuBootAddrGet()) {
         config_addr_start = BEGIN_USER_DATA1;
         config_addr_end = END_USER_DATA1;
 #if UART_PRINTF_MODE
-        printf("OTA mode enabled. MCU boot from address: 0x%x\r\n", BEGIN_USER_DATA2);
+        if (print) printf("OTA mode enabled. MCU boot from address: 0x%x\r\n", BEGIN_USER_DATA2);
 #endif /* UART_PRINTF_MODE */
     } else {
         config_addr_start = BEGIN_USER_DATA2;
         config_addr_end = END_USER_DATA2;
 #if UART_PRINTF_MODE
-        printf("OTA mode enabled. MCU boot from address: 0x%x\r\n", BEGIN_USER_DATA1);
+        if (print) printf("OTA mode enabled. MCU boot from address: 0x%x\r\n", BEGIN_USER_DATA1);
 #endif /* UART_PRINTF_MODE */
     }
 #else
@@ -555,7 +554,7 @@ static void get_user_data_addr() {
     config_addr_end = END_USER_DATA2;
 
 #if UART_PRINTF_MODE
-    printf("OTA mode desabled. MCU boot from address: 0x%x\r\n", BEGIN_USER_DATA1);
+    if (print) printf("OTA mode desabled. MCU boot from address: 0x%x\r\n", BEGIN_USER_DATA1);
 #endif /* UART_PRINTF_MODE */
 
 #endif
@@ -585,17 +584,27 @@ static void init_default_config() {
     write_config();
 }
 
-void init_config() {
-    watermeter_config_t config_curr, config_next, config_restory;
+static void write_restore_config() {
+    watermeter_config.crc = checksum((u8*)&(watermeter_config), sizeof(watermeter_config_t));
+    flash_erase(GEN_USER_CFG_DATA);
+    flash_write(GEN_USER_CFG_DATA, sizeof(watermeter_config_t), (u8*)&(watermeter_config));
+#if UART_PRINTF_MODE && DEBUG_LEVEL
+    printf("Save restored config to flash address - 0x%x\r\n", GEN_USER_CFG_DATA);
+#endif /* UART_PRINTF_MODE */
+
+}
+
+void init_config(u8 print) {
+    watermeter_config_t config_curr, config_next, config_restore;
     u8 find_config = false;
 
-    get_user_data_addr();
+    get_user_data_addr(print);
 
-    flash_read(GEN_USER_CFG_DATA, sizeof(watermeter_config_t), (u8*)&config_restory);
+    flash_read(GEN_USER_CFG_DATA, sizeof(watermeter_config_t), (u8*)&config_restore);
 
-    u16 crc = checksum((u8*)&config_restory, sizeof(watermeter_config_t));
+    u16 crc = checksum((u8*)&config_restore, sizeof(watermeter_config_t));
 
-    if (config_restory.id != ID_CONFIG || crc != config_restory.crc) {
+    if (config_restore.id != ID_CONFIG || crc != config_restore.crc) {
 #if UART_PRINTF_MODE
         printf("No saved config! Init.\r\n");
 #endif /* UART_PRINTF_MODE */
@@ -605,11 +614,11 @@ void init_config() {
 
     }
 
-    if (config_restory.new_ota) {
-        config_restory.new_ota = false;
-        config_restory.flash_addr_start = config_addr_start;
-        config_restory.flash_addr_end = config_addr_end;
-        memcpy(&watermeter_config, &config_restory, sizeof(watermeter_config_t));
+    if (config_restore.new_ota) {
+        config_restore.new_ota = false;
+        config_restore.flash_addr_start = config_addr_start;
+        config_restore.flash_addr_end = config_addr_end;
+        memcpy(&watermeter_config, &config_restore, sizeof(watermeter_config_t));
         default_config = true;
         write_config();
         return;
@@ -663,7 +672,7 @@ void init_config() {
 
 void write_config() {
     if (default_config) {
-        write_restory_config();
+        write_restore_config();
         flash_erase(watermeter_config.flash_addr_start);
         flash_write(watermeter_config.flash_addr_start, sizeof(watermeter_config_t), (u8*)&(watermeter_config));
         default_config = false;
@@ -671,7 +680,7 @@ void write_config() {
         printf("Save config to flash address - 0x%x\r\n", watermeter_config.flash_addr_start);
 #endif /* UART_PRINTF_MODE */
     } else {
-        if (!ota_processing) {
+        if (!watermeter_config.new_ota) {
             watermeter_config.flash_addr_start += FLASH_PAGE_SIZE;
             if (watermeter_config.flash_addr_start == config_addr_end) {
                 watermeter_config.flash_addr_start = config_addr_start;
@@ -687,19 +696,9 @@ void write_config() {
             printf("Save config to flash address - 0x%x\r\n", watermeter_config.flash_addr_start);
 #endif /* UART_PRINTF_MODE */
         } else {
-            write_restory_config();
+            write_restore_config();
         }
     }
-
-}
-
-void write_restory_config() {
-    watermeter_config.crc = checksum((u8*)&(watermeter_config), sizeof(watermeter_config_t));
-    flash_erase(GEN_USER_CFG_DATA);
-    flash_write(GEN_USER_CFG_DATA, sizeof(watermeter_config_t), (u8*)&(watermeter_config));
-#if UART_PRINTF_MODE && DEBUG_LEVEL
-    printf("Save restory config to flash address - 0x%x\r\n", GEN_USER_CFG_DATA);
-#endif /* UART_PRINTF_MODE */
 
 }
 
