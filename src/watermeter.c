@@ -17,7 +17,9 @@ static u32 last_light = 0;
 app_ctx_t g_watermeterCtx = {
         .bdbFBTimerEvt = NULL,
         .timerPollRateEvt = NULL,
-        .timerReportEvt = NULL,
+        .timerForcedReportEvt = NULL,
+        .timerStopReportEvt = NULL,
+        .timerNoJoinedEvt = NULL,
         .short_poll = POLL_RATE * 3,
         .long_poll = POLL_RATE * LONG_POLL,
         .oriSta = false,
@@ -108,12 +110,16 @@ drv_pm_pinCfg_t pin_PmCfg[] = {
     },
 };
 
-static void app_lowPowerEnter() {
+void app_wakeupPinLevelChange() {
 
     for(u32 i = 0; i < 2; i++) {
         drv_pm_wakeupPinLevelChange(&pin_PmCfg[i], 2);
     }
+}
 
+static void app_lowPowerEnter() {
+
+    app_wakeupPinLevelChange();
     drv_pm_lowPowerEnter();
 }
 
@@ -374,8 +380,8 @@ void user_app_init(void)
     ota_init(OTA_TYPE_CLIENT, (af_simple_descriptor_t *)&watermeter_ep1Desc, &watermeter_otaInfo, &watermeter_otaCb);
 #endif
 
-    init_counters();
     init_config(true);
+    init_counters();
     init_button();
 
     batteryCb();
@@ -386,10 +392,10 @@ void user_app_init(void)
     water_counter = watermeter_config.counter_cold_water & 0xffffffffffff;
     zcl_setAttrVal(WATERMETER_ENDPOINT2, ZCL_CLUSTER_SE_METERING, ZCL_ATTRID_CURRENT_SUMMATION_DELIVERD, (u8*)&water_counter);
 
-#if UART_PRINTF_MODE && DEBUG_LEVEL
-    printf("IMAGE_TYPE: 0x%x\r\n", IMAGE_TYPE);
-    printf("FILE_VERSION: 0x%x\r\n", FILE_VERSION);
-#endif
+//#if UART_PRINTF_MODE && DEBUG_LEVEL
+//    printf("IMAGE_TYPE: 0x%x\r\n", IMAGE_TYPE);
+//    printf("FILE_VERSION: 0x%x\r\n", FILE_VERSION);
+//#endif
 
 }
 
@@ -398,40 +404,12 @@ void led_init(void)
     light_init();
 }
 
-//static void check_joined_handler() {
-//    if(zb_isDeviceJoinedNwk()) {
-//        g_watermeterCtx.time_without_joined = 0;
-//    } else {
-//        if (g_watermeterCtx.time_without_joined == 0) {
-//            g_watermeterCtx.time_without_joined = clock_time();
-//        } else {
-//            if (clock_time_exceed(g_watermeterCtx.time_without_joined, TIMEOUT_TICK_30SEC)) {
-//
-//                if(tl_stackBusy() || !zb_isTaskDone()){
-//                    return;
-//                }
-//
-//#if UART_PRINTF_MODE && DEBUG_LEVEL
-//                printf("Without network more then 30 minutes! Deep sleep ...\r\n");
-//#endif
-//
-//                apsCleanToStopSecondClock();
-//
-//                drv_disable_irq();
-//                rf_paShutDown();
-//                drv_pm_deepSleep_frameCnt_set(ss_outgoingFrameCntGet());
-//                drv_pm_longSleep(PM_SLEEP_MODE_DEEPSLEEP, PM_WAKEUP_SRC_PAD, 1);
-//
-//
-//
-//                g_watermeterCtx.time_without_joined = 0;
-//            }
-//        }
-//    }
-//}
 
 static void report_handler(void) {
-    if(zb_isDeviceJoinedNwk()){
+    if(zb_isDeviceJoinedNwk()) {
+
+        if (g_watermeterCtx.timerStopReportEvt) return;
+
         if(zcl_reportingEntryActiveNumGet()) {
 
             app_reportNoMinLimit();
@@ -450,12 +428,11 @@ void app_task(void) {
 
 
     if(bdb_isIdle()) {
-        report_handler();
-//        check_joined_handler();
 #if PM_ENABLE
         if(!button_idle() && !counters_idle()) {
             app_lowPowerEnter();
         }
+#endif
         if (clock_time_exceed(last_light, TIMEOUT_TICK_5SEC)) {
             if (zb_isDeviceJoinedNwk()) {
                 light_blink_stop();
@@ -467,7 +444,7 @@ void app_task(void) {
             }
             last_light = clock_time();
         }
-#endif
+        report_handler();
     }
 }
 

@@ -77,9 +77,61 @@ static u32 config_addr_end = 0;
 
 u8 mcuBootAddrGet(void);
 
+void set_regDeepSleep() {
+
+    u8 reg_deep_sleep = 0;
+
+    /* 0x01: input level on HOT_PIN before deep sleep                   */
+    /* 0x02: input level on COLD_PIN before deep sleep                  */
+    /* 0x04: 1 - deep sleep, watchdog or soft_reset,  0 - new start MCU */
+
+    reg_deep_sleep = 0x04;
+    if (drv_gpio_read(HOT_GPIO))  reg_deep_sleep |= 0x01;
+    if (drv_gpio_read(COLD_GPIO)) reg_deep_sleep |= 0x02;
+
+    analog_write(CHK_DEEP_SLEEP, reg_deep_sleep);
+
+}
+
 /**********************************************************************
  *  Timers callback
  */
+
+s32 no_joinedCb(void *arg) {
+
+    if (!zb_isDeviceJoinedNwk()) {
+
+        if (tl_stackBusy() || !zb_isTaskDone()) {
+
+//            printf("tl_stackBusy: %s,  zb_isTaskDone: %d\r\n", tl_stackBusy()?"true":"false", zb_isTaskDone());
+            return TIMEOUT_1MIN;
+        }
+
+#if UART_PRINTF_MODE && DEBUG_LEVEL
+        printf("Without network more then 30 minutes! Deep sleep ...\r\n");
+#endif
+
+        app_wakeupPinLevelChange();
+
+        apsCleanToStopSecondClock();
+
+        drv_disable_irq();
+        rf_paShutDown();
+        drv_pm_deepSleep_frameCnt_set(ss_outgoingFrameCntGet());
+
+        set_regDeepSleep();
+
+        drv_pm_longSleep(PM_SLEEP_MODE_DEEPSLEEP, PM_WAKEUP_SRC_PAD, 1);
+    }
+
+    g_watermeterCtx.timerNoJoinedEvt = NULL;
+    return -1;
+}
+
+s32 stopReportCb(void *arg) {
+    g_watermeterCtx.timerStopReportEvt = NULL;
+    return -1;
+}
 
 s32 poll_rateAppCb(void *arg) {
 
@@ -98,6 +150,7 @@ s32 poll_rateAppCb(void *arg) {
 static s32 delayedMcuResetCb(void *arg) {
 
     //printf("mcu reset\r\n");
+    set_regDeepSleep();
     zb_resetDevice();
     return -1;
 }
@@ -106,6 +159,7 @@ static s32 delayedFactoryResetCb(void *arg) {
 
     //printf("factory reset\r\n");
     zb_factoryReset();
+    set_regDeepSleep();
     zb_resetDevice();
     return -1;
 }
@@ -118,7 +172,43 @@ static s32 delayedFullResetCb(void *arg) {
 
 static s32 forcedReportCb(void *arg) {
 
-    g_watermeterCtx.timerReportEvt = NULL;
+    if(zb_isDeviceJoinedNwk()){
+        epInfo_t dstEpInfo;
+        TL_SETSTRUCTCONTENT(dstEpInfo, 0);
+
+        dstEpInfo.profileId = HA_PROFILE_ID;
+#if FIND_AND_BIND_SUPPORT
+        dstEpInfo.dstAddrMode = APS_DSTADDR_EP_NOTPRESETNT;
+#else
+        dstEpInfo.dstAddrMode = APS_SHORT_DSTADDR_WITHEP;
+        dstEpInfo.dstEp = WATERMETER_ENDPOINT1;
+        dstEpInfo.dstAddr.shortAddr = 0xfffc;
+#endif
+        zclAttrInfo_t *pAttrEntry;
+        pAttrEntry = zcl_findAttribute(WATERMETER_ENDPOINT1, ZCL_CLUSTER_GEN_POWER_CFG, ZCL_ATTRID_BATTERY_VOLTAGE);
+        zcl_sendReportCmd(WATERMETER_ENDPOINT1, &dstEpInfo,  TRUE, ZCL_FRAME_SERVER_CLIENT_DIR,
+                ZCL_CLUSTER_GEN_POWER_CFG, pAttrEntry->id, pAttrEntry->type, pAttrEntry->data);
+
+        pAttrEntry = zcl_findAttribute(WATERMETER_ENDPOINT1, ZCL_CLUSTER_GEN_POWER_CFG, ZCL_ATTRID_BATTERY_PERCENTAGE_REMAINING);
+        zcl_sendReportCmd(WATERMETER_ENDPOINT1, &dstEpInfo,  TRUE, ZCL_FRAME_SERVER_CLIENT_DIR,
+                ZCL_CLUSTER_GEN_POWER_CFG, pAttrEntry->id, pAttrEntry->type, pAttrEntry->data);
+
+        pAttrEntry = zcl_findAttribute(WATERMETER_ENDPOINT1, ZCL_CLUSTER_SE_METERING, ZCL_ATTRID_CURRENT_SUMMATION_DELIVERD);
+        zcl_sendReportCmd(WATERMETER_ENDPOINT1, &dstEpInfo,  TRUE, ZCL_FRAME_SERVER_CLIENT_DIR,
+                ZCL_CLUSTER_SE_METERING, pAttrEntry->id, pAttrEntry->type, pAttrEntry->data);
+
+#if FIND_AND_BIND_SUPPORT
+        dstEpInfo.dstAddrMode = APS_DSTADDR_EP_NOTPRESETNT;
+#else
+        dstEpInfo.dstEp = WATERMETER_ENDPOINT2;
+#endif
+        pAttrEntry = zcl_findAttribute(WATERMETER_ENDPOINT2, ZCL_CLUSTER_SE_METERING, ZCL_ATTRID_CURRENT_SUMMATION_DELIVERD);
+        zcl_sendReportCmd(WATERMETER_ENDPOINT2, &dstEpInfo,  TRUE, ZCL_FRAME_SERVER_CLIENT_DIR,
+                ZCL_CLUSTER_SE_METERING, pAttrEntry->id, pAttrEntry->type, pAttrEntry->data);
+
+    }
+
+    g_watermeterCtx.timerForcedReportEvt = NULL;
 
     return -1;
 }
@@ -219,29 +309,6 @@ void light_blink_stop(void)
  *  For battery
  */
 
-static void batteryCmd() {
-    if(zb_isDeviceJoinedNwk()){
-        epInfo_t dstEpInfo;
-        TL_SETSTRUCTCONTENT(dstEpInfo, 0);
-
-        dstEpInfo.profileId = HA_PROFILE_ID;
-#if FIND_AND_BIND_SUPPORT
-        dstEpInfo.dstAddrMode = APS_DSTADDR_EP_NOTPRESETNT;
-#else
-        dstEpInfo.dstAddrMode = APS_SHORT_DSTADDR_WITHEP;
-        dstEpInfo.dstEp = WATERMETER_ENDPOINT1;
-        dstEpInfo.dstAddr.shortAddr = 0xfffc;
-#endif
-        zclAttrInfo_t *pAttrEntry;
-        pAttrEntry = zcl_findAttribute(WATERMETER_ENDPOINT1, ZCL_CLUSTER_GEN_POWER_CFG, ZCL_ATTRID_BATTERY_VOLTAGE);
-        zcl_sendReportCmd(WATERMETER_ENDPOINT1, &dstEpInfo,  TRUE, ZCL_FRAME_SERVER_CLIENT_DIR,
-                ZCL_CLUSTER_GEN_POWER_CFG, pAttrEntry->id, pAttrEntry->type, pAttrEntry->data);
-        pAttrEntry = zcl_findAttribute(WATERMETER_ENDPOINT1, ZCL_CLUSTER_GEN_POWER_CFG, ZCL_ATTRID_BATTERY_PERCENTAGE_REMAINING);
-        zcl_sendReportCmd(WATERMETER_ENDPOINT1, &dstEpInfo,  TRUE, ZCL_FRAME_SERVER_CLIENT_DIR,
-                ZCL_CLUSTER_GEN_POWER_CFG, pAttrEntry->id, pAttrEntry->type, pAttrEntry->data);
-    }
-}
-
 // 2200..3100 mv - 0..100%
 static u8 get_battery_level(u16 battery_mv) {
     /* Zigbee 0% - 0x0, 50% - 0x64, 100% - 0xc8 */
@@ -261,17 +328,14 @@ static u16 get_battery_mv(void) {
 
 s32 batteryCb(void) {
 
-    static u16 p_v = 0;
-
-    u16 voltage_raw = get_battery_mv();// - p_v;
-    p_v += 100;
+    u16 voltage_raw = get_battery_mv();
     u8 voltage = (u8)(voltage_raw/100);
     u8 level = get_battery_level(voltage_raw);
 
-#if UART_PRINTF_MODE && DEBUG_LEVEL
-    printf("Voltage: %d\r\n", voltage);
-    printf("Level: %d\r\n", level);
-#endif
+//#if UART_PRINTF_MODE && DEBUG_LEVEL
+//    printf("Voltage: %d\r\n", voltage);
+//    printf("Level: %d\r\n", level);
+//#endif
 
     zcl_setAttrVal(WATERMETER_ENDPOINT1, ZCL_CLUSTER_GEN_POWER_CFG, ZCL_ATTRID_BATTERY_VOLTAGE, &voltage);
     zcl_setAttrVal(WATERMETER_ENDPOINT1, ZCL_CLUSTER_GEN_POWER_CFG, ZCL_ATTRID_BATTERY_PERCENTAGE_REMAINING, &level);
@@ -346,9 +410,8 @@ void button_handler() {
                 g_watermeterCtx.timerPollRateEvt = TL_ZB_TIMER_SCHEDULE(poll_rateAppCb, NULL, TIMEOUT_2MIN);
             }
 
-            if (!g_watermeterCtx.timerReportEvt) {
-                g_watermeterCtx.timerReportEvt = TL_ZB_TIMER_SCHEDULE(forcedReportCb, NULL, TIMEOUT_5SEC);
-                batteryCmd();
+            if (!g_watermeterCtx.timerForcedReportEvt) {
+                g_watermeterCtx.timerForcedReportEvt = TL_ZB_TIMER_SCHEDULE(forcedReportCb, NULL, TIMEOUT_5SEC);
             }
         }
     } else if (!g_watermeterCtx.button.pressed) {
@@ -397,28 +460,57 @@ u32 check_counter_overflow(u32 check_count) {
     return count;
 }
 
+/* reg_deep_sleep is                                                */
+/* 0x01: input level on HOT_PIN before deep sleep                   */
+/* 0x02: input level on COLD_PIN before deep sleep                  */
+/* 0x04: 1 - deep sleep, watchdog or soft_reset,  0 - new start MCU */
+
 void init_counters() {
 
+    u8 reg_deep_sleep = analog_read(CHK_DEEP_SLEEP);
+
     hot_counter.counter = 0;
-    if (!drv_gpio_read(HOT_GPIO)) {
-        hot_counter.debounce = DEBOUNCE_COUNTER;
-        hot_counter.pressed = true;
-    } else {
-        hot_counter.debounce = 1;
-        hot_counter.pressed = false;
-    }
-
     cold_counter.counter = 0;
-    if (!drv_gpio_read(COLD_GPIO)) {
-        cold_counter.debounce = DEBOUNCE_COUNTER;
-        cold_counter.pressed = true;
+
+    if (reg_deep_sleep & 0x04) {
+        /* wakeup from deep sleep */
+
+        if (!drv_gpio_read(HOT_GPIO)) {
+            hot_counter.debounce = DEBOUNCE_COUNTER;
+            if (reg_deep_sleep & 0x01) {
+                hot_counter.counter++;
+            }
+        } else {
+            hot_counter.debounce = 1;
+        }
+
+        if (!drv_gpio_read(COLD_GPIO)) {
+            cold_counter.debounce = DEBOUNCE_COUNTER;
+            if (reg_deep_sleep & 0x02) {
+                cold_counter.counter++;
+            }
+        } else {
+            cold_counter.debounce = 1;
+        }
+
     } else {
-        cold_counter.debounce = 1;
-        cold_counter.pressed = false;
+        /* new start MCU */
+        if (!drv_gpio_read(HOT_GPIO)) {
+            hot_counter.debounce = DEBOUNCE_COUNTER;
+        } else {
+            hot_counter.debounce = 1;
+        }
+
+        if (!drv_gpio_read(COLD_GPIO)) {
+            cold_counter.debounce = DEBOUNCE_COUNTER;
+        } else {
+            cold_counter.debounce = 1;
+        }
     }
 
+    reg_deep_sleep = 0;
+    analog_write(CHK_DEEP_SLEEP, reg_deep_sleep);
 }
-
 
 u8 counters_handler() {
 
@@ -434,7 +526,6 @@ u8 counters_handler() {
         if (hot_counter.debounce != DEBOUNCE_COUNTER) {
             hot_counter.debounce++;
             if (hot_counter.debounce == DEBOUNCE_COUNTER) {
-                hot_counter.pressed = true;
                 hot_counter.counter++;
             }
         }
@@ -448,7 +539,6 @@ u8 counters_handler() {
         if (cold_counter.debounce != DEBOUNCE_COUNTER) {
             cold_counter.debounce++;
             if (cold_counter.debounce == DEBOUNCE_COUNTER) {
-                cold_counter.pressed = true;
                 cold_counter.counter++;
             }
         }
@@ -459,7 +549,6 @@ u8 counters_handler() {
     }
 
     if (hot_counter.counter) {
-        hot_counter.pressed = hot_counter.release = false;
         save_config = true;
         /* detect hot counter overflow */
         watermeter_config.counter_hot_water =
@@ -474,7 +563,6 @@ u8 counters_handler() {
     }
 
     if (cold_counter.counter) {
-        cold_counter.pressed = cold_counter.release = false;
         save_config = true;
         /* detect cold counter overflow */
         watermeter_config.counter_cold_water =
@@ -497,12 +585,16 @@ u8 counters_handler() {
     gpio_setup_up_down_resistor(COLD_GPIO, PM_PIN_PULLUP_1M);
 #endif
 
+    if (counters_idle()) {
+        sleep_ms(1);
+    }
+
     return save_config;
 }
 
 u8 counters_idle() {
-    if (((hot_counter.debounce != 1 && hot_counter.debounce != DEBOUNCE_COUNTER) || hot_counter.pressed || hot_counter.counter) ||
-        ((cold_counter.debounce != 1 && cold_counter.debounce != DEBOUNCE_COUNTER) || cold_counter.pressed || cold_counter.counter)  ) {
+    if ((hot_counter.debounce != 1 && hot_counter.debounce != DEBOUNCE_COUNTER) ||
+        (cold_counter.debounce != 1 && cold_counter.debounce != DEBOUNCE_COUNTER)) {
         return true;
     }
     return false;

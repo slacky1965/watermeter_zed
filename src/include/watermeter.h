@@ -11,6 +11,8 @@
 #define WATERMETER_ENDPOINT3 0x03
 #define SE_PROFILE_ID        0x0109
 
+#define CHK_DEEP_SLEEP       DEEP_ANA_REG1
+
 /**********************************************************************
  * TYPEDEFS
  */
@@ -29,10 +31,12 @@ typedef struct {
 
 typedef struct{
     ev_timer_event_t *bdbFBTimerEvt;
-    ev_timer_event_t *timerReportEvt;
+    ev_timer_event_t *timerForcedReportEvt;
+    ev_timer_event_t *timerStopReportEvt;
     ev_timer_event_t *timerPollRateEvt;
     ev_timer_event_t *timerBatteryEvt;
     ev_timer_event_t *timerLedEvt;
+    ev_timer_event_t *timerNoJoinedEvt;
 
     u32 short_poll;
     u32 long_poll;
@@ -104,7 +108,7 @@ typedef struct {
 /**
  *  @brief  Defined for poll control cluster attributes
  */
-typedef struct{
+typedef struct {
     u32 chkInInterval;
     u32 longPollInterval;
     u32 chkInIntervalMin;
@@ -112,7 +116,8 @@ typedef struct{
     u16 shortPollInterval;
     u16 fastPollTimeout;
     u16 fastPollTimeoutMax;
-}zcl_pollCtrlAttr_t;
+} zcl_pollCtrlAttr_t;
+
 
 /**********************************************************************
  * GLOBAL VARIABLES
@@ -160,6 +165,7 @@ status_t watermeter_cfgCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdP
 void watermeter_leaveCnfHandler(nlme_leave_cnf_t *pLeaveCnf);
 void watermeter_leaveIndHandler(nlme_leave_ind_t *pLeaveInd);
 void watermeter_otaProcessMsgHandler(u8 evt, u8 status);
+void app_wakeupPinLevelChange();
 
 
 #endif /* SRC_INCLUDE_WATERMETER_H_ */
