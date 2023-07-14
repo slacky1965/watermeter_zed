@@ -43,6 +43,7 @@ extern "C" {
 
 /* for polling */
 #define LONG_POLL           REPORTING_MIN
+#define TIMEOUT_NET         TIMEOUT_30MIN
 
 /**********************************************************************
  * Product Information
@@ -85,6 +86,7 @@ extern "C" {
 #define BOARD_B91_EVK                   8
 #define BOARD_B91_DONGLE                9
 #define BOARD_8258_DIY                  10
+#define BOARD_TB_04                     11
 
 /* Board define */
 #if defined(MCU_CORE_826x)
@@ -98,7 +100,7 @@ extern "C" {
 #if (CHIP_TYPE == TLSR_8258_1M)
     #define FLASH_CAP_SIZE_1M           1
 #endif
-    #define BOARD                       BOARD_8258_DONGLE//BOARD_8258_EVK BOARD_8258_DIY //
+    #define BOARD                       BOARD_8258_DONGLE //BOARD_TB_04 //BOARD_8258_EVK //BOARD_8258_DIY //
     #define CLOCK_SYS_CLOCK_HZ          48000000
     /************************* For 512K Flash only ***************************************/
     /* Flash map:
@@ -152,6 +154,8 @@ extern "C" {
     #include "board_b91_dongle.h"
 #elif (BOARD == BOARD_8258_DIY)
     #include "board_8258_diy.h"
+#elif (BOARD == BOARD_TB_04)
+    #include "board_TB-04.h"
 #endif
 
 
