@@ -282,9 +282,6 @@ const zclAttrInfo_t zcl_hotWater_attrTbl[] = {
 
 const zclAttrInfo_t zcl_coldWater_attrTbl[] = {
     { ZCL_ATTRID_CURRENT_SUMMATION_DELIVERD,  ZCL_DATA_TYPE_UINT48,   ACCESS_CONTROL_READ | ACCESS_CONTROL_REPORTABLE,  (u8*)&g_zcl_watermeterAttrs.cold_water_counter},
-    { ZCL_ATTRID_CUSTOM_HOT_WATER_PRESET, ZCL_DATA_TYPE_UINT32, ACCESS_CONTROL_WRITE, (u8*)&g_zcl_watermeterCfgAttrs.hot_water_preset},
-    { ZCL_ATTRID_CUSTOM_COLD_WATER_PRESET, ZCL_DATA_TYPE_UINT32, ACCESS_CONTROL_WRITE, (u8*)&g_zcl_watermeterCfgAttrs.cold_water_preset},
-    { ZCL_ATTRID_CUSTOM_WATER_STEP_PRESET, ZCL_DATA_TYPE_UINT16, ACCESS_CONTROL_WRITE, (u8*)&g_zcl_watermeterCfgAttrs.water_step_preset},
 
     { ZCL_ATTRID_GLOBAL_CLUSTER_REVISION, ZCL_DATA_TYPE_UINT16,  ACCESS_CONTROL_READ, (u8*)&zcl_attr_global_clusterRevision},
 };
