@@ -66,6 +66,7 @@
     #define ZCL_BASIC_SW_BUILD_ID       {7,'v',(APP_RELEASE>>4)+0x30,'.',(APP_RELEASE&0xf)+0x30,'.',(APP_BUILD>>4)+0x30,(APP_BUILD&0xf)+0x30}
 #endif
 
+#define IMAGE_TYPE_WATERMETER        (0x04 | (IMAGE_TYPE_BOOT_FLAG << 7))
 
 /*********************************************************************************************
  * During OTA upgrade, the upgraded device will check the rules of the following three fields.
