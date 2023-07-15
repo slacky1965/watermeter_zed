@@ -144,7 +144,7 @@ s32 poll_rateAppCb(void *arg) {
 
     zb_setPollRate(g_watermeterCtx.long_poll);
 
-    return -1; //g_watermeterCtx.long_poll;
+    return g_watermeterCtx.long_poll;
 }
 
 static s32 delayedMcuResetCb(void *arg) {
