@@ -48,13 +48,13 @@
 
 <img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/schematic_watermeter_zed.jpg" alt="schematic"/>
 
+---
 
 ## Плата
 
 Плата разведена, но пока не заказана и не проверена.
 
 <img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/board_top.jpg" alt="Board top"/>
-
 
 ---
 
