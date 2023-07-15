@@ -17,8 +17,8 @@
  * TYPEDEFS
  */
 typedef struct{
-    u8 keyType; /* ERTIFICATION_KEY or MASTER_KEY key for touch-link or distribute network
-                 SS_UNIQUE_LINK_KEY or SS_GLOBAL_LINK_KEY for distribute network */
+    u8 keyType; /* CERTIFICATION_KEY or MASTER_KEY key for touch-link or distribute network
+                   SS_UNIQUE_LINK_KEY or SS_GLOBAL_LINK_KEY for distribute network */
     u8 key[16]; /* the key used */
 }app_linkKey_info_t;
 
