@@ -578,6 +578,11 @@ u8 counters_handler() {
 
     if (save_config) {
         write_config();
+        zb_setPollRate(g_watermeterCtx.short_poll);
+        if (g_watermeterCtx.timerPollRateEvt) {
+            TL_ZB_TIMER_CANCEL(&g_watermeterCtx.timerPollRateEvt);
+        }
+        g_watermeterCtx.timerPollRateEvt = TL_ZB_TIMER_SCHEDULE(poll_rateAppCb, NULL, TIMEOUT_30SEC);
     }
 
 #if 0
