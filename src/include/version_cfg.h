@@ -42,7 +42,7 @@
 #endif
 
 #define APP_RELEASE                         0x13        //app release 1.3
-#define APP_BUILD                           0x01        //app build 01, full version - v1.3.01
+#define APP_BUILD                           0x02        //app build 01, full version - v1.3.01
 #define STACK_RELEASE						0x30        //stack release 3.0
 #define STACK_BUILD							0x01        //stack build 01
 #define HW_VERSION                          0x01
@@ -54,7 +54,7 @@
     #define ZCL_BASIC_MODEL_ID     {8,'T','L','S','R','8','2','6','x'}
 #endif
 #ifndef ZCL_BASIC_DATE_CODE
-    #define ZCL_BASIC_DATE_CODE    {8,'2','0','2','3','0','7','1','4'}
+    #define ZCL_BASIC_DATE_CODE    {8,'2','0','2','3','0','7','1','9'}
 #endif
 #ifndef ZCL_BASIC_LOC_DESC
     #define ZCL_BASIC_LOC_DESC     {7,'U','N','K','N','O','W','N'}

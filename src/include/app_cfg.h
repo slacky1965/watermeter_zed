@@ -118,7 +118,8 @@ extern "C" {
     #define END_USER_DATA1              (BEGIN_USER_DATA1 + USER_DATA_SIZE)
     #define BEGIN_USER_DATA2            0x40000
     #define END_USER_DATA2              (BEGIN_USER_DATA2 + USER_DATA_SIZE)
-    #define GEN_USER_CFG_DATA           END_USER_DATA2
+//    #define GEN_USER_CFG_DATA           END_USER_DATA2
+    #define NV_ITEM_APP_USER_CFG        (NV_ITEM_APP_GP_TRANS_TABLE + 1)    // see sdk/proj/drivers/drv_nv.h
 #elif defined(MCU_CORE_8278)
     #define FLASH_CAP_SIZE_1M           1
     #define BOARD                       BOARD_8278_DONGLE//BOARD_8278_EVK

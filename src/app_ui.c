@@ -32,7 +32,6 @@
 
 #include "app_ui.h"
 #include "watermeter.h"
-//#include "zcl_watermeter.h"
 
 /**********************************************************************
  * LOCAL CONSTANTS
@@ -683,10 +682,13 @@ static void init_default_config() {
 
 static void write_restore_config() {
     watermeter_config.crc = checksum((u8*)&(watermeter_config), sizeof(watermeter_config_t));
-    flash_erase(GEN_USER_CFG_DATA);
-    flash_write(GEN_USER_CFG_DATA, sizeof(watermeter_config_t), (u8*)&(watermeter_config));
+//    flash_erase(GEN_USER_CFG_DATA);
+//    flash_write(GEN_USER_CFG_DATA, sizeof(watermeter_config_t), (u8*)&(watermeter_config));
+    nv_flashWriteNew(1, NV_MODULE_APP,  NV_ITEM_APP_USER_CFG, sizeof(watermeter_config_t), (u8*)&watermeter_config);
+
 #if UART_PRINTF_MODE && DEBUG_LEVEL
-    printf("Save restored config to flash address - 0x%x\r\n", GEN_USER_CFG_DATA);
+    printf("Save restored config to nv_ram in module NV_MODULE_APP (%d) item NV_ITEM_APP_USER_CFG (%d)\r\n",
+            NV_MODULE_APP,  NV_ITEM_APP_USER_CFG);
 #endif /* UART_PRINTF_MODE */
 
 }
@@ -694,14 +696,20 @@ static void write_restore_config() {
 void init_config(u8 print) {
     watermeter_config_t config_curr, config_next, config_restore;
     u8 find_config = false;
+    nv_sts_t st = NV_SUCC;
 
     get_user_data_addr(print);
 
-    flash_read(GEN_USER_CFG_DATA, sizeof(watermeter_config_t), (u8*)&config_restore);
+#if !NV_ENABLE
+#error "NV_ENABLE must be enable in "stack_cfg.h" file!"
+#endif
+
+    st = nv_flashReadNew(1, NV_MODULE_APP,  NV_ITEM_APP_USER_CFG, sizeof(watermeter_config_t), (u8*)&config_restore);
+    //flash_read(GEN_USER_CFG_DATA, sizeof(watermeter_config_t), (u8*)&config_restore);
 
     u16 crc = checksum((u8*)&config_restore, sizeof(watermeter_config_t));
 
-    if (config_restore.id != ID_CONFIG || crc != config_restore.crc) {
+    if (st != NV_SUCC || config_restore.id != ID_CONFIG || crc != config_restore.crc) {
 #if UART_PRINTF_MODE
         printf("No saved config! Init.\r\n");
 #endif /* UART_PRINTF_MODE */

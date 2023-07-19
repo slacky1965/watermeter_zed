@@ -123,8 +123,7 @@ const u16 watermeter_ep3_outClusterList[] = {
 /**
  *  @brief Definition for simple description for HA profile
  */
-const af_simple_descriptor_t watermeter_ep1Desc =
-{
+const af_simple_descriptor_t watermeter_ep1Desc = {
     HA_PROFILE_ID,                          /* Application profile identifier */
     HA_DEV_METER_INTERFACE,                 /* Application device identifier */
     WATERMETER_ENDPOINT1,                   /* Endpoint */
@@ -166,7 +165,7 @@ const af_simple_descriptor_t watermeter_ep3Desc =
 zcl_basicAttr_t g_zcl_basicAttrs =
 {
 	.zclVersion 	= 0x03,
-    .appVersion     = (APP_RELEASE|APP_BUILD),
+    .appVersion     = APP_RELEASE,
     .stackVersion   = (STACK_RELEASE|STACK_BUILD),
 	.hwVersion		= HW_VERSION,
 	.manuName		= ZCL_BASIC_MFG_NAME,
