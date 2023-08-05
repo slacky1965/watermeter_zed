@@ -56,6 +56,8 @@
 
 <img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/board_top.jpg" alt="Board top"/>
 
+[Ссылка на проект в easyeda](https://oshwlab.com/slacky/watermeter_zed)
+
 ---
 
 ## Готовое устройство
