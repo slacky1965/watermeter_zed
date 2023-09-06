@@ -162,8 +162,7 @@ static u8 app_reportableChangeValueChk(u8 dataType, u8 *curValue, u8 *prevValue,
     u8 needReport = false;
 
     switch(dataType) {
-        case ZCL_DATA_TYPE_UINT48:
-        {
+        case ZCL_DATA_TYPE_UINT48: {
             u64 P = BUILD_U48(prevValue[0], prevValue[1], prevValue[2], prevValue[3], prevValue[4], prevValue[5]);
             u64 C = BUILD_U48(curValue[0], curValue[1], curValue[2], curValue[3], curValue[4], curValue[5]);
             u64 R = BUILD_U48(reportableChange[0], reportableChange[1], reportableChange[2], reportableChange[3], reportableChange[4], reportableChange[5]);
@@ -175,6 +174,7 @@ static u8 app_reportableChangeValueChk(u8 dataType, u8 *curValue, u8 *prevValue,
             break;
         }
         default:
+            needReport = reportableChangeValueChk(dataType, curValue, prevValue, reportableChange);
             break;
     }
 
@@ -197,7 +197,7 @@ static s32 app_reportMinAttrTimerCb(void *arg) {
         reportAttr(pEntry);
         app_reporting->time_posted = clock_time();
 #if UART_PRINTF_MODE && DEBUG_LEVEL
-        printf("Report has been sent. endPoint: %d, clusterID: 0x%x, attrID: 0x%x, minInterval: %d, maxInterval: %d\r\n",
+        printf("Report Min_Interval has been sent. endPoint: %d, clusterID: 0x%x, attrID: 0x%x, minInterval: %d, maxInterval: %d\r\n",
                 pEntry->endPoint, pEntry->clusterID, pEntry->attrID, pEntry->minInterval, pEntry->maxInterval);
 #endif
         return 0;
@@ -209,14 +209,13 @@ static s32 app_reportMinAttrTimerCb(void *arg) {
     len = (len>8) ? (8):(len);
 
     if( (!zcl_analogDataType(pAttrEntry->type) && (memcmp(pEntry->prevData, pAttrEntry->data, len) != SUCCESS)) ||
-                    ((zcl_analogDataType(pAttrEntry->type) && reportableChangeValueChk(pAttrEntry->type,
-                    pAttrEntry->data, pEntry->prevData, pEntry->reportableChange))) ||
-                    ((zcl_analogDataType(pAttrEntry->type) && pAttrEntry->type == ZCL_DATA_TYPE_UINT48 &&
-                    app_reportableChangeValueChk(pAttrEntry->type, pAttrEntry->data, pEntry->prevData, pEntry->reportableChange)))) {
+            ((zcl_analogDataType(pAttrEntry->type) && app_reportableChangeValueChk(pAttrEntry->type,
+            pAttrEntry->data, pEntry->prevData, pEntry->reportableChange)))) {
+
         reportAttr(pEntry);
         app_reporting->time_posted = clock_time();
 #if UART_PRINTF_MODE && DEBUG_LEVEL
-        printf("Report has been sent. endPoint: %d, clusterID: 0x%x, attrID: 0x%x, minInterval: %d, maxInterval: %d\r\n",
+        printf("Report Min_Interval has been sent. endPoint: %d, clusterID: 0x%x, attrID: 0x%x, minInterval: %d, maxInterval: %d\r\n",
                 pEntry->endPoint, pEntry->clusterID, pEntry->attrID, pEntry->minInterval, pEntry->maxInterval);
 #endif
     }
@@ -233,7 +232,7 @@ static s32 app_reportMaxAttrTimerCb(void *arg) {
             TL_ZB_TIMER_CANCEL(&app_reporting->timerReportMinEvt);
         }
 #if UART_PRINTF_MODE && DEBUG_LEVEL
-        printf("Report has been sent. endPoint: %d, clusterID: 0x%x, attrID: 0x%x, minInterval: %d, maxInterval: %d\r\n",
+        printf("Report Max_Interval has been sent. endPoint: %d, clusterID: 0x%x, attrID: 0x%x, minInterval: %d, maxInterval: %d\r\n",
                 pEntry->endPoint, pEntry->clusterID, pEntry->attrID, pEntry->minInterval, pEntry->maxInterval);
 #endif
         reportAttr(pEntry);
@@ -299,24 +298,26 @@ void app_reportNoMinLimit(void)
                 len = (len>8) ? (8):(len);
 
                 if( (!zcl_analogDataType(pAttrEntry->type) && (memcmp(pEntry->prevData, pAttrEntry->data, len) != SUCCESS)) ||
-                        ((zcl_analogDataType(pAttrEntry->type) && reportableChangeValueChk(pAttrEntry->type,
-                        pAttrEntry->data, pEntry->prevData, pEntry->reportableChange))) ||
-                        ((zcl_analogDataType(pAttrEntry->type) && pAttrEntry->type == ZCL_DATA_TYPE_UINT48 &&
-                        app_reportableChangeValueChk(pAttrEntry->type, pAttrEntry->data, pEntry->prevData, pEntry->reportableChange)))) {
+                        ((zcl_analogDataType(pAttrEntry->type) && app_reportableChangeValueChk(pAttrEntry->type,
+                        pAttrEntry->data, pEntry->prevData, pEntry->reportableChange)))) {
 
-                    reportAttr(pEntry);
-                    app_reporting->time_posted = clock_time();
-#if UART_PRINTF_MODE && DEBUG_LEVEL
-                    printf("Report has been sent. endPoint: %d, clusterID: 0x%x, attrID: 0x%x, minInterval: %d, maxInterval: %d\r\n",
-                            pEntry->endPoint, pEntry->clusterID, pEntry->attrID, pEntry->minInterval, pEntry->maxInterval);
-#endif
-                    if (app_reporting[i].timerReportMaxEvt) {
-                        TL_ZB_TIMER_CANCEL(&app_reporting[i].timerReportMaxEvt);
+                    if(zb_bindingTblSearched(pEntry->clusterID, pEntry->endPoint)) {
+
+                        reportAttr(pEntry);
+                        app_reporting[i].time_posted = clock_time();
+    #if UART_PRINTF_MODE && DEBUG_LEVEL
+                        printf("Report No_Min_Limit has been sent. endPoint: %d, clusterID: 0x%x, attrID: 0x%x, minInterval: %d, maxInterval: %d\r\n",
+                                pEntry->endPoint, pEntry->clusterID, pEntry->attrID, pEntry->minInterval, pEntry->maxInterval);
+    #endif
+                        if (app_reporting[i].timerReportMaxEvt) {
+                            TL_ZB_TIMER_CANCEL(&app_reporting[i].timerReportMaxEvt);
+                        }
+                        app_reporting[i].timerReportMaxEvt = TL_ZB_TIMER_SCHEDULE(app_reportMaxAttrTimerCb, &app_reporting[i], pEntry->maxInterval*1000);
+    #if UART_PRINTF_MODE && DEBUG_LEVEL
+                        printf("Start maxTimer. endPoint: %d, clusterID: 0x%x, attrID: 0x%x, min: %d, max: %d\r\n", pEntry->endPoint, pEntry->clusterID, pEntry->attrID, pEntry->minInterval, pEntry->maxInterval);
+    #endif
                     }
-                    app_reporting[i].timerReportMaxEvt = TL_ZB_TIMER_SCHEDULE(app_reportMaxAttrTimerCb, &app_reporting[i], pEntry->maxInterval*1000);
-#if UART_PRINTF_MODE && DEBUG_LEVEL
-                    printf("Start maxTimer. endPoint: %d, clusterID: 0x%x, attrID: 0x%x, min: %d, max: %d\r\n", pEntry->endPoint, pEntry->clusterID, pEntry->attrID, pEntry->minInterval, pEntry->maxInterval);
-#endif
+
                 }
             }
         }
