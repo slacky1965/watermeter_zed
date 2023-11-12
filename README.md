@@ -52,8 +52,6 @@
 
 ## Плата
 
-Плата разведена, но пока не заказана и не проверена.
-
 <img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/board_top.jpg" alt="Board top"/>
 
 [Ссылка на проект в easyeda](https://oshwlab.com/slacky/watermeter_zed)
@@ -62,7 +60,7 @@
 
 ## Готовое устройство
 
-Пока нет.
+<img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/watermeter_board_top.jpg" alt="Watermeter board top"/>
 
 ---
 
@@ -165,6 +163,32 @@
 <img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/ota_update.jpg" alt="Check for new updates"/>
 
 Если обновление принимается, то кнопка `Check for new updates` станет красной (не помню, что на ней будет написано, но что-то update new version). Ее нужно кликнуть и обновление начнет загружаться (zigbee обновляется долго, что-то в районе 20 минут). Если обновление завершится с ошибкой, то кнопка обновления опять станет красной и ее нужно опять нажать и разбудить модуль нажатием кнопки. Процесс обновления обнулится и пойдет с самого начала.
+
+---
+
+## Потребление
+
+Долгих испытаний в реальной работе пока не проводилось. С помощью ppk2 произведены замеры потребления в различных режимах.
+
+Устройтсво не в сети, без питания. Подаем питание, оно стратует и подключается к сети.
+
+<img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/ppk2-start_device.jpg" alt="Start new device"/>
+
+Устройство работает в штатном режиме с POLL RATE 3 секунды.
+
+<img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/ppk2-poll_rate_3_sec.jpg" alt="Poll rate 3 sec."/>
+
+Замкнулся геркон на счетчике воды.
+
+<img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/ppk2-close_counter.jpg" alt="Counter close"/>
+
+Разомкнулся геркон на счетчике воды.
+
+<img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/ppk2-open_counter.jpg" alt="Counter open"/>
+
+Старт модуля, который уже подключен к сети и работа его в течение 6 минут без срабатывания счетчиков.
+
+<img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/ppk2-start_and_work_6min.jpg" alt="Work 6 min."/>
 
 ---
 
