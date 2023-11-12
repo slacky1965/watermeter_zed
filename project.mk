@@ -5,11 +5,18 @@ OUT_DIR += \
  
 OBJS += \
 $(OUT_PATH)/$(SRC_PATH)/common/main.o \
-$(OUT_PATH)/$(SRC_PATH)/app_ui.o \
+$(OUT_PATH)/$(SRC_PATH)/app_pm.o \
+$(OUT_PATH)/$(SRC_PATH)/app_button.o \
+$(OUT_PATH)/$(SRC_PATH)/app_led.o \
+$(OUT_PATH)/$(SRC_PATH)/app_counter.o \
+$(OUT_PATH)/$(SRC_PATH)/app_battery.o \
+$(OUT_PATH)/$(SRC_PATH)/app_reporting.o \
+$(OUT_PATH)/$(SRC_PATH)/app_dev_config.o \
+$(OUT_PATH)/$(SRC_PATH)/app_endpoint_cfg.o \
+$(OUT_PATH)/$(SRC_PATH)/app_utility.o \
 $(OUT_PATH)/$(SRC_PATH)/watermeter.o \
-$(OUT_PATH)/$(SRC_PATH)/watermeterEpCfg.o \
 $(OUT_PATH)/$(SRC_PATH)/zb_appCb.o \
-$(OUT_PATH)/$(SRC_PATH)/zcl_watermeterCb.o
+$(OUT_PATH)/$(SRC_PATH)/zcl_appCb.o
 
 # Each subdirectory must supply rules for building sources it contributes
 $(OUT_PATH)/$(SRC_PATH)/%.o: $(SRC_PATH)/%.c 

@@ -27,12 +27,10 @@
  * INCLUDES
  */
 #include "tl_common.h"
-#include "zb_api.h"
 #include "zcl_include.h"
 
-#include "app_ui.h"
-#include "watermeter.h"
 #include "se_custom_attr.h"
+#include "watermeter.h"
 
 
 /**********************************************************************
@@ -49,18 +47,18 @@
  * LOCAL FUNCTIONS
  */
 #ifdef ZCL_READ
-static void watermeter_zclReadRspCmd(u16 clusterId, zclReadRspCmd_t *pReadRspCmd);
+static void app_zclReadRspCmd(uint16_t clusterId, zclReadRspCmd_t *pReadRspCmd);
 #endif
 #ifdef ZCL_WRITE
-static void watermeter_zclWriteRspCmd(u16 clusterId, zclWriteRspCmd_t *pWriteRspCmd);
-static void watermeter_zclWriteReqCmd(u8 endPoint, u16 clusterId, zclWriteCmd_t *pWriteReqCmd);
+static void app_zclWriteRspCmd(uint16_t clusterId, zclWriteRspCmd_t *pWriteRspCmd);
+static void app_zclWriteReqCmd(uint8_t endPoint, uint16_t clusterId, zclWriteCmd_t *pWriteReqCmd);
 #endif
 #ifdef ZCL_REPORT
-static void watermeter_zclCfgReportCmd(u8 endPoint, u16 clusterId, zclCfgReportCmd_t *pCfgReportCmd);
-static void watermeter_zclCfgReportRspCmd(u16 clusterId, zclCfgReportRspCmd_t *pCfgReportRspCmd);
-static void watermeter_zclReportCmd(u16 clusterId, zclReportCmd_t *pReportCmd);
+static void app_zclCfgReportCmd(uint8_t endPoint, uint16_t clusterId, zclCfgReportCmd_t *pCfgReportCmd);
+static void app_zclCfgReportRspCmd(uint16_t clusterId, zclCfgReportRspCmd_t *pCfgReportRspCmd);
+static void app_zclReportCmd(uint16_t clusterId, zclReportCmd_t *pReportCmd);
 #endif
-static void watermeter_zclDfltRspCmd(u16 clusterId, zclDefaultRspCmd_t *pDftRspCmd);
+static void app_zclDfltRspCmd(uint16_t clusterId, zclDefaultRspCmd_t *pDftRspCmd);
 
 
 /**********************************************************************
@@ -80,7 +78,7 @@ static ev_timer_event_t *identifyTimerEvt = NULL;
  */
 
 /*********************************************************************
- * @fn      watermeter_zclProcessIncomingMsg
+ * @fn      app_zclProcessIncomingMsg
  *
  * @brief   Process ZCL Foundation incoming message.
  *
@@ -88,40 +86,40 @@ static ev_timer_event_t *identifyTimerEvt = NULL;
  *
  * @return  None
  */
-void watermeter_zclProcessIncomingMsg(zclIncoming_t *pInHdlrMsg)
+void app_zclProcessIncomingMsg(zclIncoming_t *pInHdlrMsg)
 {
-	//printf("watermeter_zclProcessIncomingMsg\n");
+	//printf("app_zclProcessIncomingMsg\n");
 
-	u16 cluster = pInHdlrMsg->msg->indInfo.cluster_id;
-	u8 endPoint = pInHdlrMsg->msg->indInfo.dst_ep;
+	uint16_t cluster = pInHdlrMsg->msg->indInfo.cluster_id;
+	uint8_t endPoint = pInHdlrMsg->msg->indInfo.dst_ep;
 	switch(pInHdlrMsg->hdr.cmd)
 	{
 #ifdef ZCL_READ
 		case ZCL_CMD_READ_RSP:
-			watermeter_zclReadRspCmd(cluster, pInHdlrMsg->attrCmd);
+			app_zclReadRspCmd(cluster, pInHdlrMsg->attrCmd);
 			break;
 #endif
 #ifdef ZCL_WRITE
 		case ZCL_CMD_WRITE_RSP:
-			watermeter_zclWriteRspCmd(cluster, pInHdlrMsg->attrCmd);
+			app_zclWriteRspCmd(cluster, pInHdlrMsg->attrCmd);
 			break;
 		case ZCL_CMD_WRITE:
-		    watermeter_zclWriteReqCmd(endPoint, cluster, pInHdlrMsg->attrCmd);
+		    app_zclWriteReqCmd(endPoint, cluster, pInHdlrMsg->attrCmd);
 			break;
 #endif
 #ifdef ZCL_REPORT
 		case ZCL_CMD_CONFIG_REPORT:
-			watermeter_zclCfgReportCmd(endPoint, cluster, pInHdlrMsg->attrCmd);
+			app_zclCfgReportCmd(endPoint, cluster, pInHdlrMsg->attrCmd);
 			break;
 		case ZCL_CMD_CONFIG_REPORT_RSP:
-			watermeter_zclCfgReportRspCmd(cluster, pInHdlrMsg->attrCmd);
+			app_zclCfgReportRspCmd(cluster, pInHdlrMsg->attrCmd);
 			break;
 		case ZCL_CMD_REPORT:
-			watermeter_zclReportCmd(cluster, pInHdlrMsg->attrCmd);
+			app_zclReportCmd(cluster, pInHdlrMsg->attrCmd);
 			break;
 #endif
 		case ZCL_CMD_DEFAULT_RSP:
-			watermeter_zclDfltRspCmd(cluster, pInHdlrMsg->attrCmd);
+			app_zclDfltRspCmd(cluster, pInHdlrMsg->attrCmd);
 			break;
 		default:
 			break;
@@ -130,7 +128,7 @@ void watermeter_zclProcessIncomingMsg(zclIncoming_t *pInHdlrMsg)
 
 #ifdef ZCL_READ
 /*********************************************************************
- * @fn      watermeter_zclReadRspCmd
+ * @fn      app_zclReadRspCmd
  *
  * @brief   Handler for ZCL Read Response command.
  *
@@ -138,16 +136,16 @@ void watermeter_zclProcessIncomingMsg(zclIncoming_t *pInHdlrMsg)
  *
  * @return  None
  */
-static void watermeter_zclReadRspCmd(u16 clusterId, zclReadRspCmd_t *pReadRspCmd)
+static void app_zclReadRspCmd(uint16_t clusterId, zclReadRspCmd_t *pReadRspCmd)
 {
-    //printf("watermeter_zclReadRspCmd\n");
+    //printf("app_zclReadRspCmd\n");
 
 }
 #endif	/* ZCL_READ */
 
 #ifdef ZCL_WRITE
 /*********************************************************************
- * @fn      watermeter_zclWriteRspCmd
+ * @fn      app_zclWriteRspCmd
  *
  * @brief   Handler for ZCL Write Response command.
  *
@@ -155,14 +153,14 @@ static void watermeter_zclReadRspCmd(u16 clusterId, zclReadRspCmd_t *pReadRspCmd
  *
  * @return  None
  */
-static void watermeter_zclWriteRspCmd(u16 clusterId, zclWriteRspCmd_t *pWriteRspCmd)
+static void app_zclWriteRspCmd(uint16_t clusterId, zclWriteRspCmd_t *pWriteRspCmd)
 {
-    //printf("watermeter_zclWriteRspCmd\n");
+    //printf("app_zclWriteRspCmd\n");
 
 }
 
 /*********************************************************************
- * @fn      watermeter_zclWriteReqCmd
+ * @fn      app_zclWriteReqCmd
  *
  * @brief   Handler for ZCL Write Request command.
  *
@@ -170,14 +168,14 @@ static void watermeter_zclWriteRspCmd(u16 clusterId, zclWriteRspCmd_t *pWriteRsp
  *
  * @return  None
  */
-static void watermeter_zclWriteReqCmd(u8 endPoint, u16 clusterId, zclWriteCmd_t *pWriteReqCmd) {
-    u8 numAttr = pWriteReqCmd->numAttr;
+static void app_zclWriteReqCmd(uint8_t endPoint, uint16_t clusterId, zclWriteCmd_t *pWriteReqCmd) {
+    uint8_t numAttr = pWriteReqCmd->numAttr;
     zclWriteRec_t *attr = pWriteReqCmd->attrList;
 
     if (clusterId == ZCL_CLUSTER_SE_METERING && endPoint == WATERMETER_ENDPOINT3) {
-        u32 water_value;
-        u64 water_counter;
-        for(u8 i = 0; i < numAttr; i++) {
+        uint32_t water_value;
+        uint64_t water_counter;
+        for(uint8_t i = 0; i < numAttr; i++) {
             //printf("(%d) attrID: 0x%x\r\n", i, attr->attrID);
             if (attr[i].attrID == ZCL_ATTRID_CUSTOM_HOT_WATER_PRESET && attr[i].dataType == ZCL_DATA_TYPE_UINT32) {
                 water_value = BUILD_U32(attr->attrData[0], attr->attrData[1], attr->attrData[2], attr->attrData[3]);
@@ -185,9 +183,9 @@ static void watermeter_zclWriteReqCmd(u8 endPoint, u16 clusterId, zclWriteCmd_t 
                 water_value *= watermeter_config.liters_per_pulse;
 
                 watermeter_config.counter_hot_water = check_counter_overflow(water_value);
-                zcl_setAttrVal(WATERMETER_ENDPOINT3, ZCL_CLUSTER_SE_METERING, ZCL_ATTRID_CUSTOM_HOT_WATER_PRESET, (u8*)&watermeter_config.counter_hot_water);
+                zcl_setAttrVal(WATERMETER_ENDPOINT3, ZCL_CLUSTER_SE_METERING, ZCL_ATTRID_CUSTOM_HOT_WATER_PRESET, (uint8_t*)&watermeter_config.counter_hot_water);
                 water_counter = watermeter_config.counter_hot_water & 0xffffffffffff;
-                zcl_setAttrVal(WATERMETER_ENDPOINT1, ZCL_CLUSTER_SE_METERING, ZCL_ATTRID_CURRENT_SUMMATION_DELIVERD, (u8*)&water_counter);
+                zcl_setAttrVal(WATERMETER_ENDPOINT1, ZCL_CLUSTER_SE_METERING, ZCL_ATTRID_CURRENT_SUMMATION_DELIVERD, (uint8_t*)&water_counter);
 
 #if UART_PRINTF_MODE
                 printf("New hot water value: %d\r\n", watermeter_config.counter_hot_water);
@@ -200,9 +198,9 @@ static void watermeter_zclWriteReqCmd(u8 endPoint, u16 clusterId, zclWriteCmd_t 
                 water_value *= watermeter_config.liters_per_pulse;
 
                 watermeter_config.counter_cold_water = check_counter_overflow(water_value);
-                zcl_setAttrVal(WATERMETER_ENDPOINT3, ZCL_CLUSTER_SE_METERING, ZCL_ATTRID_CUSTOM_COLD_WATER_PRESET, (u8*)&watermeter_config.counter_cold_water);
+                zcl_setAttrVal(WATERMETER_ENDPOINT3, ZCL_CLUSTER_SE_METERING, ZCL_ATTRID_CUSTOM_COLD_WATER_PRESET, (uint8_t*)&watermeter_config.counter_cold_water);
                 water_counter = watermeter_config.counter_cold_water & 0xffffffffffff;
-                zcl_setAttrVal(WATERMETER_ENDPOINT2, ZCL_CLUSTER_SE_METERING, ZCL_ATTRID_CURRENT_SUMMATION_DELIVERD, (u8*)&water_counter);
+                zcl_setAttrVal(WATERMETER_ENDPOINT2, ZCL_CLUSTER_SE_METERING, ZCL_ATTRID_CURRENT_SUMMATION_DELIVERD, (uint8_t*)&water_counter);
 
 #if UART_PRINTF_MODE
                 printf("New cold water value: %d\r\n", watermeter_config.counter_cold_water);
@@ -210,7 +208,7 @@ static void watermeter_zclWriteReqCmd(u8 endPoint, u16 clusterId, zclWriteCmd_t 
 //                return;
             } else if (attr[i].attrID == ZCL_ATTRID_CUSTOM_WATER_STEP_PRESET && attr[i].dataType == ZCL_DATA_TYPE_UINT16) {
 
-                u16 water_step = BUILD_U16(attr->attrData[0], attr->attrData[1]);
+                uint16_t water_step = BUILD_U16(attr->attrData[0], attr->attrData[1]);
 
                 water_step /= 10;
                 water_step *= 10;
@@ -218,7 +216,7 @@ static void watermeter_zclWriteReqCmd(u8 endPoint, u16 clusterId, zclWriteCmd_t 
                 if (water_step > 100) water_step = 100;
 
                 watermeter_config.liters_per_pulse = water_step;
-                zcl_setAttrVal(WATERMETER_ENDPOINT3, ZCL_CLUSTER_SE_METERING, ZCL_ATTRID_CUSTOM_WATER_STEP_PRESET, (u8*)&watermeter_config.liters_per_pulse);
+                zcl_setAttrVal(WATERMETER_ENDPOINT3, ZCL_CLUSTER_SE_METERING, ZCL_ATTRID_CUSTOM_WATER_STEP_PRESET, (uint8_t*)&watermeter_config.liters_per_pulse);
 
 #if UART_PRINTF_MODE
                 printf("New water step value: %d\r\n", watermeter_config.liters_per_pulse);
@@ -227,12 +225,12 @@ static void watermeter_zclWriteReqCmd(u8 endPoint, u16 clusterId, zclWriteCmd_t 
             }
         }
     }
-    //printf("watermeter_zclWriteReqCmd\r\n");
+    //printf("app_zclWriteReqCmd\r\n");
 #ifdef ZCL_POLL_CTRL
 	if(clusterId == ZCL_CLUSTER_GEN_POLL_CONTROL){
-		for(s32 i = 0; i < numAttr; i++){
+		for(int32_t i = 0; i < numAttr; i++){
 			if(attr[i].attrID == ZCL_ATTRID_CHK_IN_INTERVAL){
-				watermeter_zclCheckInStart();
+				app_zclCheckInStart();
 				return;
 			}
 		}
@@ -243,7 +241,7 @@ static void watermeter_zclWriteReqCmd(u8 endPoint, u16 clusterId, zclWriteCmd_t 
 
 
 /*********************************************************************
- * @fn      watermeter_zclDfltRspCmd
+ * @fn      app_zclDfltRspCmd
  *
  * @brief   Handler for ZCL Default Response command.
  *
@@ -251,15 +249,15 @@ static void watermeter_zclWriteReqCmd(u8 endPoint, u16 clusterId, zclWriteCmd_t 
  *
  * @return  None
  */
-static void watermeter_zclDfltRspCmd(u16 clusterId, zclDefaultRspCmd_t *pDftRspCmd)
+static void app_zclDfltRspCmd(uint16_t clusterId, zclDefaultRspCmd_t *pDftRspCmd)
 {
-    //printf("watermeter_zclDfltRspCmd\r\n");
+    //printf("app_zclDfltRspCmd\r\n");
 
 }
 
 #ifdef ZCL_REPORT
 /*********************************************************************
- * @fn      watermeter_zclCfgReportCmd
+ * @fn      app_zclCfgReportCmd
  *
  * @brief   Handler for ZCL Configure Report command.
  *
@@ -268,11 +266,11 @@ static void watermeter_zclDfltRspCmd(u16 clusterId, zclDefaultRspCmd_t *pDftRspC
  *
  * @return  None
  */
-static void watermeter_zclCfgReportCmd(u8 endPoint, u16 clusterId, zclCfgReportCmd_t *pCfgReportCmd)
+static void app_zclCfgReportCmd(uint8_t endPoint, uint16_t clusterId, zclCfgReportCmd_t *pCfgReportCmd)
 {
-    //printf("watermeter_zclCfgReportCmd\r\n");
-    for(u8 i = 0; i < pCfgReportCmd->numAttr; i++) {
-        for (u8 ii = 0; ii < ZCL_REPORTING_TABLE_NUM; ii++) {
+    //printf("app_zclCfgReportCmd\r\n");
+    for(uint8_t i = 0; i < pCfgReportCmd->numAttr; i++) {
+        for (uint8_t ii = 0; ii < ZCL_REPORTING_TABLE_NUM; ii++) {
             if (app_reporting[ii].pEntry->used) {
                 if (app_reporting[ii].pEntry->endPoint == endPoint && app_reporting[ii].pEntry->attrID == pCfgReportCmd->attrList[i].attrID) {
                     if (app_reporting[ii].timerReportMinEvt) {
@@ -289,7 +287,7 @@ static void watermeter_zclCfgReportCmd(u8 endPoint, u16 clusterId, zclCfgReportC
 }
 
 /*********************************************************************
- * @fn      watermeter_zclCfgReportRspCmd
+ * @fn      app_zclCfgReportRspCmd
  *
  * @brief   Handler for ZCL Configure Report Response command.
  *
@@ -297,14 +295,14 @@ static void watermeter_zclCfgReportCmd(u8 endPoint, u16 clusterId, zclCfgReportC
  *
  * @return  None
  */
-static void watermeter_zclCfgReportRspCmd(u16 clusterId, zclCfgReportRspCmd_t *pCfgReportRspCmd)
+static void app_zclCfgReportRspCmd(uint16_t clusterId, zclCfgReportRspCmd_t *pCfgReportRspCmd)
 {
-    //printf("watermeter_zclCfgReportRspCmd\r\n");
+    //printf("app_zclCfgReportRspCmd\r\n");
 
 }
 
 /*********************************************************************
- * @fn      watermeter_zclReportCmd
+ * @fn      app_zclReportCmd
  *
  * @brief   Handler for ZCL Report command.
  *
@@ -312,16 +310,16 @@ static void watermeter_zclCfgReportRspCmd(u16 clusterId, zclCfgReportRspCmd_t *p
  *
  * @return  None
  */
-static void watermeter_zclReportCmd(u16 clusterId, zclReportCmd_t *pReportCmd)
+static void app_zclReportCmd(uint16_t clusterId, zclReportCmd_t *pReportCmd)
 {
-    //printf("watermeter_zclReportCmd\n");
+    //printf("app_zclReportCmd\n");
 
 }
 #endif	/* ZCL_REPORT */
 
 #ifdef ZCL_BASIC
 /*********************************************************************
- * @fn      watermeter_zclBasicResetCmdHandler
+ * @fn      app_zclBasicResetCmdHandler
  *
  * @brief   Handler for ZCL Basic Reset command.
  *
@@ -331,7 +329,7 @@ static void watermeter_zclReportCmd(u16 clusterId, zclReportCmd_t *pReportCmd)
  *
  * @return  status_t
  */
-status_t watermeter_basicCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload)
+status_t app_basicCb(zclIncomingAddrInfo_t *pAddrInfo, uint8_t cmdId, void *cmdPayload)
 {
 	if(cmdId == ZCL_CMD_BASIC_RESET_FAC_DEFAULT){
 		//Reset all the attributes of all its clusters to factory defaults
@@ -343,7 +341,7 @@ status_t watermeter_basicCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cm
 #endif	/* ZCL_BASIC */
 
 #ifdef ZCL_IDENTIFY
-s32 watermeter_zclIdentifyTimerCb(void *arg)
+int32_t app_zclIdentifyTimerCb(void *arg)
 {
 	if(g_zcl_identifyAttrs.identifyTime <= 0){
 		identifyTimerEvt = NULL;
@@ -353,7 +351,7 @@ s32 watermeter_zclIdentifyTimerCb(void *arg)
 	return 0;
 }
 
-void watermeter_zclIdentifyTimerStop(void)
+void app_zclIdentifyTimerStop(void)
 {
 	if(identifyTimerEvt){
 		TL_ZB_TIMER_CANCEL(&identifyTimerEvt);
@@ -361,7 +359,7 @@ void watermeter_zclIdentifyTimerStop(void)
 }
 
 /*********************************************************************
- * @fn      watermeter_zclIdentifyCmdHandler
+ * @fn      app_zclIdentifyCmdHandler
  *
  * @brief   Handler for ZCL Identify command. This function will set blink LED.
  *
@@ -371,23 +369,23 @@ void watermeter_zclIdentifyTimerStop(void)
  *
  * @return  None
  */
-void watermeter_zclIdentifyCmdHandler(u8 endpoint, u16 srcAddr, u16 identifyTime)
+void app_zclIdentifyCmdHandler(uint8_t endpoint, uint16_t srcAddr, uint16_t identifyTime)
 {
 	g_zcl_identifyAttrs.identifyTime = identifyTime;
 
 	if(identifyTime == 0){
-		watermeter_zclIdentifyTimerStop();
+		app_zclIdentifyTimerStop();
 		light_blink_stop();
 	}else{
 		if(!identifyTimerEvt){
 			light_blink_start(identifyTime, 500, 500);
-			identifyTimerEvt = TL_ZB_TIMER_SCHEDULE(watermeter_zclIdentifyTimerCb, NULL, 1000);
+			identifyTimerEvt = TL_ZB_TIMER_SCHEDULE(app_zclIdentifyTimerCb, NULL, 1000);
 		}
 	}
 }
 
 /*********************************************************************
- * @fn      watermeter_zcltriggerCmdHandler
+ * @fn      app_zcltriggerCmdHandler
  *
  * @brief   Handler for ZCL trigger command.
  *
@@ -395,10 +393,10 @@ void watermeter_zclIdentifyCmdHandler(u8 endpoint, u16 srcAddr, u16 identifyTime
  *
  * @return  None
  */
-static void watermeter_zcltriggerCmdHandler(zcl_triggerEffect_t *pTriggerEffect)
+static void app_zcltriggerCmdHandler(zcl_triggerEffect_t *pTriggerEffect)
 {
-	u8 effectId = pTriggerEffect->effectId;
-	//u8 effectVariant = pTriggerEffect->effectVariant;
+	uint8_t effectId = pTriggerEffect->effectId;
+	//uint8_t effectVariant = pTriggerEffect->effectVariant;
 
 	switch(effectId){
 		case IDENTIFY_EFFECT_BLINK:
@@ -425,7 +423,7 @@ static void watermeter_zcltriggerCmdHandler(zcl_triggerEffect_t *pTriggerEffect)
 }
 
 /*********************************************************************
- * @fn      watermeter_zclIdentifyQueryRspCmdHandler
+ * @fn      app_zclIdentifyQueryRspCmdHandler
  *
  * @brief   Handler for ZCL Identify Query response command.
  *
@@ -435,7 +433,7 @@ static void watermeter_zcltriggerCmdHandler(zcl_triggerEffect_t *pTriggerEffect)
  *
  * @return  None
  */
-static void watermeter_zclIdentifyQueryRspCmdHandler(u8 endpoint, u16 srcAddr, zcl_identifyRspCmd_t *identifyRsp)
+static void app_zclIdentifyQueryRspCmdHandler(uint8_t endpoint, uint16_t srcAddr, zcl_identifyRspCmd_t *identifyRsp)
 {
 #if FIND_AND_BIND_SUPPORT
 	if(identifyRsp->timeout){
@@ -459,23 +457,23 @@ static void watermeter_zclIdentifyQueryRspCmdHandler(u8 endpoint, u16 srcAddr, z
  *
  * @return  status_t
  */
-status_t watermeter_identifyCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload)
+status_t app_identifyCb(zclIncomingAddrInfo_t *pAddrInfo, uint8_t cmdId, void *cmdPayload)
 {
 	if(pAddrInfo->dstEp == WATERMETER_ENDPOINT1){
 		if(pAddrInfo->dirCluster == ZCL_FRAME_CLIENT_SERVER_DIR){
 			switch(cmdId){
 				case ZCL_CMD_IDENTIFY:
-					watermeter_zclIdentifyCmdHandler(pAddrInfo->dstEp, pAddrInfo->srcAddr, ((zcl_identifyCmd_t *)cmdPayload)->identifyTime);
+					app_zclIdentifyCmdHandler(pAddrInfo->dstEp, pAddrInfo->srcAddr, ((zcl_identifyCmd_t *)cmdPayload)->identifyTime);
 					break;
 				case ZCL_CMD_TRIGGER_EFFECT:
-					watermeter_zcltriggerCmdHandler((zcl_triggerEffect_t *)cmdPayload);
+					app_zcltriggerCmdHandler((zcl_triggerEffect_t *)cmdPayload);
 					break;
 				default:
 					break;
 			}
 		}else{
 			if(cmdId == ZCL_CMD_IDENTIFY_QUERY_RSP){
-				watermeter_zclIdentifyQueryRspCmdHandler(pAddrInfo->dstEp, pAddrInfo->srcAddr, (zcl_identifyRspCmd_t *)cmdPayload);
+				app_zclIdentifyQueryRspCmdHandler(pAddrInfo->dstEp, pAddrInfo->srcAddr, (zcl_identifyRspCmd_t *)cmdPayload);
 			}
 		}
 	}
@@ -485,7 +483,7 @@ status_t watermeter_identifyCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void 
 #endif	/* ZCL_IDENTIFY */
 
 /*********************************************************************
- * @fn      watermeter_powerCfgCb
+ * @fn      app_powerCfgCb
  *
  * @brief   Handler for ZCL Identify command.
  *
@@ -495,7 +493,7 @@ status_t watermeter_identifyCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void 
  *
  * @return  status_t
  */
-status_t watermeter_powerCfgCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload)
+status_t app_powerCfgCb(zclIncomingAddrInfo_t *pAddrInfo, uint8_t cmdId, void *cmdPayload)
 {
 
     return ZCL_STA_SUCCESS;
@@ -504,7 +502,7 @@ status_t watermeter_powerCfgCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void 
 
 #ifdef ZCL_GROUP
 /*********************************************************************
- * @fn      watermeter_zclAddGroupRspCmdHandler
+ * @fn      app_zclAddGroupRspCmdHandler
  *
  * @brief   Handler for ZCL add group response command.
  *
@@ -512,13 +510,13 @@ status_t watermeter_powerCfgCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void 
  *
  * @return  None
  */
-static void watermeter_zclAddGroupRspCmdHandler(zcl_addGroupRsp_t *pAddGroupRsp)
+static void app_zclAddGroupRspCmdHandler(zcl_addGroupRsp_t *pAddGroupRsp)
 {
 
 }
 
 /*********************************************************************
- * @fn      watermeter_zclViewGroupRspCmdHandler
+ * @fn      app_zclViewGroupRspCmdHandler
  *
  * @brief   Handler for ZCL view group response command.
  *
@@ -526,13 +524,13 @@ static void watermeter_zclAddGroupRspCmdHandler(zcl_addGroupRsp_t *pAddGroupRsp)
  *
  * @return  None
  */
-static void watermeter_zclViewGroupRspCmdHandler(zcl_viewGroupRsp_t *pViewGroupRsp)
+static void app_zclViewGroupRspCmdHandler(zcl_viewGroupRsp_t *pViewGroupRsp)
 {
 
 }
 
 /*********************************************************************
- * @fn      watermeter_zclRemoveGroupRspCmdHandler
+ * @fn      app_zclRemoveGroupRspCmdHandler
  *
  * @brief   Handler for ZCL remove group response command.
  *
@@ -540,13 +538,13 @@ static void watermeter_zclViewGroupRspCmdHandler(zcl_viewGroupRsp_t *pViewGroupR
  *
  * @return  None
  */
-static void watermeter_zclRemoveGroupRspCmdHandler(zcl_removeGroupRsp_t *pRemoveGroupRsp)
+static void app_zclRemoveGroupRspCmdHandler(zcl_removeGroupRsp_t *pRemoveGroupRsp)
 {
 
 }
 
 /*********************************************************************
- * @fn      watermeter_zclGetGroupMembershipRspCmdHandler
+ * @fn      app_zclGetGroupMembershipRspCmdHandler
  *
  * @brief   Handler for ZCL get group membership response command.
  *
@@ -554,13 +552,13 @@ static void watermeter_zclRemoveGroupRspCmdHandler(zcl_removeGroupRsp_t *pRemove
  *
  * @return  None
  */
-static void watermeter_zclGetGroupMembershipRspCmdHandler(zcl_getGroupMembershipRsp_t *pGetGroupMembershipRsp)
+static void app_zclGetGroupMembershipRspCmdHandler(zcl_getGroupMembershipRsp_t *pGetGroupMembershipRsp)
 {
 
 }
 
 /*********************************************************************
- * @fn      watermeter_groupCb
+ * @fn      app_groupCb
  *
  * @brief   Handler for ZCL Group command.
  *
@@ -570,22 +568,22 @@ static void watermeter_zclGetGroupMembershipRspCmdHandler(zcl_getGroupMembership
  *
  * @return  status_t
  */
-status_t watermeter_groupCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload)
+status_t app_groupCb(zclIncomingAddrInfo_t *pAddrInfo, uint8_t cmdId, void *cmdPayload)
 {
 	if(pAddrInfo->dstEp == WATERMETER_ENDPOINT1){
 		if(pAddrInfo->dirCluster == ZCL_FRAME_SERVER_CLIENT_DIR){
 			switch(cmdId){
 				case ZCL_CMD_GROUP_ADD_GROUP_RSP:
-					watermeter_zclAddGroupRspCmdHandler((zcl_addGroupRsp_t *)cmdPayload);
+					app_zclAddGroupRspCmdHandler((zcl_addGroupRsp_t *)cmdPayload);
 					break;
 				case ZCL_CMD_GROUP_VIEW_GROUP_RSP:
-					watermeter_zclViewGroupRspCmdHandler((zcl_viewGroupRsp_t *)cmdPayload);
+					app_zclViewGroupRspCmdHandler((zcl_viewGroupRsp_t *)cmdPayload);
 					break;
 				case ZCL_CMD_GROUP_REMOVE_GROUP_RSP:
-					watermeter_zclRemoveGroupRspCmdHandler((zcl_removeGroupRsp_t *)cmdPayload);
+					app_zclRemoveGroupRspCmdHandler((zcl_removeGroupRsp_t *)cmdPayload);
 					break;
 				case ZCL_CMD_GROUP_GET_MEMBERSHIP_RSP:
-					watermeter_zclGetGroupMembershipRspCmdHandler((zcl_getGroupMembershipRsp_t *)cmdPayload);
+					app_zclGetGroupMembershipRspCmdHandler((zcl_getGroupMembershipRsp_t *)cmdPayload);
 					break;
 				default:
 					break;
@@ -599,7 +597,7 @@ status_t watermeter_groupCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cm
 
 #ifdef ZCL_SCENE
 /*********************************************************************
- * @fn      watermeter_zclAddSceneRspCmdHandler
+ * @fn      app_zclAddSceneRspCmdHandler
  *
  * @brief   Handler for ZCL add scene response command.
  *
@@ -608,13 +606,13 @@ status_t watermeter_groupCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cm
  *
  * @return  None
  */
-static void watermeter_zclAddSceneRspCmdHandler(u8 cmdId, addSceneRsp_t *pAddSceneRsp)
+static void app_zclAddSceneRspCmdHandler(uint8_t cmdId, addSceneRsp_t *pAddSceneRsp)
 {
 
 }
 
 /*********************************************************************
- * @fn      watermeter_zclViewSceneRspCmdHandler
+ * @fn      app_zclViewSceneRspCmdHandler
  *
  * @brief   Handler for ZCL view scene response command.
  *
@@ -623,13 +621,13 @@ static void watermeter_zclAddSceneRspCmdHandler(u8 cmdId, addSceneRsp_t *pAddSce
  *
  * @return  None
  */
-static void watermeter_zclViewSceneRspCmdHandler(u8 cmdId, viewSceneRsp_t *pViewSceneRsp)
+static void app_zclViewSceneRspCmdHandler(uint8_t cmdId, viewSceneRsp_t *pViewSceneRsp)
 {
 
 }
 
 /*********************************************************************
- * @fn      watermeter_zclRemoveSceneRspCmdHandler
+ * @fn      app_zclRemoveSceneRspCmdHandler
  *
  * @brief   Handler for ZCL remove scene response command.
  *
@@ -637,13 +635,13 @@ static void watermeter_zclViewSceneRspCmdHandler(u8 cmdId, viewSceneRsp_t *pView
  *
  * @return  None
  */
-static void watermeter_zclRemoveSceneRspCmdHandler(removeSceneRsp_t *pRemoveSceneRsp)
+static void app_zclRemoveSceneRspCmdHandler(removeSceneRsp_t *pRemoveSceneRsp)
 {
 
 }
 
 /*********************************************************************
- * @fn      watermeter_zclRemoveAllSceneRspCmdHandler
+ * @fn      app_zclRemoveAllSceneRspCmdHandler
  *
  * @brief   Handler for ZCL remove all scene response command.
  *
@@ -651,13 +649,13 @@ static void watermeter_zclRemoveSceneRspCmdHandler(removeSceneRsp_t *pRemoveScen
  *
  * @return  None
  */
-static void watermeter_zclRemoveAllSceneRspCmdHandler(removeAllSceneRsp_t *pRemoveAllSceneRsp)
+static void app_zclRemoveAllSceneRspCmdHandler(removeAllSceneRsp_t *pRemoveAllSceneRsp)
 {
 
 }
 
 /*********************************************************************
- * @fn      watermeter_zclStoreSceneRspCmdHandler
+ * @fn      app_zclStoreSceneRspCmdHandler
  *
  * @brief   Handler for ZCL store scene response command.
  *
@@ -665,13 +663,13 @@ static void watermeter_zclRemoveAllSceneRspCmdHandler(removeAllSceneRsp_t *pRemo
  *
  * @return  None
  */
-static void watermeter_zclStoreSceneRspCmdHandler(storeSceneRsp_t *pStoreSceneRsp)
+static void app_zclStoreSceneRspCmdHandler(storeSceneRsp_t *pStoreSceneRsp)
 {
 
 }
 
 /*********************************************************************
- * @fn      watermeter_zclGetSceneMembershipRspCmdHandler
+ * @fn      app_zclGetSceneMembershipRspCmdHandler
  *
  * @brief   Handler for ZCL get scene membership response command.
  *
@@ -679,13 +677,13 @@ static void watermeter_zclStoreSceneRspCmdHandler(storeSceneRsp_t *pStoreSceneRs
  *
  * @return  None
  */
-static void watermeter_zclGetSceneMembershipRspCmdHandler(getSceneMemRsp_t *pGetSceneMembershipRsp)
+static void app_zclGetSceneMembershipRspCmdHandler(getSceneMemRsp_t *pGetSceneMembershipRsp)
 {
 
 }
 
 /*********************************************************************
- * @fn      watermeter_sceneCb
+ * @fn      app_sceneCb
  *
  * @brief   Handler for ZCL Scene command.
  *
@@ -695,30 +693,30 @@ static void watermeter_zclGetSceneMembershipRspCmdHandler(getSceneMemRsp_t *pGet
  *
  * @return  status_t
  */
-status_t watermeter_sceneCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload)
+status_t app_sceneCb(zclIncomingAddrInfo_t *pAddrInfo, uint8_t cmdId, void *cmdPayload)
 {
 	if(pAddrInfo->dstEp == WATERMETER_ENDPOINT){
 		if(pAddrInfo->dirCluster == ZCL_FRAME_SERVER_CLIENT_DIR){
 			switch(cmdId){
 				case ZCL_CMD_SCENE_ADD_SCENE_RSP:
 				case ZCL_CMD_SCENE_ENHANCED_ADD_SCENE_RSP:
-					watermeter_zclAddSceneRspCmdHandler(cmdId, (addSceneRsp_t *)cmdPayload);
+					app_zclAddSceneRspCmdHandler(cmdId, (addSceneRsp_t *)cmdPayload);
 					break;
 				case ZCL_CMD_SCENE_VIEW_SCENE_RSP:
 				case ZCL_CMD_SCENE_ENHANCED_VIEW_SCENE_RSP:
-					watermeter_zclViewSceneRspCmdHandler(cmdId, (viewSceneRsp_t *)cmdPayload);
+					app_zclViewSceneRspCmdHandler(cmdId, (viewSceneRsp_t *)cmdPayload);
 					break;
 				case ZCL_CMD_SCENE_REMOVE_SCENE_RSP:
-					watermeter_zclRemoveSceneRspCmdHandler((removeSceneRsp_t *)cmdPayload);
+					app_zclRemoveSceneRspCmdHandler((removeSceneRsp_t *)cmdPayload);
 					break;
 				case ZCL_CMD_SCENE_REMOVE_ALL_SCENE_RSP:
-					watermeter_zclRemoveAllSceneRspCmdHandler((removeAllSceneRsp_t *)cmdPayload);
+					app_zclRemoveAllSceneRspCmdHandler((removeAllSceneRsp_t *)cmdPayload);
 					break;
 				case ZCL_CMD_SCENE_STORE_SCENE_RSP:
-					watermeter_zclStoreSceneRspCmdHandler((storeSceneRsp_t *)cmdPayload);
+					app_zclStoreSceneRspCmdHandler((storeSceneRsp_t *)cmdPayload);
 					break;
 				case ZCL_CMD_SCENE_GET_SCENE_MEMSHIP_RSP:
-					watermeter_zclGetSceneMembershipRspCmdHandler((getSceneMemRsp_t *)cmdPayload);
+					app_zclGetSceneMembershipRspCmdHandler((getSceneMemRsp_t *)cmdPayload);
 					break;
 				default:
 					break;
@@ -735,7 +733,7 @@ static ev_timer_event_t *zclFastPollTimeoutTimerEvt = NULL;
 static ev_timer_event_t *zclCheckInTimerEvt = NULL;
 static bool isFastPollMode = FALSE;
 
-void watermeter_zclCheckInCmdSend(void)
+void app_zclCheckInCmdSend(void)
 {
 	epInfo_t dstEpInfo;
 	TL_SETSTRUCTCONTENT(dstEpInfo, 0);
@@ -747,7 +745,7 @@ void watermeter_zclCheckInCmdSend(void)
 	zcl_pollCtrl_checkInCmd(WATERMETER_ENDPOINT, &dstEpInfo, TRUE);
 }
 
-s32 watermeter_zclCheckInTimerCb(void *arg)
+int32_t app_zclCheckInTimerCb(void *arg)
 {
 	zcl_pollCtrlAttr_t *pPollCtrlAttr = zcl_pollCtrlAttrGet();
 
@@ -756,50 +754,50 @@ s32 watermeter_zclCheckInTimerCb(void *arg)
 		return -1;
 	}
 
-	watermeter_zclCheckInCmdSend();
+	app_zclCheckInCmdSend();
 
 	return 0;
 }
 
-void watermeter_zclCheckInStart(void)
+void app_zclCheckInStart(void)
 {
 	if(zb_bindingTblSearched(ZCL_CLUSTER_GEN_POLL_CONTROL, WATERMETER_ENDPOINT)){
 		zcl_pollCtrlAttr_t *pPollCtrlAttr = zcl_pollCtrlAttrGet();
 
 		if(!zclCheckInTimerEvt){
-			zclCheckInTimerEvt = TL_ZB_TIMER_SCHEDULE(watermeter_zclCheckInTimerCb, NULL, pPollCtrlAttr->chkInInterval * POLL_RATE_QUARTERSECONDS);
+			zclCheckInTimerEvt = TL_ZB_TIMER_SCHEDULE(app_zclCheckInTimerCb, NULL, pPollCtrlAttr->chkInInterval * POLL_RATE_QUARTERSECONDS);
 			
 			if(pPollCtrlAttr->chkInInterval){
-				watermeter_zclCheckInCmdSend();
+				app_zclCheckInCmdSend();
 			}
 		}
 	}
 }
 
-void watermeter_zclSetFastPollMode(bool fastPollMode)
+void app_zclSetFastPollMode(bool fastPollMode)
 {
 	zcl_pollCtrlAttr_t *pPollCtrlAttr = zcl_pollCtrlAttrGet();
 
 	isFastPollMode = fastPollMode;
-	u32 pollRate = fastPollMode ? pPollCtrlAttr->shortPollInterval : pPollCtrlAttr->longPollInterval;
+	uint32_t pollRate = fastPollMode ? pPollCtrlAttr->shortPollInterval : pPollCtrlAttr->longPollInterval;
 
 	zb_setPollRate(pollRate  * POLL_RATE_QUARTERSECONDS);
 }
 
-s32 watermeter_zclFastPollTimeoutCb(void *arg)
+int32_t app_zclFastPollTimeoutCb(void *arg)
 {
-	watermeter_zclSetFastPollMode(FALSE);
+	app_zclSetFastPollMode(FALSE);
 
 	zclFastPollTimeoutTimerEvt = NULL;
 	return -1;
 }
 
-static status_t watermeter_zclPollCtrlChkInRspCmdHandler(zcl_chkInRsp_t *pCmd)
+static status_t app_zclPollCtrlChkInRspCmdHandler(zcl_chkInRsp_t *pCmd)
 {
 	zcl_pollCtrlAttr_t *pPollCtrlAttr = zcl_pollCtrlAttrGet();
 
 	if(pCmd->startFastPolling){
-		u16 fastPollTimeoutCnt = 0;
+		uint16_t fastPollTimeoutCnt = 0;
 
 		if(pCmd->fastPollTimeout){
 			if(pCmd->fastPollTimeout > pPollCtrlAttr->fastPollTimeoutMax){
@@ -812,12 +810,12 @@ static status_t watermeter_zclPollCtrlChkInRspCmdHandler(zcl_chkInRsp_t *pCmd)
 		}
 
 		if(fastPollTimeoutCnt){
-			watermeter_zclSetFastPollMode(TRUE);
+			app_zclSetFastPollMode(TRUE);
 			
 			if(zclFastPollTimeoutTimerEvt){
 				TL_ZB_TIMER_CANCEL(&zclFastPollTimeoutTimerEvt);
 			}
-			zclFastPollTimeoutTimerEvt = TL_ZB_TIMER_SCHEDULE(watermeter_zclFastPollTimeoutCb, NULL, fastPollTimeoutCnt * POLL_RATE_QUARTERSECONDS);
+			zclFastPollTimeoutTimerEvt = TL_ZB_TIMER_SCHEDULE(app_zclFastPollTimeoutCb, NULL, fastPollTimeoutCnt * POLL_RATE_QUARTERSECONDS);
 		}
 	}else{
 		//continue in normal operation and not required to go into fast poll mode.
@@ -826,7 +824,7 @@ static status_t watermeter_zclPollCtrlChkInRspCmdHandler(zcl_chkInRsp_t *pCmd)
 	return ZCL_STA_SUCCESS;
 }
 
-static status_t watermeter_zclPollCtrlFastPollStopCmdHandler(void)
+static status_t app_zclPollCtrlFastPollStopCmdHandler(void)
 {
 	if(!isFastPollMode){
 		return ZCL_STA_ACTION_DENIED;
@@ -834,13 +832,13 @@ static status_t watermeter_zclPollCtrlFastPollStopCmdHandler(void)
 		if(zclFastPollTimeoutTimerEvt){
 			TL_ZB_TIMER_CANCEL(&zclFastPollTimeoutTimerEvt);
 		}
-		watermeter_zclSetFastPollMode(FALSE);
+		app_zclSetFastPollMode(FALSE);
 	}
 
 	return ZCL_STA_SUCCESS;
 }
 
-static status_t watermeter_zclPollCtrlSetLongPollIntervalCmdHandler(zcl_setLongPollInterval_t *pCmd)
+static status_t app_zclPollCtrlSetLongPollIntervalCmdHandler(zcl_setLongPollInterval_t *pCmd)
 {
 	zcl_pollCtrlAttr_t *pPollCtrlAttr = zcl_pollCtrlAttrGet();
 
@@ -855,7 +853,7 @@ static status_t watermeter_zclPollCtrlSetLongPollIntervalCmdHandler(zcl_setLongP
 	return ZCL_STA_SUCCESS;
 }
 
-static status_t watermeter_zclPollCtrlSetShortPollIntervalCmdHandler(zcl_setShortPollInterval_t *pCmd)
+static status_t app_zclPollCtrlSetShortPollIntervalCmdHandler(zcl_setShortPollInterval_t *pCmd)
 {
 	zcl_pollCtrlAttr_t *pPollCtrlAttr = zcl_pollCtrlAttrGet();
 
@@ -871,7 +869,7 @@ static status_t watermeter_zclPollCtrlSetShortPollIntervalCmdHandler(zcl_setShor
 }
 
 /*********************************************************************
- * @fn      watermeter_pollCtrlCb
+ * @fn      app_pollCtrlCb
  *
  * @brief   Handler for ZCL Poll Control command.
  *
@@ -881,7 +879,7 @@ static status_t watermeter_zclPollCtrlSetShortPollIntervalCmdHandler(zcl_setShor
  *
  * @return  status_t
  */
-status_t watermeter_pollCtrlCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload)
+status_t app_pollCtrlCb(zclIncomingAddrInfo_t *pAddrInfo, uint8_t cmdId, void *cmdPayload)
 {
 	status_t status = ZCL_STA_SUCCESS;
 
@@ -889,16 +887,16 @@ status_t watermeter_pollCtrlCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void 
 		if(pAddrInfo->dirCluster == ZCL_FRAME_CLIENT_SERVER_DIR){
 			switch(cmdId){
 				case ZCL_CMD_CHK_IN_RSP:
-					status = watermeter_zclPollCtrlChkInRspCmdHandler((zcl_chkInRsp_t *)cmdPayload);
+					status = app_zclPollCtrlChkInRspCmdHandler((zcl_chkInRsp_t *)cmdPayload);
 					break;
 				case ZCL_CMD_FAST_POLL_STOP:
-					status = watermeter_zclPollCtrlFastPollStopCmdHandler();
+					status = app_zclPollCtrlFastPollStopCmdHandler();
 					break;
 				case ZCL_CMD_SET_LONG_POLL_INTERVAL:
-					status = watermeter_zclPollCtrlSetLongPollIntervalCmdHandler((zcl_setLongPollInterval_t *)cmdPayload);
+					status = app_zclPollCtrlSetLongPollIntervalCmdHandler((zcl_setLongPollInterval_t *)cmdPayload);
 					break;
 				case ZCL_CMD_SET_SHORT_POLL_INTERVAL:
-					status = watermeter_zclPollCtrlSetShortPollIntervalCmdHandler((zcl_setShortPollInterval_t *)cmdPayload);
+					status = app_zclPollCtrlSetShortPollIntervalCmdHandler((zcl_setShortPollInterval_t *)cmdPayload);
 					break;
 				default:
 					break;
@@ -911,7 +909,7 @@ status_t watermeter_pollCtrlCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void 
 #endif	/* ZCL_POLL_CTRL */
 
 /*********************************************************************
- * @fn      watermeter_meteringCb
+ * @fn      app_meteringCb
  *
  * @brief   Handler for ZCL Identify command.
  *
@@ -921,14 +919,14 @@ status_t watermeter_pollCtrlCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void 
  *
  * @return  status_t
  */
-status_t watermeter_meteringCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload)
+status_t app_meteringCb(zclIncomingAddrInfo_t *pAddrInfo, uint8_t cmdId, void *cmdPayload)
 {
 
     return ZCL_STA_SUCCESS;
 }
 
 /*********************************************************************
- * @fn      watermeter_cfgCb
+ * @fn      app_cfgCb
  *
  * @brief   Handler for ZCL Identify command.
  *
@@ -938,7 +936,7 @@ status_t watermeter_meteringCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void 
  *
  * @return  status_t
  */
-status_t watermeter_cfgCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload)
+status_t app_cfgCb(zclIncomingAddrInfo_t *pAddrInfo, uint8_t cmdId, void *cmdPayload)
 {
 
     return ZCL_STA_SUCCESS;

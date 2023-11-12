@@ -30,6 +30,8 @@
 extern "C" {
 #endif
 
+#include "app_types.h"
+
 #define ON                      1
 #define OFF                     0
 
@@ -59,10 +61,16 @@ extern "C" {
 #include "version_cfg.h"
 
 /* Debug mode config */
-#define	UART_PRINTF_MODE				ON
+#define	UART_PRINTF_MODE                OFF
 #define USB_PRINTF_MODE         		OFF
-#define DEBUG_LEVEL                     ON
-#define DEBUG_SLEEP_TIME                OFF
+
+#define DEBUG_CONFIG                    OFF
+#define DEBUG_REPORTING                 OFF
+#define DEBUG_COUNTER                   ON
+#define DEBUG_BATTERY                   OFF
+#define DEBUG_PM                        ON
+#define DEBUG_OTA                       ON
+#define DEBUG_STA_STATUS                ON
 
 /* PM */
 #define PM_ENABLE						ON
@@ -118,7 +126,6 @@ extern "C" {
     #define END_USER_DATA1              (BEGIN_USER_DATA1 + USER_DATA_SIZE)
     #define BEGIN_USER_DATA2            0x40000
     #define END_USER_DATA2              (BEGIN_USER_DATA2 + USER_DATA_SIZE)
-//    #define GEN_USER_CFG_DATA           END_USER_DATA2
     #define NV_ITEM_APP_USER_CFG        (NV_ITEM_APP_GP_TRANS_TABLE + 1)    // see sdk/proj/drivers/drv_nv.h
 #elif defined(MCU_CORE_8278)
     #define FLASH_CAP_SIZE_1M           1
@@ -175,7 +182,7 @@ extern "C" {
 #if defined(MCU_CORE_826x)
     #define VOLTAGE_DETECT_ADC_PIN                  0
 #elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
-    #define VOLTAGE_DETECT_ADC_PIN                  GPIO_PC5
+    #define VOLTAGE_DETECT_ADC_PIN                  GPIO_PC4
 #elif defined(MCU_CORE_B91)
     #define VOLTAGE_DETECT_ADC_PIN                  ADC_GPIO_PB0
 #endif

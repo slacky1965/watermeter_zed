@@ -368,7 +368,7 @@ void drv_pm_lowPowerEnter(void)
 		}else{
 			longSleep = 0;
 		}
-#if UART_PRINTF_MODE && DEBUG_LEVEL && DEBUG_SLEEP_TIME
+#if UART_PRINTF_MODE && DEBUG_PM
             printf("sleep time: %d\r\n", sleepTime);
 #endif
 	}

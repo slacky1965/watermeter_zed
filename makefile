@@ -2,7 +2,7 @@
 PROJECT_NAME := watermeter_zed
 
 # Set the serial port number for downloading the firmware
-DOWNLOAD_PORT := COM9
+DOWNLOAD_PORT := COM3
 
 COMPILE_PREFIX = C:/TelinkSDK/opt/tc32/bin/tc32
 
@@ -116,12 +116,13 @@ sizedummy \
 all: pre-build main-build
 
 flash: $(BIN_FILE)
-	@python3 $(TOOLS_PATH)/TlsrComProg.py -p$(DOWNLOAD_PORT) -f $(TOOLS_PATH)/floader.bin we 0 $(BIN_FILE)
-#	@python3 $(TOOLS_PATH)/TlsrPgm.py -p$(DOWNLOAD_PORT) -t50 -a2550 -m -w we 0 $(BIN_FILE)
+	@python3 $(TOOLS_PATH)/TlsrPgm.py -p$(DOWNLOAD_PORT) -z11 -a-100 -s -m we 0 $(BIN_FILE)
 	
 erase-flash:
-	@python3 $(TOOLS_PATH)/TlsrComProg.py -p$(DOWNLOAD_PORT) -f $(TOOLS_PATH)/floader.bin ea
-#	@python3 $(TOOLS_PATH)/TlsrPgm.py -p$(DOWNLOAD_PORT) -t50 -a2550 ea
+	@python3 $(TOOLS_PATH)/TlsrPgm.py -p$(DOWNLOAD_PORT) -z11 -a-100 -s ea
+
+reset:
+	@python3 $(TOOLS_PATH)/TlsrPgm.py -p$(DOWNLOAD_PORT) -z11 -a-100 -s -t50 -a2550 -m -w i
 
 
 # Main-build Target

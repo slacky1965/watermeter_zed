@@ -27,11 +27,9 @@
  * INCLUDES
  */
 #include "tl_common.h"
-#include "zb_api.h"
 #include "zcl_include.h"
-#include "bdb.h"
 #include "ota.h"
-#include "app_ui.h"
+
 #include "watermeter.h"
 
 /**********************************************************************
@@ -47,9 +45,9 @@
 /**********************************************************************
  * LOCAL FUNCTIONS
  */
-void zb_bdbInitCb(u8 status, u8 joinedNetwork);
-void zb_bdbCommissioningCb(u8 status, void *arg);
-void zb_bdbIdentifyCb(u8 endpoint, u16 srcAddr, u16 identifyTime);
+void zb_bdbInitCb(uint8_t status, uint8_t joinedNetwork);
+void zb_bdbCommissioningCb(uint8_t status, void *arg);
+void zb_bdbIdentifyCb(uint8_t endpoint, uint16_t srcAddr, uint16_t identifyTime);
 void zb_bdbFindBindSuccessCb(findBindDst_t *pDstInfo);
 
 
@@ -64,8 +62,8 @@ bdb_appCb_t g_zbBdbCb = {
 };
 
 #ifdef ZCL_OTA
-ota_callBack_t watermeter_otaCb = {
-    watermeter_otaProcessMsgHandler,
+ota_callBack_t app_otaCb = {
+    app_otaProcessMsgHandler,
 };
 #endif
 
@@ -73,14 +71,14 @@ ota_callBack_t watermeter_otaCb = {
 /**********************************************************************
  * FUNCTIONS
  */
-s32 watermeter_bdbNetworkSteerStart(void *arg) {
+int32_t app_bdbNetworkSteerStart(void *arg) {
     bdb_networkSteerStart();
 
     return -1;
 }
 
 #if FIND_AND_BIND_SUPPORT
-s32 watermeter_bdbFindAndBindStart(void *arg) {
+int32_t app_bdbFindAndBindStart(void *arg) {
     BDB_ATTR_GROUP_ID_SET(0x1234);//only for initiator
     bdb_findAndBindStart(BDB_COMMISSIONING_ROLE_INITIATOR);
 
@@ -90,7 +88,7 @@ s32 watermeter_bdbFindAndBindStart(void *arg) {
 #endif
 
 ev_timer_event_t *switchRejoinBackoffTimerEvt = NULL;
-s32 watermeter_rejoinBacckoff(void *arg) {
+int32_t app_rejoinBacckoff(void *arg) {
     if (zb_isDeviceFactoryNew()) {
         switchRejoinBackoffTimerEvt = NULL;
         return -1;
@@ -111,7 +109,7 @@ s32 watermeter_rejoinBacckoff(void *arg) {
  *
  * @return  None
  */
-void zb_bdbInitCb(u8 status, u8 joinedNetwork) {
+void zb_bdbInitCb(uint8_t status, uint8_t joinedNetwork) {
     //printf("bdbInitCb: sta = %x, joined = %x\n", status, joinedNetwork);
 
     if (status == BDB_INIT_STATUS_SUCCESS) {
@@ -140,20 +138,20 @@ void zb_bdbInitCb(u8 status, u8 joinedNetwork) {
 #endif
 
 #ifdef ZCL_POLL_CTRL
-			watermeter_zclCheckInStart();
+			app_zclCheckInStart();
 #endif
         } else {
-            u16 jitter = 0;
+            uint16_t jitter = 0;
             do {
                 jitter = zb_random() % 0x0fff;
             } while (jitter == 0);
-            TL_ZB_TIMER_SCHEDULE(watermeter_bdbNetworkSteerStart, NULL, jitter);
+            TL_ZB_TIMER_SCHEDULE(app_bdbNetworkSteerStart, NULL, jitter);
         }
     } else {
         if (joinedNetwork) {
 //			zb_rejoinReqWithBackOff(zb_apsChannelMaskGet(), g_bdbAttrs.scanDuration);
             if (!switchRejoinBackoffTimerEvt) {
-                switchRejoinBackoffTimerEvt = TL_ZB_TIMER_SCHEDULE(watermeter_rejoinBacckoff, NULL, 60 * 1000);
+                switchRejoinBackoffTimerEvt = TL_ZB_TIMER_SCHEDULE(app_rejoinBacckoff, NULL, 60 * 1000);
             }
         }
     }
@@ -177,8 +175,8 @@ BDB_COMMISSION_STA_REJOIN_FAILURE,
 BDB_COMMISSION_STA_FORMATION_DONE,
 */
 
-#if UART_PRINTF_MODE && DEBUG_LEVEL
-const static u8 bdb_commission_sta_status[][64] = {
+#if UART_PRINTF_MODE && DEBUG_STA_STATUS
+const static uint8_t bdb_commission_sta_status[][64] = {
         "BDB_COMMISSION_STA_SUCCESS",
         "BDB_COMMISSION_STA_IN_PROGRESS",
         "BDB_COMMISSION_STA_NOT_AA_CAPABLE",
@@ -207,7 +205,7 @@ const static u8 bdb_commission_sta_status[][64] = {
  *
  * @return  None
  */
-void zb_bdbCommissioningCb(u8 status, void *arg) {
+void zb_bdbCommissioningCb(uint8_t status, void *arg) {
     //printf("zb_bdbCommissioningCb: sta = %x\r\n", status);
 
     switch (status) {
@@ -230,7 +228,7 @@ void zb_bdbCommissioningCb(u8 status, void *arg) {
             g_watermeterCtx.timerStopReportEvt = TL_ZB_TIMER_SCHEDULE(stopReportCb, NULL, TIMEOUT_15SEC);
 
 #ifdef ZCL_POLL_CTRL
-			watermeter_zclCheckInStart();
+			app_zclCheckInStart();
 #endif
 #ifdef ZCL_OTA
 			ota_queryStart(OTA_PERIODIC_QUERY_INTERVAL);
@@ -238,7 +236,7 @@ void zb_bdbCommissioningCb(u8 status, void *arg) {
 #if FIND_AND_BIND_SUPPORT
 			//start Finding & Binding
 			if(!g_switchAppCtx.bdbFBTimerEvt){
-				g_switchAppCtx.bdbFBTimerEvt = TL_ZB_TIMER_SCHEDULE(watermeter_bdbFindAndBindStart, NULL, 50);
+				g_switchAppCtx.bdbFBTimerEvt = TL_ZB_TIMER_SCHEDULE(app_bdbFindAndBindStart, NULL, 50);
 			}
 #endif
 			if (switchRejoinBackoffTimerEvt) {
@@ -254,15 +252,15 @@ void zb_bdbCommissioningCb(u8 status, void *arg) {
         case BDB_COMMISSION_STA_TARGET_FAILURE:
             light_blink_stop();
             light_blink_start(3, 30, 250);
-            u16 jitter = 0;
+            uint16_t jitter = 0;
             do {
                 jitter = zb_random() % 0x0fff;
             } while (jitter == 0);
-            TL_ZB_TIMER_SCHEDULE(watermeter_bdbNetworkSteerStart, NULL, jitter);
+            TL_ZB_TIMER_SCHEDULE(app_bdbNetworkSteerStart, NULL, jitter);
 
             if (!g_watermeterCtx.timerNoJoinedEvt) {
                 g_watermeterCtx.timerNoJoinedEvt = TL_ZB_TIMER_SCHEDULE(no_joinedCb, NULL, TIMEOUT_NET);
-#if UART_PRINTF_MODE && DEBUG_LEVEL
+#if UART_PRINTF_MODE && DEBUG_STA_STATUS
                 printf("Not joined, status: %s (%d)\r\n", bdb_commission_sta_status[status], status);
 #endif /* UART_PRINTF_MODE */
             }
@@ -286,11 +284,11 @@ void zb_bdbCommissioningCb(u8 status, void *arg) {
             light_blink_stop();
             light_blink_start(3, 30, 250);
             if (!switchRejoinBackoffTimerEvt) {
-                switchRejoinBackoffTimerEvt = TL_ZB_TIMER_SCHEDULE(watermeter_rejoinBacckoff, NULL, 60 * 1000);
+                switchRejoinBackoffTimerEvt = TL_ZB_TIMER_SCHEDULE(app_rejoinBacckoff, NULL, 60 * 1000);
             }
             if (!g_watermeterCtx.timerNoJoinedEvt) {
                 g_watermeterCtx.timerNoJoinedEvt = TL_ZB_TIMER_SCHEDULE(no_joinedCb, NULL, TIMEOUT_NET);
-#if UART_PRINTF_MODE && DEBUG_LEVEL
+#if UART_PRINTF_MODE && DEBUG_STA_STATUS
                 printf("Not joined, status: %s (%d)\r\n", bdb_commission_sta_status[status], status);
 #endif /* UART_PRINTF_MODE */
             }
@@ -301,10 +299,10 @@ void zb_bdbCommissioningCb(u8 status, void *arg) {
 }
 
 
-extern void watermeter_zclIdentifyCmdHandler(u8 endpoint, u16 srcAddr, u16 identifyTime);
-void zb_bdbIdentifyCb(u8 endpoint, u16 srcAddr, u16 identifyTime){
+extern void app_zclIdentifyCmdHandler(uint8_t endpoint, uint16_t srcAddr, uint16_t identifyTime);
+void zb_bdbIdentifyCb(uint8_t endpoint, uint16_t srcAddr, uint16_t identifyTime){
 #if FIND_AND_BIND_SUPPORT
-	watermeter_zclIdentifyCmdHandler(endpoint, srcAddr, identifyTime);
+	app_zclIdentifyCmdHandler(endpoint, srcAddr, identifyTime);
 #endif
 }
 
@@ -337,12 +335,12 @@ void zb_bdbFindBindSuccessCb(findBindDst_t *pDstInfo){
 
 extern ota_clientInfo_t otaClientInfo;
 
-void watermeter_otaProcessMsgHandler(u8 evt, u8 status) {
-    //printf("watermeter_otaProcessMsgHandler: status = %x\r\n", status);
+void app_otaProcessMsgHandler(uint8_t evt, uint8_t status) {
+    //printf("app_otaProcessMsgHandler: status = %x\r\n", status);
     if (evt == OTA_EVT_START) {
         if (status == ZCL_STA_SUCCESS) {
 
-#if UART_PRINTF_MODE && DEBUG_LEVEL
+#if UART_PRINTF_MODE && DEBUG_OTA
             printf("OTA update start.\r\n");
 #endif /* UART_PRINTF_MODE */
 
@@ -369,7 +367,7 @@ void watermeter_otaProcessMsgHandler(u8 evt, u8 status) {
 
         if (status == ZCL_STA_SUCCESS) {
 
-#if UART_PRINTF_MODE && DEBUG_LEVEL
+#if UART_PRINTF_MODE && DEBUG_OTA
             printf("OTA update successful.\r\n");
 #endif /* UART_PRINTF_MODE */
 
@@ -378,14 +376,14 @@ void watermeter_otaProcessMsgHandler(u8 evt, u8 status) {
 
         } else {
 
-#if UART_PRINTF_MODE && DEBUG_LEVEL
+#if UART_PRINTF_MODE && DEBUG_OTA
             printf("OTA update failure. Try again.\r\n");
 #endif /* UART_PRINTF_MODE */
 
             /* reset update OTA */
             nv_resetModule(NV_MODULE_OTA);
 
-            memset((u8*) &otaClientInfo, 0, sizeof(otaClientInfo));
+            memset((uint8_t*) &otaClientInfo, 0, sizeof(otaClientInfo));
             otaClientInfo.clientOtaFlg = OTA_FLAG_INIT_DONE;
             otaClientInfo.crcValue = 0xffffffff;
 
@@ -403,7 +401,7 @@ void watermeter_otaProcessMsgHandler(u8 evt, u8 status) {
 #endif
 
 /*********************************************************************
- * @fn      watermeter_leaveCnfHandler
+ * @fn      app_leaveCnfHandler
  *
  * @brief   Handler for ZDO Leave Confirm message.
  *
@@ -411,7 +409,7 @@ void watermeter_otaProcessMsgHandler(u8 evt, u8 status) {
  *
  * @return  None
  */
-void watermeter_leaveCnfHandler(nlme_leave_cnf_t *pLeaveCnf) {
+void app_leaveCnfHandler(nlme_leave_cnf_t *pLeaveCnf) {
     if (pLeaveCnf->status == SUCCESS) {
         //SYSTEM_RESET();
 
@@ -422,7 +420,7 @@ void watermeter_leaveCnfHandler(nlme_leave_cnf_t *pLeaveCnf) {
 }
 
 /*********************************************************************
- * @fn      watermeter_leaveIndHandler
+ * @fn      app_leaveIndHandler
  *
  * @brief   Handler for ZDO leave indication message.
  *
@@ -430,9 +428,9 @@ void watermeter_leaveCnfHandler(nlme_leave_cnf_t *pLeaveCnf) {
  *
  * @return  None
  */
-void watermeter_leaveIndHandler(nlme_leave_ind_t *pLeaveInd)
+void app_leaveIndHandler(nlme_leave_ind_t *pLeaveInd)
 {
-    //printf("watermeter_leaveIndHandler, rejoin = %d\n", pLeaveInd->rejoin);
+    //printf("app_leaveIndHandler, rejoin = %d\n", pLeaveInd->rejoin);
     //printfArray(pLeaveInd->device_address, 8);
 }
 
