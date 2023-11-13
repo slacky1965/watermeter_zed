@@ -68,13 +68,15 @@
 
 ## Софт
 
-[Последнюю прошивку](https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/watermeter_zed_V1.3.03.bin) нужно залить в модуль с помощью [github.com/pvvx/TLSRPGM](https://github.com/pvvx/TLSRPGM) или оригинального программатора от Telink
+[Последнюю прошивку](https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/watermeter_zed_V1.3.03.bin) нужно залить в модуль с помощью [github.com/pvvx/TLSRPGM](https://github.com/pvvx/TLSRPGM) или оригинального программатора от Telink.
 
 <img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/telink_pgm.jpg" alt="Telink PGM"/>
 
+Как сделать недорогой программатор на базе модулей TB-03 или TB-04 можно почитать (тут)[https://slacky1965.github.io/electricity_meter_zrd/#%D0%BF%D1%80%D0%BE%D1%88%D0%B8%D0%B2%D0%BA%D0%B0]
+
 Используется последнее [SDK zigbee](http://wiki.telink-semi.cn/tools_and_sdk/Zigbee/Zigbee_SDK.zip) от Telink'а. Проект сформирован таким образом, что его можно собрать обычным make'ом как под Windows, в оболочке [Git Bash](https://git-scm.com/download/win), а также под Linux'ом (я проверял на Debian 11).
 
-Как добавить проект в Eclipse можно почитать [тут](https://slacky1965.github.io/electricity_meter_zrd/#%D0%BA%D0%BE%D0%BC%D0%BF%D0%B8%D0%BB%D1%8F%D1%86%D0%B8%D1%8F). Все точно так же, только другой проект.
+Как добавить проект в Eclipse можно почитать [тут](https://slacky1965.github.io/electricity_meter_zrd/#%D0%BA%D0%BE%D0%BC%D0%BF%D0%B8%D0%BB%D1%8F%D1%86%D0%B8%D1%8F). Все точно так же, только для другого проекта.
 
 Прошивка собрана по схеме, т.е. подключается файл платы `board_8258_diy.h`. Еще адаптирована плата dongle, т.е. `board_8258_dongle.h`. Для других вариантов придется самостоятельно редактировать файл нужной платы.
 
