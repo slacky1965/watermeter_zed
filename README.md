@@ -56,6 +56,11 @@
 
 [Ссылка на проект в easyeda](https://oshwlab.com/slacky/watermeter_zed)
 
+На гребенку выведены следующие пины модуля
+
+* SWS, GND - для заливки в модуль прошивки
+* VCC, RST, TX, RX - на всякий случай, вдруг кому-то пригодится.
+
 ---
 
 ## Готовое устройство
@@ -64,10 +69,14 @@
 
 На схеме конденсатор C1 - танталовый электролит Case B. Но более грамотные люди, чем я, посоветовали не ставить его, так как у танталовых электролитов больший ток утечки, чем у керамических. Керамический неполярный конденсатор в этом плане выигрывает. В готовом устройстве применен именно керамический конденсатор размера 1206. Посадочное место позволяет такую замену.
 
-На гребенку выведены следующие пины модуля
+<img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/device_open_box.jpg" alt="Watermeter open box"/>
 
-* SWS, GND - для заливки в модуль прошивки
-* VCC, RST, TX, RX - на всякий случай, вдруг кому-то пригодится.
+<img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/device_open_box2.jpg" alt="Watermeter open box 2"/>
+
+<img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/device_close_box.jpg" alt="Watermeter close box"/>
+
+<img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/device_front.jpg" alt="Watermeter front"/>
+
 
 ---
 
