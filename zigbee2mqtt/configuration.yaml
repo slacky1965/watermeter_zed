@@ -1,4 +1,4 @@
 external_converters:
   - watermeter.js
 ota:
-  zigbee_ota_override_index_location: index.json
+  zigbee_ota_override_index_location: local_ota_index.json
