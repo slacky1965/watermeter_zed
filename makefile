@@ -19,7 +19,6 @@ LIBS := -lzb_ed -ldrivers_8258
 
 DEVICE_TYPE = -DEND_DEVICE=1
 MCU_TYPE = -DMCU_CORE_8258=1
-#-D__PROJECT_TL_CONTACT_SENSOR__=1 
 BOOT_FLAG = -DMCU_CORE_8258 -DMCU_STARTUP_8258
 
 SDK_PATH := ./tl_zigbee_sdk
@@ -30,10 +29,10 @@ TOOLS_PATH := ./tools
 #VERSION_RELEASE := V$(shell awk -F " " '/APP_RELEASE/ {gsub("0x",""); printf "%d", $$3/10; exit}' $(SRC_PATH)/include/version_cfg.h)
 VERSION_RELEASE := V$(shell awk -F " " '/APP_RELEASE/ {gsub("0x",""); printf "%.1f", $$3/10.0; exit}' $(SRC_PATH)/include/version_cfg.h)
 VERSION_BUILD := $(shell awk -F " " '/APP_BUILD/ {gsub("0x",""); printf "%02d", $$3; exit}' ./src/include/version_cfg.h)
+ZCL_VERSION_FILE := $(shell  git show -s --format=%cd --date=format:%Y%m%d |  sed -e "'s/./\'&\',/g'" -e "'s/.$$//'")
 
- 
-
-TL_Check = $(TOOLS_PATH)/tl_check_fw.py
+TL_CHECK = $(TOOLS_PATH)/tl_check_fw.py
+MAKE_OTA = $(TOOLS_PATH)/make_ota.py
 
 INCLUDE_PATHS := \
 -I$(SDK_PATH)/platform \
@@ -67,9 +66,16 @@ GCC_FLAGS := \
 
 GCC_FLAGS += \
 $(DEVICE_TYPE) \
-$(MCU_TYPE) \
--D__PROJECT_TL_SWITCH__=1
+$(MCU_TYPE)
 
+ifeq ($(strip $(ZCL_VERSION_FILE)),)
+GCC_FLAGS += \
+-DBUILD_DATE="{8,'2','0','2','3','1','1','1','7'}"
+else
+GCC_FLAGS += \
+-DBUILD_DATE="{8,$(ZCL_VERSION_FILE)}"
+endif
+  
 OBJ_SRCS := 
 S_SRCS := 
 ASM_SRCS := 
@@ -146,11 +152,14 @@ $(LST_FILE): $(ELF_FILE)
 $(BIN_FILE): $(ELF_FILE)
 	@echo 'Create Flash image (binary format)'
 	@$(OBJCOPY) -v -O binary $(ELF_FILE)  $(BIN_FILE)
-	@python3 $(TL_Check) $(BIN_FILE)
+	@python3 $(TL_CHECK) $(BIN_FILE)
 	@echo 'Finished building: $@'
 	@echo ' '
 	@cp $(BIN_FILE) $(PROJECT_NAME)_$(VERSION_RELEASE).$(VERSION_BUILD).bin
-
+	@echo 'Create zigbee OTA file'
+	@python3 $(MAKE_OTA) -ot $(PROJECT_NAME) $(PROJECT_NAME)_$(VERSION_RELEASE).$(VERSION_BUILD).bin
+	@echo ' '
+	 
 
 sizedummy: $(ELF_FILE)
 	@echo 'Invoking: Print Size'

@@ -42,7 +42,7 @@
 #endif
 
 #define APP_RELEASE                         0x13        //app release 1.3
-#define APP_BUILD                           0x03        //app build 01, full version - v1.3.01
+#define APP_BUILD                           0x04        //app build 01, full version - v1.3.01
 #define STACK_RELEASE						0x30        //stack release 3.0
 #define STACK_BUILD							0x01        //stack build 01
 #define HW_VERSION                          0x01
@@ -53,8 +53,14 @@
 #ifndef ZCL_BASIC_MODEL_ID
     #define ZCL_BASIC_MODEL_ID     {8,'T','L','S','R','8','2','6','x'}
 #endif
+
 #ifndef ZCL_BASIC_DATE_CODE
-    #define ZCL_BASIC_DATE_CODE    {8,'2','0','2','3','0','7','1','9'}
+#ifdef BUILD_DATE
+    #define ZCL_BASIC_DATE_CODE    BUILD_DATE
+#else
+    #define ZCL_BASIC_DATE_CODE    {8,'2','0','2','3','1','1','1','7'}
+#endif
+
 #endif
 #ifndef ZCL_BASIC_LOC_DESC
     #define ZCL_BASIC_LOC_DESC     {7,'U','N','K','N','O','W','N'}
@@ -66,13 +72,18 @@
     #define ZCL_BASIC_SW_BUILD_ID       {7,'v',(APP_RELEASE>>4)+0x30,'.',(APP_RELEASE&0xf)+0x30,'.',(APP_BUILD>>4)+0x30,(APP_BUILD&0xf)+0x30}
 #endif
 
+#ifndef BUILD_DATE
+#define BUILD_DATE "20231118"
+#endif
+
 #define IMAGE_TYPE_WATERMETER        (0x04 | (IMAGE_TYPE_BOOT_FLAG << 7))
 
 /*********************************************************************************************
  * During OTA upgrade, the upgraded device will check the rules of the following three fields.
  * Refer to ZCL OTA specification for details.
  */
-#define MANUFACTURER_CODE_TELINK    0x1141//Telink ID
+//#define MANUFACTURER_CODE_TELINK    0x1141//Telink ID
+#define MANUFACTURER_CODE_TELINK    0x6565//Custom ID
 #define	IMAGE_TYPE					((CHIP_TYPE << 8) | IMAGE_TYPE_WATERMETER)
 #define	FILE_VERSION				((APP_RELEASE << 24) | (APP_BUILD << 16) | (STACK_RELEASE << 8) | STACK_BUILD)
 
