@@ -210,11 +210,12 @@
 Открываем на редактирование файл `configuration.yaml` от zigbee2mqtt. И добавляем в конец файла
 
 		external_converters:
-		  - watermeter.js
+			- watermeter.js
 		ota:
-		  zigbee_ota_override_index_location: index.json
+			zigbee_ota_override_index_location: local_ota_index.json
+		  
 
-Файлы `watermeter.js` и `index.json` копируем из [папки проекта](https://github.com/slacky1965/watermeter_zed/tree/main/zigbee2mqtt) туда же, где лежит `configuration.yaml` от zigbee2mqtt. Не забываем разрешить подключение новых устройств - `permit_join: true`. Перегружаем zigbee2mqtt. Проверяем его лог, что он запустился и нормально работает.
+Файлы `watermeter.js` и `local_ota_index.json` копируем из [папки проекта](https://github.com/slacky1965/watermeter_zed/tree/main/zigbee2mqtt) туда же, где лежит `configuration.yaml` от zigbee2mqtt. Не забываем разрешить подключение новых устройств - `permit_join: true`. Перегружаем zigbee2mqtt. Проверяем его лог, что он запустился и нормально работает.
 
 Далее, вставляем батарейки в устройство. Если питание было уже подано, то нажимаем 5 раз подряд кнопку. Устройство должно подключиться к сети zigbee. Если подключение прошло удачно, то мы обнаружим наше устройство в zigbee2mqtt.
 
@@ -258,27 +259,27 @@
 
 Долгих испытаний в реальной работе пока не проводилось. С помощью ppk2 произведены замеры потребления в различных режимах.
 
-Устройтсво не в сети, без питания. Подаем питание, оно стратует и подключается к сети.
+**Устройтсво не в сети, без питания. Подаем питание, оно стратует и подключается к сети.**
 
 <img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/ppk2-start_device.jpg" alt="Start new device"/>
 
-Устройство работает в штатном режиме с POLL RATE 3 секунды.
+**Устройство работает в штатном режиме с POLL RATE 3 секунды.**
 
 <img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/ppk2-poll_rate_3_sec.jpg" alt="Poll rate 3 sec."/>
 
-Замкнулся геркон на счетчике воды.
+**Замкнулся геркон на счетчике воды.**
 
 <img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/ppk2-close_counter.jpg" alt="Counter close"/>
 
-Разомкнулся геркон на счетчике воды.
+**Разомкнулся геркон на счетчике воды.**
 
 <img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/ppk2-open_counter.jpg" alt="Counter open"/>
 
-Старт модуля, который уже подключен к сети и работа его в течение 6 минут без срабатывания счетчиков.
+**Старт модуля, который уже подключен к сети и работа его в течение 6 минут без срабатывания счетчиков.**
 
 <img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/ppk2-start_and_work_6min.jpg" alt="Work 6 min."/>
 
-Обновление OTA.
+**Обновление OTA.**
 
 <img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/ppk2-ota_update.jpg" alt="OTA Update."/>
 
