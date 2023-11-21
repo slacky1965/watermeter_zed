@@ -149,13 +149,13 @@
 
 Примеры вывода лога устройства после обновления OTA
 
-* Загрузили первый раз
+* Обновили первый раз
 
 		OTA update successful.
 		OTA mode enabled. MCU boot from address: 0x40000
 		Save restored config to nv_ram in module NV_MODULE_APP (6) item NV_ITEM_APP_USER_CFG (45)
 	
-* Загрузили второй раз
+* Обновили второй раз
 
 		OTA update successful.
 		OTA mode enabled. MCU boot from address: 0x0
