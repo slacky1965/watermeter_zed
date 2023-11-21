@@ -232,11 +232,25 @@
 
 ## OTA
 
-Автоматического обновления в zigbee2mqtt для устройств, добвленных через конвертор, нет. Поэтому, если вышла новая версия, скачиваем обновленный файл прошивки для обновления OTA, например `6565-0204-13043001-watermeter_zed.zigbee`. Переименовываем его в просто `watermeter_zed.zigbee` и кадем его по относительному пути `zigbee2mgtt/images`. Перегружаем zigbee2mqtt. Идем во вкладку OTA. И кликаем на `Check for new updates`
+Автоматического обновления в zigbee2mqtt для устройств, добавленных через конвертор, нет. Поэтому, если вышла новая версия, скачиваем обновленный файл прошивки для обновления OTA, например `6565-0204-13043001-watermeter_zed.zigbee`. Переименовываем его в просто `watermeter_zed.zigbee` и кладем его по относительному пути `zigbee2mgtt/images`. Перегружаем zigbee2mqtt. Идем во вкладку OTA. И кликаем на `Check for new updates`
 
-<img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/ota_update.jpg" alt="Check for new updates"/>
+<img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/ota_check_update.jpg" alt="Check for new updates"/>
 
-Если обновление принимается, то кнопка `Check for new updates` станет красной (не помню, что на ней будет написано, но что-то update new version). Ее нужно кликнуть и обновление начнет загружаться (zigbee обновляется долго, что-то в районе 20 минут). Если обновление завершится с ошибкой, то кнопка обновления опять станет красной и ее нужно опять нажать и разбудить модуль нажатием кнопки. Процесс обновления обнулится и пойдет с самого начала.
+Если обновление принимается, то кнопка `Check for new updates` станет красной с надписью `Update device firmware`. 
+
+<img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/ota_update.jpg" alt="Update device firmware"/>
+
+Ее нужно кликнуть и обновление начнет загружаться (zigbee обновляется долго, что-то в районе 20 минут). 
+
+<img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/ota_progress.jpg" alt="Check for new updates"/>
+
+Если обновление завершится с ошибкой, то кнопка обновления опять станет красной и ее нужно опять нажать и разбудить модуль нажатием кнопки. Процесс обновления обнулится и пойдет с самого начала.
+
+В SDK нет проверки на разряд батарейки перед загрузкой образа. Поэтому пришлось писать свою реализацию. Устройство вернет координатору ошибку - `Aborted by device`, если заряд батарейки меньше 50%, и файл образа загружаться не будет. 
+
+<img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/ota_update_abort.jpg" alt="Aborted by device"/>
+
+Ну и последнее, чтобы устройство не обновилось какой-нибудь прошивкой с MANUFACTURER_CODE от Telink (например, совпадет номер устройства), MANUFACTURER_CODE заменен на кастомный.
 
 ---
 
@@ -263,6 +277,10 @@
 Старт модуля, который уже подключен к сети и работа его в течение 6 минут без срабатывания счетчиков.
 
 <img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/ppk2-start_and_work_6min.jpg" alt="Work 6 min."/>
+
+Обновление OTA.
+
+<img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/ppk2-ota_update.jpg" alt="OTA Update."/>
 
 ---
 
