@@ -3,8 +3,6 @@
 
 #include "watermeter.h"
 
-#define MAX_VBAT_MV         3100                        /* 3100 mV - > battery = 100%         */
-#define MIN_VBAT_MV         BATTERY_SAFETY_THRESHOLD    /* 2200 mV - > battery = 0%           */
 
 // 2200..3100 mv - 0..100%
 static uint8_t get_battery_level(uint16_t battery_mv) {
@@ -18,7 +16,7 @@ static uint8_t get_battery_level(uint16_t battery_mv) {
     return battery_level;
 }
 
-int32_t batteryCb(void) {
+int32_t batteryCb(void *arg) {
 
     uint16_t voltage_raw = drv_get_adc_data();
     uint8_t voltage = (uint8_t)(voltage_raw/100);

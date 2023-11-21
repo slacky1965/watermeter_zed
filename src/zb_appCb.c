@@ -334,10 +334,40 @@ void zb_bdbFindBindSuccessCb(findBindDst_t *pDstInfo){
 #ifdef ZCL_OTA
 
 extern ota_clientInfo_t otaClientInfo;
+void ota_upgradeComplete(u8 status);
+
+static void app_ota_abort() {
+
+    /* reset update OTA */
+    nv_resetModule(NV_MODULE_OTA);
+
+    memset((uint8_t*) &otaClientInfo, 0, sizeof(otaClientInfo));
+    otaClientInfo.clientOtaFlg = OTA_FLAG_INIT_DONE;
+    otaClientInfo.crcValue = 0xffffffff;
+
+    zcl_attr_imageTypeID = 0xffff;
+    zcl_attr_fileOffset = 0xffffffff;
+    zcl_attr_downloadFileVer = 0xffffffff;
+}
 
 void app_otaProcessMsgHandler(uint8_t evt, uint8_t status) {
     //printf("app_otaProcessMsgHandler: status = %x\r\n", status);
     if (evt == OTA_EVT_START) {
+
+#if (VOLTAGE_DETECT_ENABLE)
+
+    if(drv_get_adc_data() < ((MAX_VBAT_MV - 100 - MIN_VBAT_MV) / 2 + MIN_VBAT_MV)) {
+
+#if UART_PRINTF_MODE && DEBUG_OTA
+        printf("Battery charge less than 50%%, OTA update abort.\r\n");
+#endif /* UART_PRINTF_MODE */
+
+        app_ota_abort();
+        ota_upgradeComplete(ZCL_STA_ABORT);
+        return;
+    }
+#endif
+
         if (status == ZCL_STA_SUCCESS) {
 
 #if UART_PRINTF_MODE && DEBUG_OTA
@@ -380,19 +410,10 @@ void app_otaProcessMsgHandler(uint8_t evt, uint8_t status) {
             printf("OTA update failure. Try again.\r\n");
 #endif /* UART_PRINTF_MODE */
 
-            /* reset update OTA */
-            nv_resetModule(NV_MODULE_OTA);
-
-            memset((uint8_t*) &otaClientInfo, 0, sizeof(otaClientInfo));
-            otaClientInfo.clientOtaFlg = OTA_FLAG_INIT_DONE;
-            otaClientInfo.crcValue = 0xffffffff;
-
-            zcl_attr_imageTypeID = 0xffff;
-            zcl_attr_fileOffset = 0xffffffff;
-            zcl_attr_downloadFileVer = 0xffffffff;
+            app_ota_abort();
 
             /* restore config */
-            init_config(false);
+            if (watermeter_config.new_ota) init_config(false);
 
             ota_queryStart(OTA_PERIODIC_QUERY_INTERVAL);
         }

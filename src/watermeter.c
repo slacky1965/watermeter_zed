@@ -152,8 +152,8 @@ void user_app_init(void)
     init_counters();
     init_button();
 
-    batteryCb();
-    g_watermeterCtx.timerBatteryEvt = TL_ZB_TIMER_SCHEDULE(batteryCb, NULL, TIMEOUT_15MIN);
+    batteryCb(NULL);
+    g_watermeterCtx.timerBatteryEvt = TL_ZB_TIMER_SCHEDULE(batteryCb, NULL, BATTERY_TIMER_INTERVAL);
 
     uint64_t water_counter = watermeter_config.counter_hot_water & 0xffffffffffff;
     zcl_setAttrVal(WATERMETER_ENDPOINT1, ZCL_CLUSTER_SE_METERING, ZCL_ATTRID_CURRENT_SUMMATION_DELIVERD, (uint8_t*)&water_counter);

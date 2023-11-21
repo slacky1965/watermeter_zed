@@ -1,7 +1,6 @@
 #ifndef SRC_INCLUDE_WATERMETER_H_
 #define SRC_INCLUDE_WATERMETER_H_
 
-#include "app_utility.h"
 #include "app_pm.h"
 #include "app_dev_config.h"
 #include "app_button.h"
@@ -10,6 +9,7 @@
 #include "app_battery.h"
 #include "app_reporting.h"
 #include "app_endpoint_cfg.h"
+#include "app_utility.h"
 
 
 typedef struct {
