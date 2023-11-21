@@ -84,7 +84,7 @@
 
 ## Софт
 
-[Последнюю прошивку](https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/watermeter_zed_V1.3.03.bin) нужно залить в модуль с помощью [github.com/pvvx/TLSRPGM](https://github.com/pvvx/TLSRPGM) или оригинального программатора от Telink.
+[Последнюю прошивку](https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/watermeter_zed_V1.3.04.bin) нужно залить в модуль с помощью [github.com/pvvx/TLSRPGM](https://github.com/pvvx/TLSRPGM) или оригинального программатора от Telink.
 
 <img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/telink_pgm.jpg" alt="Telink PGM"/>
 
@@ -147,8 +147,46 @@
 
 В момент старта модуля происходит проверка, с какого адреса загружается прошивка - с 0x00000 или с 0x40000. Если она грузится с адреса 0x00000, то область с 0x40000 до 0x74000 мы используем для хранения конфига. Если прошивка грузится с адреса 0x40000, то для хранения конфига мы используем уже область с 0x00000 до 0x34000.
 
+Примеры вывода лога устройства после обновления OTA
+
+* Загрузили первый раз
+
+		OTA update successful.
+		OTA mode enabled. MCU boot from address: 0x40000
+		Save restored config to nv_ram in module NV_MODULE_APP (6) item NV_ITEM_APP_USER_CFG (45)
+	
+* Загрузили второй раз
+
+		OTA update successful.
+		OTA mode enabled. MCU boot from address: 0x0
+		Save restored config to nv_ram in module NV_MODULE_APP (6) item NV_ITEM_APP_USER_CFG (45)
+
 Конфиг пишется в выбранную область каждый раз при срабатывании счетчика воды с шагом 0x100. Т.е. первый раз конфиг запишется по адресу 0x40000 (0x00000), во второй раз 0x40100 (0x00100), в третий - 0x40200 (0x00200) и т.д. пока не достигнет границы 0x74000 (0x34000). И далее начинает опять записываться с начального адреса 0x40000 (0x00000).
 
+* Вывод лога устройства при записи конфига с адреса 0x0
+
+		Save config to flash address - 0x0
+		cold counter - 2010
+		Save config to flash address - 0x100
+		cold counter - 2020
+		Save config to flash address - 0x200
+		cold counter - 2030
+		Save config to flash address - 0x300
+		cold counter - 2040
+		Save config to flash address - 0x400
+
+* Вывод лога устройства при записи конфига с адреса 0x40000
+
+		Save config to flash address - 0x40000
+		cold counter - 2090
+		Save config to flash address - 0x40100
+		cold counter - 2100
+		Save config to flash address - 0x40200
+		cold counter - 2110
+		Save config to flash address - 0x40300
+		cold counter - 2120
+		Save config to flash address - 0x40400
+		
 В момент обновления OTA конфиг сохраняется в nv_ram. И будет там сохраняться, пока обновление OTA удачно не завершится.
 
 После удачного завершения обновления OTA модуль перезагружается, считывает конфиг из nv_ram, проверяет по какому адресу нужно записывать конфиг в штатном режиме и сохраняет его уже по адресу 0x00000 или 0x40000. И так до следующего обновления.
@@ -194,7 +232,7 @@
 
 ## OTA
 
-Автоматического обновления в zigbee2mqtt нет, точнее оно заявлено, но не работает. Поэтому, если вышла новая версия, скачиваем обновленный файл [index.json](https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/zigbee2mqtt/ota/index.json). Кладем его там, где лежит `configuration.yaml` от zigbee2mqtt. Перегружаем zigbee2mqtt. Идем во вкладку OTA. И кликаем на `Check for new updates`
+Автоматического обновления в zigbee2mqtt для устройств, добвленных через конвертор, нет. Поэтому, если вышла новая версия, скачиваем обновленный файл прошивки для обновления OTA, например `6565-0204-13043001-watermeter_zed.zigbee`. Переименовываем его в просто `watermeter_zed.zigbee` и кадем его по относительному пути `zigbee2mgtt/images`. Перегружаем zigbee2mqtt. Идем во вкладку OTA. И кликаем на `Check for new updates`
 
 <img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/ota_update.jpg" alt="Check for new updates"/>
 
@@ -271,4 +309,4 @@
 - 1.3.01 - Изменена нумерация версий. Добавлены светодиодная индикация режимов модуля; глубокий сон, если не в сети более 30 минут; сброс OTA, если обновление прошло с ошибкой, обновление начнется с начала, сделано чтобы не потерять основной конфиг.
 - 1.3.02 - Изменен адрес записи промежуточного конфига при OTA. Раньше он записывался по адресу 0x74000, теперь он пишется в nv_ram в модуль NV_MODULE_APP с номером NV_ITEM_APP_USER_CFG (см. app_cfg.h).
 - 1.3.03 - Устранен небольшой глюк с репортингом.
-
+- 1.3.04 - Изменен MANUFACTURER_CODE на кастомный. Добавлена проверка разряда батарейки при обновлении OTA.
