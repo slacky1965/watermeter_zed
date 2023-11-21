@@ -102,6 +102,7 @@ const definition = {
     configure: async (device, coordinatorEndpoint, logger) => {
       const firstEndpoint = device.getEndpoint(1);
       await firstEndpoint.read('seMetering', ['currentSummDelivered']);
+      await firstEndpoint.read('genPowerCfg', ['batteryVoltage', 'batteryPercentageRemaining']);
       await reporting.bind(firstEndpoint, coordinatorEndpoint, ['genPowerCfg', 'seMetering' ]);
       const overides = {min: 300, max: 3600, change: 0};
       await reporting.batteryVoltage(firstEndpoint, overides);
