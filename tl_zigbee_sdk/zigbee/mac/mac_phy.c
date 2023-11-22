@@ -406,7 +406,7 @@ u8 rf_lqi2cost(u8 lqi)
 }
 
 /*********************************************************************
- * @fn      rf_startED
+ * @fn      rf_startEDScan
  *
  * @brief   Start ED detect
  *
@@ -414,7 +414,7 @@ u8 rf_lqi2cost(u8 lqi)
  *
  * @return  none
  */
-void rf_startED(void)
+void rf_startEDScan(void)
 {
 #ifndef WIN32
     soft_rssi = -110;
@@ -427,7 +427,7 @@ void rf_startED(void)
 }
 
 /*********************************************************************
- * @fn      rf_stopED
+ * @fn      rf_stopEDScan
  *
  * @brief   Stop Energy Detect
  *
@@ -435,7 +435,7 @@ void rf_startED(void)
  *
  * @return  ED result
  */
-u8 rf_stopED(void)
+u8 rf_stopEDScan(void)
 {
 #ifndef WIN32
     u8 ed;
@@ -740,7 +740,7 @@ _attribute_ram_code_ __attribute__((optimize("-Os"))) void rf_rx_irq_handler(voi
 #endif
 
 	/* zb_mac_receive_data handler */
-	zb_macDataRecvHander(p, macPld, len, fAck, ZB_RADIO_TIMESTAMP_GET(p), ZB_RADION_PKT_RSSI_GET(p) - 110);
+	zb_macDataRecvHandler(p, macPld, len, fAck, ZB_RADIO_TIMESTAMP_GET(p), ZB_RADION_PKT_RSSI_GET(p) - 110);
 }
 
 
@@ -761,6 +761,6 @@ _attribute_ram_code_ __attribute__((optimize("-Os"))) void rf_tx_irq_handler(voi
 
     ZB_SWITCH_TO_RXMODE();
 
-    zb_macDataSendHander();
+    zb_macDataSendHandler();
 }
 

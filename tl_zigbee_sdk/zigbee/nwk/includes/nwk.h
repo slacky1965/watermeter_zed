@@ -97,7 +97,7 @@
 */
 #define NWK_RREQ_RETRIES					2
 
-/**
+/***************************************************************************
  *  @brief  NWK: size os the long-short panid translation table
  */
 #define PANID_TABLE_SIZE              		8
@@ -282,7 +282,7 @@ typedef enum
 	NIB_ATTRIBUTE_ROUTE_RECORD_TABLE                = 0x9C,
 	NIB_ATTRIBUTE_IS_CONCENTRATOR                   = 0x9D,
 	NIB_ATTRIBUTE_CONCENTRATOR_RADIUS               = 0x9E,
-	NIB_ATTRIBUTE_CONCENTRATOR_DESCOVERY_TIME       = 0x9F,
+	NIB_ATTRIBUTE_CONCENTRATOR_DISCOVERY_TIME       = 0x9F,
 	NIB_ATTRIBUTE_SECURITY_LEVEL                    = 0xA0,
 	NIB_ATTRIBUTE_SECURITY_MATERIAL_SET             = 0xA1,
 	NIB_ATTRIBUTE_ACTIVE_KEY_SEQ_NUMBER             = 0xA2,
@@ -1154,6 +1154,7 @@ extern nwk_routeRecordTabEntry_t g_routeRecTab[];
 extern bool AUTO_QUICK_DATA_POLL_ENABLE;
 extern u32 AUTO_QUICK_DATA_POLL_INTERVAL;
 extern u8 AUTO_QUICK_DATA_POLL_TIMES;
+extern bool PRE_PARENT_FIRST_WHEN_REJOIN;
 
 extern u8 NWK_COST_THRESHOLD_ONEHOP;
 extern u8 NWK_NEIGHBOR_SEND_OUTGOING_THRESHOLD;

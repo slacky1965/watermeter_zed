@@ -80,10 +80,10 @@
 /* disable rx */
 #define ZB_RADIO_RX_DISABLE								RFDMA_RX_DISABLE
 
-/* clear mask bit to disable tx irq */
+/* clear mask to disable irq */
 #define ZB_RADIO_IRQ_MASK_CLR							irq_clr_mask(FLD_IRQ_ZB_RT_EN)
 
-/* clear mask bit to disable tx irq */
+/* set mask to enable irq */
 #define ZB_RADIO_IRQ_MASK_SET							irq_set_mask(FLD_IRQ_ZB_RT_EN)
 
 /* trx status get */
@@ -92,13 +92,16 @@
 /* rx buffer configure */
 #define ZB_RADIO_RX_BUF_SET(addr)						RF_rx_buffer_reconfig(addr)
 
+/* rx max length limit */
+#define ZB_RADIO_RX_MAX_LEN_SET(len)
+
 /* rx buffer clear */
 #define ZB_RADIO_RX_BUF_CLEAR(p)						do{ \
 															p[12] = 0;		\
 															*((u32*)p) = 0; \
 														}while(0)
 
-/* set rx mode, maxium receiver buffer size, enable Rx/Tx interrupt */
+/* set rx mode, maximum receiver buffer size, enable Rx/Tx interrupt */
 #define ZB_RADIO_TRX_CFG(size)							do{	\
 															/* disable SRX timeout interrupt */\
 															write_reg8(0xf03, read_reg8(0xf03) & 0xfb);	\
@@ -238,10 +241,10 @@
 /* disable rx */
 #define ZB_RADIO_RX_DISABLE								RFDMA_RX_DISABLE
 
-/* clear mask bit to disable tx irq */
+/* clear mask to disable irq */
 #define ZB_RADIO_IRQ_MASK_CLR							irq_clr_mask(FLD_IRQ_ZB_RT_EN)
 
-/* clear mask bit to disable tx irq */
+/* set mask to enable irq */
 #define ZB_RADIO_IRQ_MASK_SET							irq_set_mask(FLD_IRQ_ZB_RT_EN)
 
 /* trx status get */
@@ -250,13 +253,16 @@
 /* rx buffer configure */
 #define ZB_RADIO_RX_BUF_SET(addr)						rf_rx_buffer_reconfig(addr)
 
+/* rx max length limit */
+#define ZB_RADIO_RX_MAX_LEN_SET(len)
+
 /* rx buffer clear */
 #define ZB_RADIO_RX_BUF_CLEAR(p)						do{ \
 															p[0] = 0;		\
 															p[4] = 0;		\
 														}while(0)
 
-/* set rx mode, maxium receiver buffer size, enable Rx/Tx interrupt */
+/* set rx mode, maximum receiver buffer size, enable Rx/Tx interrupt */
 #define ZB_RADIO_TRX_CFG(size)							do{ \
 															/* disable SRX timeout interrupt */\
 															write_reg8(0xf03, read_reg8(0xf03) & 0xfb);	\
@@ -315,6 +321,7 @@
 /* sys timer initialization for mac-csma */
 #define ZB_TIMER_INIT()									drv_hwTmr_init(TIMER_IDX_3, TIMER_MODE_SCLK)
 
+#if 1
 #define ZB_RADIO_RSSI_TO_LQI(mode, rssi, lqi)			do{ \
 															(void)mode;									\
 															s16 minEd = -99;							\
@@ -340,6 +347,22 @@
 															else if(lqi > 45){path_cost = 5;}	\
 															else{path_cost = 7;}				\
 														}while(0)
+#else
+#define ZB_RADIO_RSSI_TO_LQI(mode, rssi, lqi)			do{ \
+															(void)mode;							\
+															if(rssi >= -36){lqi = 255;}			\
+															else if(rssi < -99){lqi = 0;}		\
+															else{lqi = (rssi + 100) << 2;}		\
+														}while(0)
+
+#define ZB_LQI_TO_PATH_COST(lqi, path_cost) 			do{ \
+															if(lqi > 76){path_cost = 1;}		\
+															else if(lqi > 56){path_cost = 3;}	\
+															else if(lqi > 32){path_cost = 5;}	\
+															else if(lqi){path_cost = 7;}		\
+														}while(0)
+#endif
+
 #elif defined(MCU_CORE_8278)
 /*******************************************************************************************************
  * 									Radio interface for 8278
@@ -398,10 +421,10 @@
 /* disable rx */
 #define ZB_RADIO_RX_DISABLE								RFDMA_RX_DISABLE
 
-/* clear mask bit to disable tx irq */
+/* clear mask to disable irq */
 #define ZB_RADIO_IRQ_MASK_CLR							irq_clr_mask(FLD_IRQ_ZB_RT_EN)
 
-/* clear mask bit to disable tx irq */
+/* set mask to enable irq */
 #define ZB_RADIO_IRQ_MASK_SET							irq_set_mask(FLD_IRQ_ZB_RT_EN)
 
 /* trx status get */
@@ -410,13 +433,16 @@
 /* rx buffer configure */
 #define ZB_RADIO_RX_BUF_SET(addr)						rf_rx_buffer_reconfig(addr)
 
+/* rx max length limit */
+#define ZB_RADIO_RX_MAX_LEN_SET(len)
+
 /* rx buffer clear */
 #define ZB_RADIO_RX_BUF_CLEAR(p)						do{ \
 															p[0] = 0;		\
 															p[4] = 0;		\
 														}while(0)
 
-/* set rx mode, maxium receiver buffer size, enable Rx/Tx interrupt */
+/* set rx mode, maximum receiver buffer size, enable Rx/Tx interrupt */
 #define ZB_RADIO_TRX_CFG(size)							do{	\
 															/* disable SRX timeout interrupt */\
 															write_reg8(0xf03, read_reg8(0xf03) & 0xfb);	\
@@ -475,6 +501,7 @@
 /* sys timer initialization for mac-csma */
 #define ZB_TIMER_INIT()									drv_hwTmr_init(TIMER_IDX_3, TIMER_MODE_SCLK)
 
+#if 1
 #define ZB_RADIO_RSSI_TO_LQI(mode, rssi, lqi)			do{ \
 															(void)mode;									\
 															s16 minEd = -99;							\
@@ -500,6 +527,22 @@
 															else if(lqi > 45){path_cost = 5;}	\
 															else{path_cost = 7;}				\
 														}while(0)
+#else
+#define ZB_RADIO_RSSI_TO_LQI(mode, rssi, lqi)			do{ \
+															(void)mode;							\
+															if(rssi >= -36){lqi = 255;}			\
+															else if(rssi < -99){lqi = 0;}		\
+															else{lqi = (rssi + 100) << 2;}		\
+														}while(0)
+
+#define ZB_LQI_TO_PATH_COST(lqi, path_cost) 			do{ \
+															if(lqi > 76){path_cost = 1;}		\
+															else if(lqi > 56){path_cost = 3;}	\
+															else if(lqi > 32){path_cost = 5;}	\
+															else if(lqi){path_cost = 7;}		\
+														}while(0)
+#endif
+
 #elif defined(MCU_CORE_B91)
 /*******************************************************************************************************
  * 									Radio interface for B91
@@ -558,10 +601,10 @@
 /* disable rx */
 #define ZB_RADIO_RX_DISABLE								dma_chn_dis(DMA1)//todo: Doesn't seem to work
 
-/* clear mask bit to disable tx irq */
+/* clear mask to disable irq */
 #define ZB_RADIO_IRQ_MASK_CLR							rf_clr_irq_mask(FLD_RF_IRQ_TX)
 
-/* clear mask bit to disable tx irq */
+/* set mask to enable irq */
 #define ZB_RADIO_IRQ_MASK_SET							rf_set_irq_mask(FLD_RF_IRQ_TX)
 
 /* trx status get */
@@ -570,13 +613,16 @@
 /* rx buffer configure */
 #define ZB_RADIO_RX_BUF_SET(addr)						rf_set_rx_buffer(addr)
 
+/* rx max length limit */
+#define ZB_RADIO_RX_MAX_LEN_SET(len)					rf_set_rx_maxlen(len)
+
 /* rx buffer clear */
 #define ZB_RADIO_RX_BUF_CLEAR(p)						do{ \
 															p[0] = 0;		\
 															p[4] = 0;		\
 														}while(0)
 
-/* set Rx mode, maxium receiver buffer size, enable Rx/Tx interrupt */
+/* set Rx mode, maximum receiver buffer size, enable Rx/Tx interrupt */
 #define ZB_RADIO_TRX_CFG(size)							do{ \
 															/* disable SRX timeout interrupt */\
 															write_reg8(0x140a03, read_reg8(0x140a03) & 0xfb);	\
@@ -607,7 +653,7 @@
 #define ZB_RADIO_RX_HDR_LEN								5
 
 /* delay after switch to Tx mode, and then start sending */
-#define ZB_TX_WAIT_US									85
+#define ZB_TX_WAIT_US									120
 
 /* get real payload length */
 #define ZB_RADIO_ACTUAL_PAYLOAD_LEN(p)					rf_zigbee_get_payload_len(p)
@@ -642,6 +688,7 @@
 /* sys timer initialization for mac-csma */
 #define ZB_TIMER_INIT()									drv_hwTmr_init(TIMER_IDX_3, TIMER_MODE_SCLK)
 
+#if 1
 #define ZB_RADIO_RSSI_TO_LQI(mode, rssi, lqi)			do{ \
 															(void)mode;									\
 															s16 minEd = -99;							\
@@ -667,4 +714,20 @@
 															else if(lqi > 45){path_cost = 5;}	\
 															else{path_cost = 7;}				\
 														}while(0)
+#else
+#define ZB_RADIO_RSSI_TO_LQI(mode, rssi, lqi)			do{ \
+															(void)mode;							\
+															if(rssi >= -36){lqi = 255;}			\
+															else if(rssi < -99){lqi = 0;}		\
+															else{lqi = (rssi + 100) << 2;}		\
+														}while(0)
+
+#define ZB_LQI_TO_PATH_COST(lqi, path_cost) 			do{ \
+															if(lqi > 76){path_cost = 1;}		\
+															else if(lqi > 56){path_cost = 3;}	\
+															else if(lqi > 32){path_cost = 5;}	\
+															else if(lqi){path_cost = 7;}		\
+														}while(0)
+#endif
+
 #endif

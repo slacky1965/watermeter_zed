@@ -335,7 +335,7 @@ _CODE_ZCL_ s32 zcl_zllTouchLinkTimeout(void *arg){
  *
  * @brief   the handler to command from client
  *
- * @param 	pInMsg incomming message
+ * @param 	pInMsg incoming message
  *
  */
 _CODE_ZCL_ static u8 zcl_touchLinkClientCmdHandler(zclIncoming_t *pInMsg){
@@ -424,7 +424,7 @@ _CODE_ZCL_ static u8 zcl_touchLinkClientCmdHandler(zclIncoming_t *pInMsg){
 					g_zllTouchLink.networkStartInfo->seqNo = pInMsg->hdr.seqNum;
 					memcpy(&g_zllTouchLink.networkStartInfo->initiatorEpInfo, &srcEpInfo, sizeof(epInfo_t));
 					g_zllTouchLink.networkStartInfo->joinNetworkMode = ZCL_ZLL_COMMISSIONING_TOUCH_LICK_MODE_START;
-					zcl_zllTouchLinkNetworkStartRequstHandler(pReq->logicalChannel);
+					zcl_zllTouchLinkNetworkStartRequestHandler(pReq->logicalChannel);
 				}else{
 					ev_buf_free((u8 *)g_zllTouchLink.networkStartInfo);
 					g_zllTouchLink.networkStartInfo = NULL;
@@ -582,7 +582,7 @@ _CODE_ZCL_ static u8 zcl_touchLinkClientCmdHandler(zclIncoming_t *pInMsg){
  *
  * @brief   the handler to command from server
  *
- * @param 	pInMsg incomming message
+ * @param 	pInMsg incoming message
  *
  */
 _CODE_ZCL_ static u8 zcl_zllCommissionServerCmdHandler(zclIncoming_t *pInMsg){
@@ -868,7 +868,7 @@ _CODE_ZCL_ void zcl_touchLinkStart(void){
 	MAC_IB().rxOnWhenIdle = 1;
 	g_zllTouchLink.workingChannelBackUp = MAC_IB().phyChannelCur;
 
-	zcl_zllTouchLinkDiscoveyStart();
+	zcl_zllTouchLinkDiscoveryStart();
 }
 
 
