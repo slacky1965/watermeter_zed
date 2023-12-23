@@ -279,6 +279,10 @@
 
 <img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/ppk2-start_and_work_6min.jpg" alt="Work 6 min."/>
 
+**Модуль спит.**
+
+<img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/ppk2-sleep_device.jpg" alt="Sleep device"/>
+
 **Обновление OTA.**
 
 <img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/ppk2-ota_update.jpg" alt="OTA Update."/>
