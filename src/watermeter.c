@@ -136,6 +136,7 @@ void user_app_init(void)
     af_endpointRegister(WATERMETER_ENDPOINT1, (af_simple_descriptor_t *)&watermeter_ep1Desc, zcl_rx_handler, NULL);
     af_endpointRegister(WATERMETER_ENDPOINT2, (af_simple_descriptor_t *)&watermeter_ep2Desc, zcl_rx_handler, NULL);
     af_endpointRegister(WATERMETER_ENDPOINT3, (af_simple_descriptor_t *)&watermeter_ep3Desc, zcl_rx_handler, NULL);
+    af_endpointRegister(WATERMETER_ENDPOINT4, (af_simple_descriptor_t *)&watermeter_ep4Desc, zcl_rx_handler, NULL);
 
     zcl_reportingTabInit();
 
@@ -143,6 +144,7 @@ void user_app_init(void)
     zcl_register(WATERMETER_ENDPOINT1, WATERMETER_EP1_CB_CLUSTER_NUM, (zcl_specClusterInfo_t *)g_watermeterEp1ClusterList);
     zcl_register(WATERMETER_ENDPOINT2, WATERMETER_EP2_CB_CLUSTER_NUM, (zcl_specClusterInfo_t *)g_watermeterEp2ClusterList);
     zcl_register(WATERMETER_ENDPOINT3, WATERMETER_EP3_CB_CLUSTER_NUM, (zcl_specClusterInfo_t *)g_watermeterEp3ClusterList);
+    zcl_register(WATERMETER_ENDPOINT4, WATERMETER_EP4_CB_CLUSTER_NUM, (zcl_specClusterInfo_t *)g_watermeterEp4ClusterList);
 
 #if ZCL_OTA_SUPPORT
     ota_init(OTA_TYPE_CLIENT, (af_simple_descriptor_t *)&watermeter_ep1Desc, &watermeter_otaInfo, &app_otaCb);
@@ -171,6 +173,7 @@ void app_task(void) {
 
     button_handler();
     counters_handler();
+    leak_handler();
 
 
     if(bdb_isIdle()) {
