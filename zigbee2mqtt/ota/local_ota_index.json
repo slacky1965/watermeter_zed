@@ -1,7 +1,7 @@
 [
     {
         "url": "images/watermeter_zed.zigbee",
-        "force": false
+        "force": true
     }
 ]
 

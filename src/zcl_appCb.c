@@ -447,7 +447,7 @@ static void app_zclIdentifyQueryRspCmdHandler(uint8_t endpoint, uint16_t srcAddr
 }
 
 /*********************************************************************
- * @fn      app_identifyCb
+ * @fn      sampleLight_identifyCb
  *
  * @brief   Handler for ZCL Identify command.
  *
@@ -481,100 +481,6 @@ status_t app_identifyCb(zclIncomingAddrInfo_t *pAddrInfo, uint8_t cmdId, void *c
 	return ZCL_STA_SUCCESS;
 }
 #endif	/* ZCL_IDENTIFY */
-
-#ifdef ZCL_IAS_ZONE
-/*********************************************************************
- * @fn      leak_zclIasZoneEnrollRspCmdHandler
- *
- * @brief   Handler for ZCL IAS ZONE Enroll response command.
- *
- * @param   pZoneEnrollRsp
- *
- * @return  None
- */
-static void leak_zclIasZoneEnrollRspCmdHandler(zoneEnrollRsp_t *pZoneEnrollRsp) {
-
-    //printf("zclIasZoneEnrollRspCmdHandler code: %d zone_id:%d\r\n", pZoneEnrollRsp->code, pZoneEnrollRsp->zoneId);
-    if (pZoneEnrollRsp->zoneId != ZCL_ZONE_ID_INVALID) {
-        u8 zoneState;
-        zoneState = ZONE_STATE_ENROLLED;
-        zcl_setAttrVal(WATERMETER_ENDPOINT4, ZCL_CLUSTER_SS_IAS_ZONE, ZCL_ATTRID_ZONE_ID, &(pZoneEnrollRsp->zoneId));
-        zcl_setAttrVal(WATERMETER_ENDPOINT4, ZCL_CLUSTER_SS_IAS_ZONE, ZCL_ATTRID_ZONE_STATE, &zoneState);
-    }
-
-}
-
-/*********************************************************************
- * @fn      leak_zclIasZoneInitNormalOperationModeCmdHandler
- *
- * @brief   Handler for ZCL IAS ZONE normal operation mode command.
- *
- * @param
- *
- * @return  status
- */
-static status_t leak_zclIasZoneInitNormalOperationModeCmdHandler(void) {
-
-    //printf("zclIasZoneInitNormalOperationModeCmdHandler\r\n");
-    u8 status = ZCL_STA_FAILURE;
-
-    return status;
-}
-
-/*********************************************************************
- * @fn      leak_zclIasZoneInitTestModeCmdHandler
- *
- * @brief   Handler for ZCL IAS ZONE test mode command.
- *
- * @param   pZoneInitTestMode
- *
- * @return  status
- */
-static status_t leak_zclIasZoneInitTestModeCmdHandler(zoneInitTestMode_t *pZoneInitTestMode) {
-
-    //printf("zclIasZoneInitNormalOperationModeCmdHandler\r\n");
-    u8 status = ZCL_STA_FAILURE;
-
-    return status;
-}
-
-/*********************************************************************
- * @fn      leak_iasZoneCb
- *
- * @brief   Handler for ZCL IAS Zone command.
- *
- * @param   pAddrInfo
- * @param   cmdId
- * @param   cmdPayload
- *
- * @return  status_t
- */
-status_t leak_iasZoneCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload)
-{
-    status_t status = ZCL_STA_SUCCESS;
-
-    if(pAddrInfo->dstEp == WATERMETER_ENDPOINT4){
-        if(pAddrInfo->dirCluster == ZCL_FRAME_CLIENT_SERVER_DIR){
-            switch(cmdId){
-                case ZCL_CMD_ZONE_ENROLL_RSP:
-                    leak_zclIasZoneEnrollRspCmdHandler((zoneEnrollRsp_t *)cmdPayload);
-                    break;
-                case ZCL_CMD_INIT_NORMAL_OPERATION_MODE:
-                    leak_zclIasZoneInitNormalOperationModeCmdHandler();
-                    break;
-                case ZCL_CMD_INIT_TEST_MODE:
-                    leak_zclIasZoneInitTestModeCmdHandler((zoneInitTestMode_t *)cmdPayload);
-                    break;
-                default:
-                    break;
-            }
-        }
-    }
-
-    return status;
-}
-#endif  /* ZCL_IAS_ZONE */
-
 
 /*********************************************************************
  * @fn      app_powerCfgCb
@@ -1035,8 +941,6 @@ status_t app_cfgCb(zclIncomingAddrInfo_t *pAddrInfo, uint8_t cmdId, void *cmdPay
 
     return ZCL_STA_SUCCESS;
 }
-
-
 
 
 

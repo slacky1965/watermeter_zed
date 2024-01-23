@@ -201,8 +201,7 @@ extern "C" {
 /**********************************************************************
  * ZCL cluster support setting
  */
-#define ZCL_IAS_ZONE_SUPPORT            ON
-#define ZCL_LEVEL_CTRL_SUPPORT          ON
+#define ZCL_LEVEL_CTRL_SUPPORT			ON
 #define ZCL_GROUP_SUPPORT               ON
 #define ZCL_POWER_CFG_SUPPORT           ON
 #define ZCL_METERING_SUPPORT            ON
