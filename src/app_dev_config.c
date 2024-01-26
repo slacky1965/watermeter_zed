@@ -3,8 +3,15 @@
 
 #include "watermeter.h"
 
-#define ID_CONFIG           0x0FED1410
+#define ID_CONFIG_0         0x0FED1410  /* Before 1.3.06 version (0 version) */
+#define ID_CONFIG_1         0x00000000  /* For the future (1 version)        */
+#define ID_CONFIG_LAST      0x0FED1411  /* From version 1.3.07 (last version)*/
 #define TOP_MASK            0xFFFFFFFF
+
+typedef enum {
+    CONFIG_0 = 0,
+    CONFIG_LAST
+} config_version;
 
 watermeter_config_t watermeter_config;
 
@@ -74,7 +81,7 @@ static void clear_user_data(uint32_t flash_addr) {
 
 static void init_default_config() {
     memset(&watermeter_config, 0, sizeof(watermeter_config_t));
-    watermeter_config.id = ID_CONFIG;
+    watermeter_config.id = ID_CONFIG_LAST;
     watermeter_config.top = 0;
     watermeter_config.new_ota = 0;
     watermeter_config.counter_hot_water = 0;
