@@ -249,9 +249,9 @@ const zclAttrInfo_t zcl_coldWater_attrTbl[] = {
 #define ZCL_COLD_WATERMETER_ATTR_NUM         sizeof(zcl_coldWater_attrTbl) / sizeof(zclAttrInfo_t)
 
 const zclAttrInfo_t zcl_watermeterCfg_attrTbl[] = {
-    { ZCL_ATTRID_CUSTOM_HOT_WATER_PRESET, ZCL_DATA_TYPE_UINT32, ACCESS_CONTROL_WRITE, (uint8_t*)&g_zcl_watermeterCfgAttrs.hot_water_preset},
-    { ZCL_ATTRID_CUSTOM_COLD_WATER_PRESET, ZCL_DATA_TYPE_UINT32, ACCESS_CONTROL_WRITE, (uint8_t*)&g_zcl_watermeterCfgAttrs.cold_water_preset},
-    { ZCL_ATTRID_CUSTOM_WATER_STEP_PRESET, ZCL_DATA_TYPE_UINT16, ACCESS_CONTROL_WRITE, (uint8_t*)&g_zcl_watermeterCfgAttrs.water_step_preset},
+    { ZCL_ATTRID_CUSTOM_HOT_WATER_PRESET,  ZCL_DATA_TYPE_UINT32, ACCESS_CONTROL_WRITE | ACCESS_CONTROL_READ, (uint8_t*)&g_zcl_watermeterCfgAttrs.hot_water_preset},
+    { ZCL_ATTRID_CUSTOM_COLD_WATER_PRESET, ZCL_DATA_TYPE_UINT32, ACCESS_CONTROL_WRITE | ACCESS_CONTROL_READ, (uint8_t*)&g_zcl_watermeterCfgAttrs.cold_water_preset},
+    { ZCL_ATTRID_CUSTOM_WATER_STEP_PRESET, ZCL_DATA_TYPE_UINT16, ACCESS_CONTROL_WRITE | ACCESS_CONTROL_READ, (uint8_t*)&g_zcl_watermeterCfgAttrs.water_step_preset},
 
     { ZCL_ATTRID_GLOBAL_CLUSTER_REVISION, ZCL_DATA_TYPE_UINT16,  ACCESS_CONTROL_READ, (uint8_t*)&zcl_attr_global_clusterRevision},
 };
