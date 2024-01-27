@@ -3,21 +3,22 @@
 
 #include "watermeter.h"
 
-#define ID_CONFIG_0         0x0FED1410  /* Before 1.3.06 version (0 version) */
-#define ID_CONFIG_1         0x00000000  /* For the future (1 version)        */
-#define ID_CONFIG_LAST      0x0FED1411  /* From version 1.3.07 (last version)*/
+#define ID_CONFIG_1306      0x0FED1410  /* Before 1.3.06 version (1306 version)     */
+#define ID_CONFIG_1307      0x00000000  /* For the future (1307 version and etc.)   */
+#define ID_CONFIG_LAST      0x0FED1411  /* From version 1.3.07 (last version)       */
 #define TOP_MASK            0xFFFFFFFF
 
 typedef enum {
-    CONFIG_0 = 0,
+    CONFIG_1306 = 0,
     CONFIG_LAST
-} config_version;
+} config_version_t;
 
 watermeter_config_t watermeter_config;
 
 static uint8_t  default_config = false;
 static uint32_t config_addr_start = 0;
 static uint32_t config_addr_end = 0;
+static config_version_t config_version = CONFIG_LAST;
 
 uint8_t mcuBootAddrGet(void);
 
@@ -105,7 +106,8 @@ static void write_restore_config() {
 }
 
 void init_config(uint8_t print) {
-    watermeter_config_t config_curr, config_next, config_restore;
+//    watermeter_config_t config_curr, config_next, config_restore;
+    uint8_t config_buff[sizeof(watermeter_config_t)] = {0};
     uint8_t find_config = false;
     nv_sts_t st = NV_SUCC;
 
@@ -115,75 +117,235 @@ void init_config(uint8_t print) {
 #error "NV_ENABLE must be enable in "stack_cfg.h" file!"
 #endif
 
-    st = nv_flashReadNew(1, NV_MODULE_APP,  NV_ITEM_APP_USER_CFG, sizeof(watermeter_config_t), (uint8_t*)&config_restore);
-    //flash_read(GEN_USER_CFG_DATA, sizeof(watermeter_config_t), (uint8_t*)&config_restore);
+    st = nv_flashReadNew(1, NV_MODULE_APP,  NV_ITEM_APP_USER_CFG, sizeof(watermeter_config_t), config_buff /*(uint8_t*)&config_restore*/);
 
-    uint16_t crc = checksum((uint8_t*)&config_restore, sizeof(watermeter_config_t));
+    watermeter_config_t *p_config = (watermeter_config_t*)&config_buff;
 
-    if (st != NV_SUCC || config_restore.id != ID_CONFIG || crc != config_restore.crc) {
-#if UART_PRINTF_MODE && DEBUG_CONFIG
-        printf("No saved config! Init.\r\n");
-#endif /* UART_PRINTF_MODE */
-        clear_user_data(config_addr_start);
-        init_default_config();
-        return;
+    if (st == NV_SUCC) {
 
-    }
+        uint16_t crc;
+        uint32_t flash_addr;
 
-    if (config_restore.new_ota) {
-        config_restore.new_ota = false;
-        config_restore.flash_addr_start = config_addr_start;
-        config_restore.flash_addr_end = config_addr_end;
-        memcpy(&watermeter_config, &config_restore, sizeof(watermeter_config_t));
-        default_config = true;
-        write_config();
-        return;
-    }
+        switch (p_config->id) {
+            case ID_CONFIG_LAST: {
+                watermeter_config_t config_curr, config_next, config_restore;
 
-    uint32_t flash_addr = config_addr_start;
+                memcpy(&config_restore, config_buff, sizeof(watermeter_config_t));
+                config_version = CONFIG_LAST;
 
-    flash_read_page(flash_addr, sizeof(watermeter_config_t), (uint8_t*)&config_curr);
+                crc = checksum((uint8_t*)&config_restore, sizeof(watermeter_config_t));
+                if (crc != config_restore.crc) goto no_config;
 
-    if (config_curr.id != ID_CONFIG) {
-#if UART_PRINTF_MODE && DEBUG_CONFIG
-        printf("No saved config! Init.\r\n");
-#endif /* UART_PRINTF_MODE */
-        clear_user_data(config_addr_start);
-        init_default_config();
-        return;
-    }
+                if (config_restore.new_ota) {
+                    config_restore.new_ota = false;
+                    config_restore.top = 0;
+                    config_restore.flash_addr_start = config_addr_start;
+                    config_restore.flash_addr_end = config_addr_end;
+                    memcpy(&watermeter_config, &config_restore, sizeof(watermeter_config_t));
+                    default_config = true;
+                    write_config();
+                    return;
+                }
 
-    flash_addr += FLASH_PAGE_SIZE;
+                flash_addr = config_addr_start;
 
-    while(flash_addr < config_addr_end) {
-        flash_read_page(flash_addr, sizeof(watermeter_config_t), (uint8_t*)&config_next);
-        crc = checksum((uint8_t*)&config_next, sizeof(watermeter_config_t));
-        if (config_next.id == ID_CONFIG && crc == config_next.crc) {
-            if ((config_curr.top + 1) == config_next.top || (config_curr.top == TOP_MASK && config_next.top == 0)) {
-                memcpy(&config_curr, &config_next, sizeof(watermeter_config_t));
+                flash_read_page(flash_addr, sizeof(watermeter_config_t), (uint8_t*)&config_curr);
+
+                if (config_curr.id != ID_CONFIG_LAST) goto no_config;
+
                 flash_addr += FLASH_PAGE_SIZE;
-                continue;
+
+                while(flash_addr < config_addr_end) {
+                    flash_read_page(flash_addr, sizeof(watermeter_config_t), (uint8_t*)&config_next);
+                    crc = checksum((uint8_t*)&config_next, sizeof(watermeter_config_t));
+                    if (config_next.id == ID_CONFIG_LAST && crc == config_next.crc) {
+                        if ((config_curr.top + 1) == config_next.top || (config_curr.top == TOP_MASK && config_next.top == 0)) {
+                            memcpy(&config_curr, &config_next, sizeof(watermeter_config_t));
+                            flash_addr += FLASH_PAGE_SIZE;
+                            continue;
+                        }
+                        find_config = true;
+                        break;
+                    }
+                    find_config = true;
+                    break;
+                }
+
+                if (find_config) {
+                    memcpy(&watermeter_config, &config_curr, sizeof(watermeter_config_t));
+                    watermeter_config.flash_addr_start = flash_addr-FLASH_PAGE_SIZE;
+#if UART_PRINTF_MODE && DEBUG_CONFIG
+                    printf("Read config from flash address - 0x%x\r\n", watermeter_config.flash_addr_start);
+#endif /* UART_PRINTF_MODE */
+                } else {
+#if UART_PRINTF_MODE && DEBUG_CONFIG
+                    printf("No active saved config! Reinit.\r\n");
+#endif /* UART_PRINTF_MODE */
+                    clear_user_data(config_addr_start);
+                    init_default_config();
+                }
+
+                break;
             }
-            find_config = true;
-            break;
+            case ID_CONFIG_1306: {
+                watermeter_config1306_t config_curr, config_next, config_restore;
+
+                memcpy(&config_restore, config_buff, sizeof(watermeter_config1306_t));
+                config_version = CONFIG_1306;
+
+#if UART_PRINTF_MODE && DEBUG_CONFIG
+                printf("Old config format detected.\r\n");
+#endif /* UART_PRINTF_MODE */
+
+                crc = checksum((uint8_t*)&config_restore, sizeof(watermeter_config1306_t));
+                if (crc != config_restore.crc) goto no_config;
+
+                if (config_restore.new_ota) {
+                    config_restore.new_ota = false;
+                    config_restore.flash_addr_start = config_addr_start;
+                    config_restore.flash_addr_end = config_addr_end;
+                    watermeter_config.id = ID_CONFIG_LAST;
+                    watermeter_config.new_ota = false;
+                    watermeter_config.top = 0;
+                    watermeter_config.flash_addr_start = config_addr_start;
+                    watermeter_config.flash_addr_end = config_addr_end;
+                    watermeter_config.counter_hot_water = config_restore.counter_hot_water;
+                    watermeter_config.counter_cold_water = config_restore.counter_cold_water;
+                    watermeter_config.liters_per_pulse = config_restore.liters_per_pulse;
+                    watermeter_config.crc = 0;
+                    default_config = true;
+                    write_config();
+                    return;
+                }
+
+                flash_addr = config_addr_start;
+
+                flash_read_page(flash_addr, sizeof(watermeter_config1306_t), (uint8_t*)&config_curr);
+
+                if (config_curr.id != ID_CONFIG_1306) goto no_config;
+
+                flash_addr += FLASH_PAGE_SIZE;
+
+                while(flash_addr < config_addr_end) {
+                    flash_read_page(flash_addr, sizeof(watermeter_config1306_t), (uint8_t*)&config_next);
+                    crc = checksum((uint8_t*)&config_next, sizeof(watermeter_config1306_t));
+                    if (config_next.id == ID_CONFIG_1306 && crc == config_next.crc) {
+                        if ((config_curr.top + 1) == config_next.top || (config_curr.top == TOP_MASK && config_next.top == 0)) {
+                            memcpy(&config_curr, &config_next, sizeof(watermeter_config1306_t));
+                            flash_addr += FLASH_PAGE_SIZE;
+                            continue;
+                        }
+                        find_config = true;
+                        break;
+                    }
+                    find_config = true;
+                    break;
+                }
+
+                if (find_config) {
+                    watermeter_config.id = ID_CONFIG_LAST;
+                    watermeter_config.new_ota = config_curr.new_ota;
+                    watermeter_config.top = config_curr.top;
+                    watermeter_config.flash_addr_start = 0;
+                    watermeter_config.flash_addr_end = config_curr.flash_addr_end;
+                    watermeter_config.counter_hot_water = config_curr.counter_hot_water;
+                    watermeter_config.counter_cold_water = config_curr.counter_cold_water;
+                    watermeter_config.liters_per_pulse = config_curr.liters_per_pulse;
+                    watermeter_config.crc = 0;
+
+//                    watermeter_config.flash_addr_start = flash_addr-FLASH_PAGE_SIZE;
+                    clear_user_data(config_addr_start);
+                    write_config();
+#if UART_PRINTF_MODE && DEBUG_CONFIG
+                    printf("Read config from flash address - 0x%x\r\n", watermeter_config.flash_addr_start);
+#endif /* UART_PRINTF_MODE */
+                } else {
+#if UART_PRINTF_MODE && DEBUG_CONFIG
+                    printf("No active saved config! Reinit.\r\n");
+#endif /* UART_PRINTF_MODE */
+                    clear_user_data(config_addr_start);
+                    init_default_config();
+                }
+
+                break;
+            }
+            default:
+no_config:
+#if UART_PRINTF_MODE && DEBUG_CONFIG
+                printf("No saved config! Init.\r\n");
+#endif /* UART_PRINTF_MODE */
+                clear_user_data(config_addr_start);
+                init_default_config();
+                return;
         }
-        find_config = true;
-        break;
     }
 
-    if (find_config) {
-        memcpy(&watermeter_config, &config_curr, sizeof(watermeter_config_t));
-        watermeter_config.flash_addr_start = flash_addr-FLASH_PAGE_SIZE;
-#if UART_PRINTF_MODE && DEBUG_CONFIG
-        printf("Read config from flash address - 0x%x\r\n", watermeter_config.flash_addr_start);
-#endif /* UART_PRINTF_MODE */
-    } else {
-#if UART_PRINTF_MODE && DEBUG_CONFIG
-        printf("No active saved config! Reinit.\r\n");
-#endif /* UART_PRINTF_MODE */
-        clear_user_data(config_addr_start);
-        init_default_config();
-    }
+//    uint16_t crc = checksum((uint8_t*)&config_restore, sizeof(watermeter_config_t));
+//
+//    if (st != NV_SUCC || config_restore.id != ID_CONFIG || crc != config_restore.crc) {
+//#if UART_PRINTF_MODE && DEBUG_CONFIG
+//        printf("No saved config! Init.\r\n");
+//#endif /* UART_PRINTF_MODE */
+//        clear_user_data(config_addr_start);
+//        init_default_config();
+//        return;
+//
+//    }
+//
+//    if (config_restore.new_ota) {
+//        config_restore.new_ota = false;
+//        config_restore.flash_addr_start = config_addr_start;
+//        config_restore.flash_addr_end = config_addr_end;
+//        memcpy(&watermeter_config, &config_restore, sizeof(watermeter_config_t));
+//        default_config = true;
+//        write_config();
+//        return;
+//    }
+//
+//    uint32_t flash_addr = config_addr_start;
+//
+//    flash_read_page(flash_addr, sizeof(watermeter_config_t), (uint8_t*)&config_curr);
+//
+//    if (config_curr.id != ID_CONFIG) {
+//#if UART_PRINTF_MODE && DEBUG_CONFIG
+//        printf("No saved config! Init.\r\n");
+//#endif /* UART_PRINTF_MODE */
+//        clear_user_data(config_addr_start);
+//        init_default_config();
+//        return;
+//    }
+//
+//    flash_addr += FLASH_PAGE_SIZE;
+//
+//    while(flash_addr < config_addr_end) {
+//        flash_read_page(flash_addr, sizeof(watermeter_config_t), (uint8_t*)&config_next);
+//        crc = checksum((uint8_t*)&config_next, sizeof(watermeter_config_t));
+//        if (config_next.id == ID_CONFIG && crc == config_next.crc) {
+//            if ((config_curr.top + 1) == config_next.top || (config_curr.top == TOP_MASK && config_next.top == 0)) {
+//                memcpy(&config_curr, &config_next, sizeof(watermeter_config_t));
+//                flash_addr += FLASH_PAGE_SIZE;
+//                continue;
+//            }
+//            find_config = true;
+//            break;
+//        }
+//        find_config = true;
+//        break;
+//    }
+//
+//    if (find_config) {
+//        memcpy(&watermeter_config, &config_curr, sizeof(watermeter_config_t));
+//        watermeter_config.flash_addr_start = flash_addr-FLASH_PAGE_SIZE;
+//#if UART_PRINTF_MODE && DEBUG_CONFIG
+//        printf("Read config from flash address - 0x%x\r\n", watermeter_config.flash_addr_start);
+//#endif /* UART_PRINTF_MODE */
+//    } else {
+//#if UART_PRINTF_MODE && DEBUG_CONFIG
+//        printf("No active saved config! Reinit.\r\n");
+//#endif /* UART_PRINTF_MODE */
+//        clear_user_data(config_addr_start);
+//        init_default_config();
+//    }
 }
 
 void write_config() {

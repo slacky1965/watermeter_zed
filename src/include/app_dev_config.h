@@ -10,7 +10,7 @@ typedef struct __attribute__((packed)) _watermeter_config_t {
     uint32_t flash_addr_end;         /* flash page address end           */
     uint32_t counter_hot_water;      /* Last number of liters hot water  */
     uint32_t counter_cold_water;     /* Last number of litres cold water */
-    uint16_t  liters_per_pulse;       /* liters per pulse                 */
+    uint16_t  liters_per_pulse;      /* liters per pulse                 */
     uint16_t crc;
 } watermeter_config_t;
 
