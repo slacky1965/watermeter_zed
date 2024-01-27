@@ -216,7 +216,7 @@ static void app_zclWriteReqCmd(uint8_t endPoint, uint16_t clusterId, zclWriteCmd
                 if (water_step > 100) water_step = 100;
 
                 watermeter_config.liters_per_pulse = water_step;
-                zcl_setAttrVal(WATERMETER_ENDPOINT3, ZCL_CLUSTER_SE_METERING, ZCL_ATTRID_CUSTOM_WATER_STEP_PRESET, (uint8_t*)&watermeter_config.liters_per_pulse);
+                zcl_setAttrVal(WATERMETER_ENDPOINT3, ZCL_CLUSTER_SE_METERING, ZCL_ATTRID_CUSTOM_WATER_STEP_PRESET, (uint8_t*)&water_step);
 
 #if UART_PRINTF_MODE
                 printf("New water step value: %d\r\n", watermeter_config.liters_per_pulse);
