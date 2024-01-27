@@ -66,7 +66,7 @@ extern "C" {
 
 #define DEBUG_CONFIG                    ON
 #define DEBUG_REPORTING                 OFF
-#define DEBUG_COUNTER                   OFF
+#define DEBUG_COUNTER                   ON
 #define DEBUG_BATTERY                   OFF
 #define DEBUG_PM                        OFF
 #define DEBUG_OTA                       OFF
