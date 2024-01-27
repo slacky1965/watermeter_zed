@@ -42,5 +42,6 @@ extern watermeter_config_t watermeter_config;
 
 void init_config(uint8_t print);
 void write_config();
+int32_t write_config_testingCb(void *arg);
 
 #endif /* SRC_INCLUDE_APP_DEV_CONFIG_H_ */

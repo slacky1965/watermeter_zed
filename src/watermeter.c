@@ -148,23 +148,26 @@ void user_app_init(void)
     ota_init(OTA_TYPE_CLIENT, (af_simple_descriptor_t *)&watermeter_ep1Desc, &watermeter_otaInfo, &app_otaCb);
 #endif
 
-    init_config(true);
     init_counters();
     init_button();
 
     batteryCb(NULL);
     g_watermeterCtx.timerBatteryEvt = TL_ZB_TIMER_SCHEDULE(batteryCb, NULL, BATTERY_TIMER_INTERVAL);
 
-    uint64_t water_counter = watermeter_config.counter_hot_water & 0xffffffffffff;
-    zcl_setAttrVal(WATERMETER_ENDPOINT1, ZCL_CLUSTER_SE_METERING, ZCL_ATTRID_CURRENT_SUMMATION_DELIVERD, (uint8_t*)&water_counter);
-    water_counter = watermeter_config.counter_cold_water & 0xffffffffffff;
-    zcl_setAttrVal(WATERMETER_ENDPOINT2, ZCL_CLUSTER_SE_METERING, ZCL_ATTRID_CURRENT_SUMMATION_DELIVERD, (uint8_t*)&water_counter);
 
 //#if UART_PRINTF_MODE
 //    printf("IMAGE_TYPE: 0x%x\r\n", IMAGE_TYPE);
 //    printf("FILE_VERSION: 0x%x\r\n", FILE_VERSION);
 //#endif
 
+    init_config(true);
+
+    uint64_t water_counter = watermeter_config.counter_hot_water & 0xffffffffffff;
+    zcl_setAttrVal(WATERMETER_ENDPOINT1, ZCL_CLUSTER_SE_METERING, ZCL_ATTRID_CURRENT_SUMMATION_DELIVERD, (uint8_t*)&water_counter);
+    water_counter = watermeter_config.counter_cold_water & 0xffffffffffff;
+    zcl_setAttrVal(WATERMETER_ENDPOINT2, ZCL_CLUSTER_SE_METERING, ZCL_ATTRID_CURRENT_SUMMATION_DELIVERD, (uint8_t*)&water_counter);
+
+    TL_ZB_TIMER_SCHEDULE(write_config_testingCb, NULL, TIMEOUT_3SEC);
 }
 
 void app_task(void) {
