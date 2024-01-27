@@ -97,7 +97,19 @@ static void init_default_config() {
 
 static void write_restore_config() {
     watermeter_config.crc = checksum((uint8_t*)&(watermeter_config), sizeof(watermeter_config_t));
-    nv_sts_t st = nv_flashWriteNew(1, NV_MODULE_APP,  NV_ITEM_APP_USER_CFG, sizeof(watermeter_config_t), (uint8_t*)&watermeter_config);
+
+    config_restore_t config_restore = {
+        .id = ID_CONFIG_LAST,
+        .new_ota = 0,
+        .counter_hot_water = 1000,
+        .counter_cold_water = 2000,
+        .liters_per_pulse = 10
+    };
+
+    config_restore.crc = checksum((uint8_t*)&(config_restore), sizeof(config_restore_t));
+
+    nv_sts_t st = nv_flashWriteNew(1, NV_MODULE_APP,  NV_ITEM_APP_USER_CFG, sizeof(config_restore_t), (uint8_t*)&config_restore);
+//    nv_sts_t st = nv_flashWriteNew(1, NV_MODULE_APP,  NV_ITEM_APP_USER_CFG, sizeof(watermeter_config_t), (uint8_t*)&watermeter_config);
     printf("wr_res_cfg. st: 0x%x\r\n", st);
 
 #if UART_PRINTF_MODE && DEBUG_CONFIG
@@ -128,12 +140,12 @@ void init_config(uint8_t print) {
 #endif
 
     st = nv_flashReadNew(1, NV_MODULE_APP,  NV_ITEM_APP_USER_CFG, sizeof(watermeter_config_t), (uint8_t*)&config_restore_last);
-    printf("st: 0x%x\r\n", st);
+    printf("st: 0x%x, NV_MODULE_APP:0x%x,  NV_ITEM_APP_USER_CFG: 0x%x\r\n", st, NV_MODULE_APP,  NV_ITEM_APP_USER_CFG);
     if (st == NV_SUCC) {
         config_version = CONFIG_LAST;
     } else {
         st = nv_flashReadNew(1, NV_MODULE_APP,  NV_ITEM_APP_USER_CFG, sizeof(watermeter_config1306_t), (uint8_t*)&config_restore_1306);
-        printf("st: 0x%x\r\n", st);
+        printf("st: 0x%x, NV_MODULE_APP:0x%x,  NV_ITEM_APP_USER_CFG: 0x%x\r\n", st, NV_MODULE_APP,  NV_ITEM_APP_USER_CFG);
         if (st == NV_SUCC) {
             config_version = CONFIG_1306;
         } else {
