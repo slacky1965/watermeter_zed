@@ -31,6 +31,22 @@
 #define PB4_FUNC                AS_GPIO
 #define PULL_WAKEUP_SRC_PB4     PM_PIN_PULLUP_1M
 
+/************************* Configure LEAK GPIO **************************************/
+//#define LEAK_GPIO               GPIO_PB5
+//#define PB5_INPUT_ENABLE        ON
+//#define PB5_DATA_OUT            OFF
+//#define PB5_OUTPUT_ENABLE       OFF
+//#define PB5_FUNC                AS_GPIO
+//#define PULL_WAKEUP_SRC_PB5     PM_PIN_PULLUP_1M
+
+#define LEAK_GPIO               GPIO_PA0
+#define PA0_INPUT_ENABLE        ON
+#define PA0_DATA_OUT            OFF
+#define PA0_OUTPUT_ENABLE       OFF
+#define PA0_FUNC                AS_GPIO
+#define PULL_WAKEUP_SRC_PA0     PM_PIN_PULLUP_1M
+
+
 /**************************** Configure UART ***************************************
 *    UART_TX_PA2 = GPIO_PA2,
 *    UART_TX_PB1 = GPIO_PB1,

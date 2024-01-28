@@ -115,6 +115,20 @@ extern "C" {
 #define PB3_FUNC                AS_GPIO
 #define PULL_WAKEUP_SRC_PB3     PM_PIN_PULLUP_1M
 
+/************************* Configure LEAK GPIO **************************************/
+#define LEAK1_GPIO              GPIO_PB4
+#define PB4_INPUT_ENABLE        ON
+#define PB4_DATA_OUT            OFF
+#define PB4_OUTPUT_ENABLE       OFF
+#define PB4_FUNC                AS_GPIO
+#define PULL_WAKEUP_SRC_PB4     PM_PIN_PULLUP_1M
+
+#define LEAK2_GPIO              GPIO_PB5
+#define PB5_INPUT_ENABLE        ON
+#define PB5_DATA_OUT            OFF
+#define PB5_OUTPUT_ENABLE       OFF
+#define PB5_FUNC                AS_GPIO
+#define PULL_WAKEUP_SRC_PB5     PM_PIN_PULLUP_1M
 
 //LED
 #define LED1						GPIO_PA2
