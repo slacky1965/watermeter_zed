@@ -88,11 +88,11 @@ static void init_default_config() {
 
 static void write_restore_config() {
     watermeter_config.crc = checksum((uint8_t*)&(watermeter_config), sizeof(watermeter_config_t));
-    nv_flashWriteNew(1, NV_MODULE_APP,  NV_ITEM_APP_USER_CFG, sizeof(watermeter_config_t), (uint8_t*)&watermeter_config);
+    nv_sts_t st = nv_flashWriteNew(1, NV_MODULE_APP,  NV_ITEM_APP_USER_CFG, sizeof(watermeter_config_t), (uint8_t*)&watermeter_config);
 
 #if UART_PRINTF_MODE && DEBUG_CONFIG
-    printf("Save restored config to nv_ram in module NV_MODULE_APP (%d) item NV_ITEM_APP_USER_CFG (%d)\r\n",
-            NV_MODULE_APP,  NV_ITEM_APP_USER_CFG);
+    printf("Save restored config to nv_ram in module NV_MODULE_APP (%d) item NV_ITEM_APP_USER_CFG (%d), return: %d\r\n",
+            NV_MODULE_APP,  NV_ITEM_APP_USER_CFG, st);
 #endif /* UART_PRINTF_MODE */
 
 }

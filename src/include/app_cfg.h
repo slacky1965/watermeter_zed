@@ -51,7 +51,7 @@ extern "C" {
  * Product Information
  */
 
-#define ZCL_BASIC_MFG_NAME     {3,'D','I','Y'}
+#define ZCL_BASIC_MFG_NAME     {10,'S','l','a','c','k','y','-','D','I','Y'}
 #define ZCL_BASIC_MODEL_ID     {19,'W','a','t','e','r','m','e','t','e','r','_','T','L','S','R','8','2','5','8'}
 
 
