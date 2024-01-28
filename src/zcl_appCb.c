@@ -492,14 +492,14 @@ status_t app_identifyCb(zclIncomingAddrInfo_t *pAddrInfo, uint8_t cmdId, void *c
  *
  * @return  None
  */
-static void leak_zclIasZoneEnrollRspCmdHandler(zoneEnrollRsp_t *pZoneEnrollRsp) {
+static void leak_zclIasZoneEnrollRspCmdHandler(zoneEnrollRsp_t *pZoneEnrollRsp, uint8_t endpoint) {
 
-    //printf("zclIasZoneEnrollRspCmdHandler code: %d zone_id:%d\r\n", pZoneEnrollRsp->code, pZoneEnrollRsp->zoneId);
+    printf("zclIasZoneEnrollRspCmdHandler endpoint: %d, code: %d zone_id: %d\r\n", endpoint, pZoneEnrollRsp->code, pZoneEnrollRsp->zoneId);
     if (pZoneEnrollRsp->zoneId != ZCL_ZONE_ID_INVALID) {
         u8 zoneState;
         zoneState = ZONE_STATE_ENROLLED;
-        zcl_setAttrVal(WATERMETER_ENDPOINT4, ZCL_CLUSTER_SS_IAS_ZONE, ZCL_ATTRID_ZONE_ID, &(pZoneEnrollRsp->zoneId));
-        zcl_setAttrVal(WATERMETER_ENDPOINT4, ZCL_CLUSTER_SS_IAS_ZONE, ZCL_ATTRID_ZONE_STATE, &zoneState);
+        zcl_setAttrVal(endpoint, ZCL_CLUSTER_SS_IAS_ZONE, ZCL_ATTRID_ZONE_ID, &(pZoneEnrollRsp->zoneId));
+        zcl_setAttrVal(endpoint, ZCL_CLUSTER_SS_IAS_ZONE, ZCL_ATTRID_ZONE_STATE, &zoneState);
     }
 
 }
@@ -553,11 +553,11 @@ status_t leak_iasZoneCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPay
 {
     status_t status = ZCL_STA_SUCCESS;
 
-    if(pAddrInfo->dstEp == WATERMETER_ENDPOINT4){
+    if(pAddrInfo->dstEp == WATERMETER_ENDPOINT4 || pAddrInfo->dstEp == WATERMETER_ENDPOINT5){
         if(pAddrInfo->dirCluster == ZCL_FRAME_CLIENT_SERVER_DIR){
             switch(cmdId){
                 case ZCL_CMD_ZONE_ENROLL_RSP:
-                    leak_zclIasZoneEnrollRspCmdHandler((zoneEnrollRsp_t *)cmdPayload);
+                    leak_zclIasZoneEnrollRspCmdHandler((zoneEnrollRsp_t *)cmdPayload, pAddrInfo->dstEp);
                     break;
                 case ZCL_CMD_INIT_NORMAL_OPERATION_MODE:
                     leak_zclIasZoneInitNormalOperationModeCmdHandler();

@@ -18,7 +18,11 @@ static drv_pm_pinCfg_t pin_PmCfg[] = {
         PM_WAKEUP_LEVEL
     },
     {
-        LEAK_GPIO,
+        LEAK1_GPIO,
+        PM_WAKEUP_LEVEL
+    },
+    {
+        LEAK2_GPIO,
         PM_WAKEUP_LEVEL
     },
     {
@@ -33,7 +37,7 @@ void app_wakeupPinConfig() {
 
 
 void app_wakeupPinLevelChange() {
-    drv_pm_wakeupPinLevelChange(pin_PmCfg, 3);
+    drv_pm_wakeupPinLevelChange(pin_PmCfg, 4);
 }
 
 void app_lowPowerEnter() {

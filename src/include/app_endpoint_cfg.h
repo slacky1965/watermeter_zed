@@ -5,6 +5,7 @@
 #define WATERMETER_ENDPOINT2 0x02
 #define WATERMETER_ENDPOINT3 0x03
 #define WATERMETER_ENDPOINT4 0x04
+#define WATERMETER_ENDPOINT5 0x05
 
 /**
  *  @brief Defined for basic cluster attributes
@@ -58,11 +59,16 @@ typedef struct {
  *  @brief Defined for ias zone cluster attributes
  */
 typedef struct {
-    uint8_t     zoneState;
-    uint16_t    zoneType;
-    uint16_t    zoneStatus;
-    extAddr_t   iasCieAddr;
-    uint8_t     zoneId;
+    uint8_t     zoneState1;
+    uint16_t    zoneType1;
+    uint16_t    zoneStatus1;
+    extAddr_t   iasCieAddr1;
+    uint8_t     zoneId1;
+    uint8_t     zoneState2;
+    uint16_t    zoneType2;
+    uint16_t    zoneStatus2;
+    extAddr_t   iasCieAddr2;
+    uint8_t     zoneId2;
 } zcl_iasZoneAttr_t;
 
 
@@ -83,6 +89,7 @@ extern uint8_t WATERMETER_EP1_CB_CLUSTER_NUM;
 extern uint8_t WATERMETER_EP2_CB_CLUSTER_NUM;
 extern uint8_t WATERMETER_EP3_CB_CLUSTER_NUM;
 extern uint8_t WATERMETER_EP4_CB_CLUSTER_NUM;
+extern uint8_t WATERMETER_EP5_CB_CLUSTER_NUM;
 
 /* Attributes */
 extern zcl_basicAttr_t g_zcl_basicAttrs;
