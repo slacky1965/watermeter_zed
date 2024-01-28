@@ -92,7 +92,7 @@ const fzLocal = {
 const definition = {
     zigbeeModel: ['Watermeter_TLSR8258'], // The model ID from: Device with modelID 'lumi.sens' is not supported.
     model: 'Watermeter TLSR8258', // Vendor model number, look on the device for a model number
-    vendor: 'DIY', // Vendor of the device (only used for documentation and startup logging)
+    vendor: 'Slacky-DIY', // Vendor of the device (only used for documentation and startup logging)
     description: 'Water Meter', // Description of the device, copy from vendor site. (only used for documentation and startup logging)
     fromZigbee: [fz.battery, fzLocal], // We will add this later
     toZigbee: [tzLocal.metering, tz.currentsummdelivered, tzLocal.hot_water_config, tzLocal.cold_water_config, tzLocal.step_water_config],
