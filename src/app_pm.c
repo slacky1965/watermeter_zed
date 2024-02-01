@@ -18,11 +18,11 @@ static drv_pm_pinCfg_t pin_PmCfg[] = {
         PM_WAKEUP_LEVEL
     },
     {
-        LEAK1_GPIO,
+        WLEAK1_GPIO,
         PM_WAKEUP_LEVEL
     },
     {
-        LEAK2_GPIO,
+        WLEAK2_GPIO,
         PM_WAKEUP_LEVEL
     },
     {

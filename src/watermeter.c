@@ -146,7 +146,6 @@ void user_app_init(void)
     zcl_register(WATERMETER_ENDPOINT2, WATERMETER_EP2_CB_CLUSTER_NUM, (zcl_specClusterInfo_t *)g_watermeterEp2ClusterList);
     zcl_register(WATERMETER_ENDPOINT3, WATERMETER_EP3_CB_CLUSTER_NUM, (zcl_specClusterInfo_t *)g_watermeterEp3ClusterList);
     zcl_register(WATERMETER_ENDPOINT4, WATERMETER_EP4_CB_CLUSTER_NUM, (zcl_specClusterInfo_t *)g_watermeterEp4ClusterList);
-    zcl_register(WATERMETER_ENDPOINT5, WATERMETER_EP5_CB_CLUSTER_NUM, (zcl_specClusterInfo_t *)g_watermeterEp5ClusterList);
 
 #if ZCL_OTA_SUPPORT
     ota_init(OTA_TYPE_CLIENT, (af_simple_descriptor_t *)&watermeter_ep1Desc, &watermeter_otaInfo, &app_otaCb);
@@ -175,12 +174,12 @@ void app_task(void) {
 
     button_handler();
     counters_handler();
-    leak_handler();
+    waterleak_handler();
 
 
     if(bdb_isIdle()) {
 #if PM_ENABLE
-        if(!button_idle() && !counters_idle()) {
+        if(!button_idle() && !counters_idle() && !waterleak_idle()) {
             app_lowPowerEnter();
         }
 #endif
