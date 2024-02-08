@@ -14,11 +14,9 @@
 
 * [Описание](#description)
 * [Железо](#hardware)
-* [Компиляция](#compilation)  
-* [Загрузка прошивки](#firmware_download)
+* [Софт](#software)  
 * [Принцип работы](#firmware)
 * [Настройка](#settings)
-* [Приборы учета](#electricity_meters)
 * [Home Assistant](#home_assistant)
 
 ---
@@ -134,7 +132,7 @@
 
 ---
 
-## Софт
+## <a id="software">Софт</a>
 
 [Последнюю прошивку](https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/watermeter_zed_V1.3.04.bin) нужно залить в модуль с помощью [github.com/pvvx/TLSRPGM](https://github.com/pvvx/TLSRPGM) или оригинального программатора от Telink.
 
@@ -150,7 +148,7 @@
 
 ---
 
-## Описание работы модуля
+## <a id="firmware">Описание работы модуля</a>
 
 В первый старт происходит попытка подключения к сети Zigbee. Если попытка удалась, модуль переходит в штатный режим работы. 
 
@@ -257,7 +255,7 @@
 
 ---
 
-## Настройка
+## <a id="settings">Настройка</a>
 
 Открываем на редактирование файл `configuration.yaml` от zigbee2mqtt. И добавляем в конец файла
 
@@ -363,10 +361,12 @@
 
 Стоимость основных деталей на октябрь-ноябрь 2023 года в России.
 
-* Плата 50 шт. - 2448 р. (Aliexpress)
+* Плата V1 50 шт. - 2448 р. (Aliexpress)
+* Плата V2 0 шт. - 0 р. (Aliexpress)
 * Модуль E-BYTE E180-Z5812SP - 300 р. (Aliexpress)
-* Корпус - 150 р. (Aliexpress)
-* Клемник - 35 р. (Aliexpress)
+* Корпус V1 - 150 р. (Aliexpress)
+* Клемник V1 - 35 р. (Aliexpress)
+* Клемник V2 - 49 р. (Aliexpress)
 * Кнопка - 3 р. (Aliexpress)
 * Светодиод - 12 р. (Chipdip)
 * Пара конденсаторов и сопротивление - 200 р.
