@@ -109,9 +109,28 @@
 
 ## <a id="hardware2">Версия V2</a>
 
-### Вариант корпуса для платы V2
+### Корпус
 
 Корпус изготовлен на 3D принтере.
+
+---
+
+### Схема
+
+Схема модуля.
+
+<img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/schematic_watermeter_zed_v2.jpg" alt="schematic_v2"/>
+
+---
+
+### Плата
+
+<img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/board_top_v2.jpg" alt="Board top v2"/>
+<img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/board_bottom_v2.jpg" alt="Board bottom v2"/>
+
+---
+
+### Готовое устройство
 
 ---
 
