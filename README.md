@@ -4,7 +4,26 @@
 
 ---
 
-## Описание
+## На данный момент существует два варианта платы.
+
+* V1 - только счетчик на два канала.
+* V2 - счетчик на 2 канала + 2 датчика протечки.
+* В обоих вариантах прошивка одинаковая.
+
+---
+
+* [Описание](#description)
+* [Железо](#hardware)
+* [Компиляция](#compilation)  
+* [Загрузка прошивки](#firmware_download)
+* [Принцип работы](#firmware)
+* [Настройка](#settings)
+* [Приборы учета](#electricity_meters)
+* [Home Assistant](#home_assistant)
+
+---
+
+## <a id="description">Описание</a>
 
 * Рассчитано на два счетчика воды.
 * Не работает с системой namur и счетчиками, где применен датчик "холла". Только замыкание-размыкание, например геркон.
@@ -20,7 +39,10 @@
 
 ---
 
-## Железо
+## <a id="hardware">Железо</a>
+
+[Версия V1](#hardware1)
+[Версия V2](#hardware2)
 
 В проекте используется модуль от компании E-BYTE на чипе TLSR8258F512ET32 - E180-Z5812SP.
 
@@ -32,7 +54,10 @@
 
 ---
 
-## Корпус
+## <a id="hardware1">Версия V1</a>
+
+
+### Корпус
 
 Корпус взят от Battery Holder Box на 3 батарейки АА. Переделываем на 2 батарейки и получаем питание 3 вольта и один сегмент под плату.
 
@@ -43,7 +68,7 @@
 
 ---
 
-## Схема
+### Схема
 
 Схема модуля.
 
@@ -51,7 +76,7 @@
 
 ---
 
-## Плата
+### Плата
 
 <img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/board_top.jpg" alt="Board top"/>
 
@@ -66,7 +91,7 @@
 
 ---
 
-## Готовое устройство
+### Готовое устройство
 
 <img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/watermeter_board_top.jpg" alt="Watermeter board top"/>
 
@@ -80,6 +105,13 @@
 
 <img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/device_front.jpg" alt="Watermeter front"/>
 
+---
+
+## <a id="hardware2">Версия V2</a>
+
+### Вариант корпуса для платы V2
+
+Корпус изготовлен на 3D принтере.
 
 ---
 
