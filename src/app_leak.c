@@ -91,8 +91,8 @@ void waterleak_handler() {
                 printf("Waterleak first channel clear\r\n");
 #endif /* UART_PRINTF_MODE */
                 if(zb_isDeviceJoinedNwk()){
-                    cmdOnOff(WATERMETER_ENDPOINT4, false);
-                    cmdOnOff(WATERMETER_ENDPOINT5, false);
+//                    cmdOnOff(WATERMETER_ENDPOINT4, false);
+//                    cmdOnOff(WATERMETER_ENDPOINT5, false);
                     fillIASAddress(&dstEpInfo);
 
                     zcl_getAttrVal(WATERMETER_ENDPOINT4, ZCL_CLUSTER_SS_IAS_ZONE, ZCL_ATTRID_ZONE_STATUS, &len, (u8*)&statusChangeNotification.zoneStatus);
@@ -143,8 +143,8 @@ void waterleak_handler() {
                 printf("Waterleak second channel clear\r\n");
 #endif /* UART_PRINTF_MODE */
                 if(zb_isDeviceJoinedNwk()){
-                    cmdOnOff(WATERMETER_ENDPOINT4, false);
-                    cmdOnOff(WATERMETER_ENDPOINT5, false);
+//                    cmdOnOff(WATERMETER_ENDPOINT4, false);
+//                    cmdOnOff(WATERMETER_ENDPOINT5, false);
                     fillIASAddress(&dstEpInfo);
 
                     zcl_getAttrVal(WATERMETER_ENDPOINT4, ZCL_CLUSTER_SS_IAS_ZONE, ZCL_ATTRID_ZONE_STATUS, &len, (u8*)&statusChangeNotification.zoneStatus);
