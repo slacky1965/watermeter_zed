@@ -246,11 +246,19 @@
 
 Непосредственно сам датчик протечки представляет из себя два контакта. При погружении контактов в воду меняется сопротивление между ними. Это и фиксирует устройство. Можно приобрести готовые, например у фирмы Гидролок - Gidrolock WSP.
 
+<img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/gidrolock_wsp1.jpg" alt="Gidrolock WSP"/>
+
+<img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/gidrolock_wsp2.jpg" alt="Gidrolock WSP"/>
+
+Или припаять два провода к двум контактам, например, разъема pin header. Результат будет одинаковый :)
+
+<img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/pin_header.jpg" alt="Pin Header"/>
+
 ---
 
 **Zigbee Claster and Attribute**
 
-В прошивке используется 5 endpoint'ов, это как бы 5 разных логических устройства на одном физическом. Для чего. Стандарт Zigbee не позволяет использовать одинаковые кластеры с одинаковыми атрибутами на одном endpoint'е. А у нас два одинаковых счетчика с одинаковыми атрибутами CurrentSummationDelivered в кластере SeMetering. Поэтому в первом enpoint'е счетчик горячей воды, во втором - счетчик холодной.
+В прошивке используется 5 endpoint'ов, это как бы 5 разных логических устройства на одном физическом. Для чего. Стандарт Zigbee не позволяет использовать одинаковые кластеры с одинаковыми атрибутами на одном endpoint'е. А у нас два одинаковых счетчика с одинаковыми атрибутами CurrentSummationDelivered в кластере SeMetering. И два одинаковых кластера On_Off. Поэтому в первом enpoint'е счетчик горячей воды, во втором - счетчик холодной, в третьем - настройки, в четвертом - IAS и первый On_Off, в пятом - второй On_Off.
 
 * WATERMETER_ENDPOINT1 содержит все необходимые для работы zigbee базовые кластеры, а также кластер SeMetering (первый счетчик)
 * WATERMETER_ENDPOINT2 содержит второй кластер SeMetering (второй счетчик)
