@@ -46,13 +46,6 @@
 #define PA1_FUNC                AS_GPIO
 #define PULL_WAKEUP_SRC_PA1     PM_PIN_PULLUP_1M
 
-//#define LEAK2_GPIO              GPIO_PD7
-//#define PD7_INPUT_ENABLE        ON
-//#define PD7_DATA_OUT            OFF
-//#define PD7_OUTPUT_ENABLE       OFF
-//#define PD7_FUNC                AS_GPIO
-//#define PULL_WAKEUP_SRC_PD7     PM_PIN_PULLUP_1M
-
 /**************************** Configure UART ***************************************
 *    UART_TX_PA2 = GPIO_PA2,
 *    UART_TX_PB1 = GPIO_PB1,
