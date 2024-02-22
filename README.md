@@ -244,11 +244,17 @@
 
 **Датчики протечки**
 
-Непосредственно сам датчик протечки представляет из себя два контакта. При погружении контактов в воду меняется сопротивление между ними. Это и фиксирует устройство. Можно приобрести готовые, например у фирмы Гидролок - Gidrolock WSP.
+Непосредственно сам датчик протечки представляет из себя два контакта. При погружении контактов в воду меняется сопротивление между ними. Это и фиксирует устройство. 
+
+Можно приобрести готовые, например у фирмы Гидролок - Gidrolock WSP.
 
 <img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/gidrolock_wsp1.jpg" alt="Gidrolock WSP"/>
 
 <img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/gidrolock_wsp2.jpg" alt="Gidrolock WSP"/>
+
+Или на Aliexpress вот такие
+
+<img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/wl_sensor.jpg" alt="Water Leak Sensor"/>
 
 Или припаять два провода к двум контактам, например, разъема pin header. Результат будет одинаковый :)
 
