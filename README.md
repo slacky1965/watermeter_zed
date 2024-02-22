@@ -26,9 +26,10 @@
 * Рассчитано на два счетчика воды и на два датчика протечки.
 * Не работает с системой namur и счетчиками, где применен датчик "холла". Только замыкание-размыкание, например геркон.
 * Ведет подсчет замыканий-размыканий, увеличивая каждый раз количество литров на заданное значение от 1 до 10 литров (по умолчанию 10 литров на один импульс).
-* Посылает команду ON при обнаружении протечки на любом датчике сразу на два привода.
+* Посылает команду On при обнаружении протечки на любом датчике сразу на два привода.
 * Сохраняет показания в энергонезависимой памяти модуля.
 * Передает показания по сети Zigbee.
+* EndPoint'ы с кластерами On_Off имеют возможность напрямую подключаться к исполнительному устройству минуя координатор.
 * Взаимодейстивие с "умными домами" через zigbee2mqtt.
 * Первоначальная настройка происходит через web-интерфейс zigbee2mqtt.
 * Подключиться к сети zigbee - нажать кнопку 5 раз.
@@ -126,6 +127,26 @@
 
 <img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/waterleak/doc/images/board_top_v2.jpg" alt="Board top v2"/>
 <img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/waterleak/doc/images/board_bottom_v2.jpg" alt="Board bottom v2"/>
+
+---
+
+### Датчики протечки
+
+Непосредственно сам датчик протечки представляет из себя два контакта. При погружении контактов в воду меняется сопротивление между ними. Это и фиксирует устройство. 
+
+Можно приобрести готовые, например у фирмы Гидролок - Gidrolock WSP.
+
+<img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/gidrolock_wsp1.jpg" alt="Gidrolock WSP"/>
+
+<img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/gidrolock_wsp2.jpg" alt="Gidrolock WSP"/>
+
+Или на Aliexpress вот такие
+
+<img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/wl_sensor.jpg" alt="Water Leak Sensor"/>
+
+Или припаять два провода к двум контактам, например, разъема pin header. Результат будет одинаковый :)
+
+<img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/pin_header.jpg" alt="Pin Header"/>
 
 ---
 
@@ -242,23 +263,13 @@
 
 После удачного завершения обновления OTA модуль перезагружается, считывает конфиг из nv_ram, проверяет по какому адресу нужно записывать конфиг в штатном режиме и сохраняет его уже по адресу 0x00000 или 0x40000. И так до следующего обновления.
 
+---
+
 **Датчики протечки**
 
-Непосредственно сам датчик протечки представляет из себя два контакта. При погружении контактов в воду меняется сопротивление между ними. Это и фиксирует устройство. 
+При обнаружении протечки (т.е. контакты любого датчика протечки погружены в воду) меняется состояние кластера IAS и отправляются сразу две команды On в кластеры On_Off в 4 и 5 эндпоинтах. При высыхании воды меняется состояние кластера IAS, никакие команды в кластер On_Off не отсылаются.
 
-Можно приобрести готовые, например у фирмы Гидролок - Gidrolock WSP.
-
-<img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/gidrolock_wsp1.jpg" alt="Gidrolock WSP"/>
-
-<img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/gidrolock_wsp2.jpg" alt="Gidrolock WSP"/>
-
-Или на Aliexpress вот такие
-
-<img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/wl_sensor.jpg" alt="Water Leak Sensor"/>
-
-Или припаять два провода к двум контактам, например, разъема pin header. Результат будет одинаковый :)
-
-<img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/pin_header.jpg" alt="Pin Header"/>
+Оба кластера On_Off могут напрямую "биндиться" к исполнительному устройству. Что это дает. Даже при падении сети, когда например координатор не работает, Watermeter все равно пошлет команду On напрямую в исполнительное устройство и все сработает (мы же понимаем, что исполнительное устройство в виде привода на кран должно иметь дублирующее автономное питание!). Настраивается это в web-интерфейсе zigbee2mqtt в разделе bind устройсва.
 
 ---
 
