@@ -18,6 +18,14 @@ static drv_pm_pinCfg_t pin_PmCfg[] = {
         PM_WAKEUP_LEVEL
     },
     {
+        WLEAK1_GPIO,
+        PM_WAKEUP_LEVEL
+    },
+    {
+        WLEAK2_GPIO,
+        PM_WAKEUP_LEVEL
+    },
+    {
         BUTTON,
         PM_WAKEUP_LEVEL
     },
@@ -29,7 +37,7 @@ void app_wakeupPinConfig() {
 
 
 void app_wakeupPinLevelChange() {
-    drv_pm_wakeupPinLevelChange(pin_PmCfg, 2);
+    drv_pm_wakeupPinLevelChange(pin_PmCfg, 4);
 }
 
 void app_lowPowerEnter() {

@@ -6,6 +6,7 @@
 #include "app_button.h"
 #include "app_led.h"
 #include "app_counter.h"
+#include "app_leak.h"
 #include "app_battery.h"
 #include "app_reporting.h"
 #include "app_endpoint_cfg.h"
@@ -55,9 +56,12 @@ extern bdb_commissionSetting_t g_bdbCommissionSetting;
 extern const zcl_specClusterInfo_t g_watermeterEp1ClusterList[];
 extern const zcl_specClusterInfo_t g_watermeterEp2ClusterList[];
 extern const zcl_specClusterInfo_t g_watermeterEp3ClusterList[];
+extern const zcl_specClusterInfo_t g_watermeterEp4ClusterList[];
 extern const af_simple_descriptor_t watermeter_ep1Desc;
 extern const af_simple_descriptor_t watermeter_ep2Desc;
 extern const af_simple_descriptor_t watermeter_ep3Desc;
+extern const af_simple_descriptor_t watermeter_ep4Desc;
+extern const af_simple_descriptor_t watermeter_ep5Desc;
 
 void app_zclProcessIncomingMsg(zclIncoming_t *pInHdlrMsg);
 
@@ -69,6 +73,7 @@ status_t app_sceneCb(zclIncomingAddrInfo_t *pAddrInfo, uint8_t cmdId, void *cmdP
 status_t app_pollCtrlCb(zclIncomingAddrInfo_t *pAddrInfo, uint8_t cmdId, void *cmdPayload);
 status_t app_meteringCb(zclIncomingAddrInfo_t *pAddrInfo, uint8_t cmdId, void *cmdPayload);
 status_t app_cfgCb(zclIncomingAddrInfo_t *pAddrInfo, uint8_t cmdId, void *cmdPayload);
+status_t leak_iasZoneCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload);
 
 void app_leaveCnfHandler(nlme_leave_cnf_t *pLeaveCnf);
 void app_leaveIndHandler(nlme_leave_ind_t *pLeaveInd);

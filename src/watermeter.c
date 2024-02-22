@@ -47,18 +47,18 @@ const zdo_appIndCb_t appCbLst = {
 };
 
 
-///**
-// *  @brief Definition for BDB finding and binding cluster
-// */
-//uint16_t bdb_findBindClusterList[] =
-//{
-//    ZCL_CLUSTER_GEN_ON_OFF,
-//};
-//
-///**
-// *  @brief Definition for BDB finding and binding cluster number
-// */
-//#define FIND_AND_BIND_CLUSTER_NUM       (sizeof(bdb_findBindClusterList)/sizeof(bdb_findBindClusterList[0]))
+/**
+ *  @brief Definition for BDB finding and binding cluster
+ */
+uint16_t bdb_findBindClusterList[] =
+{
+    ZCL_CLUSTER_GEN_ON_OFF,
+};
+
+/**
+ *  @brief Definition for BDB finding and binding cluster number
+ */
+#define FIND_AND_BIND_CLUSTER_NUM       (sizeof(bdb_findBindClusterList)/sizeof(bdb_findBindClusterList[0]))
 
 /**
  *  @brief Definition for bdb commissioning setting
@@ -136,6 +136,8 @@ void user_app_init(void)
     af_endpointRegister(WATERMETER_ENDPOINT1, (af_simple_descriptor_t *)&watermeter_ep1Desc, zcl_rx_handler, NULL);
     af_endpointRegister(WATERMETER_ENDPOINT2, (af_simple_descriptor_t *)&watermeter_ep2Desc, zcl_rx_handler, NULL);
     af_endpointRegister(WATERMETER_ENDPOINT3, (af_simple_descriptor_t *)&watermeter_ep3Desc, zcl_rx_handler, NULL);
+    af_endpointRegister(WATERMETER_ENDPOINT4, (af_simple_descriptor_t *)&watermeter_ep4Desc, zcl_rx_handler, NULL);
+    af_endpointRegister(WATERMETER_ENDPOINT5, (af_simple_descriptor_t *)&watermeter_ep5Desc, zcl_rx_handler, NULL);
 
     zcl_reportingTabInit();
 
@@ -143,6 +145,7 @@ void user_app_init(void)
     zcl_register(WATERMETER_ENDPOINT1, WATERMETER_EP1_CB_CLUSTER_NUM, (zcl_specClusterInfo_t *)g_watermeterEp1ClusterList);
     zcl_register(WATERMETER_ENDPOINT2, WATERMETER_EP2_CB_CLUSTER_NUM, (zcl_specClusterInfo_t *)g_watermeterEp2ClusterList);
     zcl_register(WATERMETER_ENDPOINT3, WATERMETER_EP3_CB_CLUSTER_NUM, (zcl_specClusterInfo_t *)g_watermeterEp3ClusterList);
+    zcl_register(WATERMETER_ENDPOINT4, WATERMETER_EP4_CB_CLUSTER_NUM, (zcl_specClusterInfo_t *)g_watermeterEp4ClusterList);
 
 #if ZCL_OTA_SUPPORT
     ota_init(OTA_TYPE_CLIENT, (af_simple_descriptor_t *)&watermeter_ep1Desc, &watermeter_otaInfo, &app_otaCb);
@@ -171,11 +174,12 @@ void app_task(void) {
 
     button_handler();
     counters_handler();
+    waterleak_handler();
 
 
     if(bdb_isIdle()) {
 #if PM_ENABLE
-        if(!button_idle() && !counters_idle()) {
+        if(!button_idle() && !counters_idle() && !waterleak_idle()) {
             app_lowPowerEnter();
         }
 #endif
@@ -194,14 +198,8 @@ void app_task(void) {
     }
 }
 
-extern volatile u16 T_evtExcept[4];
-
-static void watermeterSysException(void) {
-
-#if UART_PRINTF_MODE
-    printf("app_sysException, line: %d, event: %d, reset\r\n", T_evtExcept[0], T_evtExcept[1]);
-#endif
-
+static void watermeterSysException(void)
+{
 #if 1
     SYSTEM_RESET();
 #else
@@ -262,7 +260,7 @@ void user_init(bool isRetention)
             g_bdbCommissionSetting.linkKey.tcLinkKey.key = g_watermeterCtx.tcLinkKey.key;
         }
 
-//        bdb_findBindMatchClusterSet(FIND_AND_BIND_CLUSTER_NUM, bdb_findBindClusterList);
+        bdb_findBindMatchClusterSet(FIND_AND_BIND_CLUSTER_NUM, bdb_findBindClusterList);
 
         /* Set default reporting configuration */
         uint8_t reportableChange = 0x00;
