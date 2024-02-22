@@ -4,6 +4,8 @@
 #define WATERMETER_ENDPOINT1 0x01
 #define WATERMETER_ENDPOINT2 0x02
 #define WATERMETER_ENDPOINT3 0x03
+#define WATERMETER_ENDPOINT4 0x04
+#define WATERMETER_ENDPOINT5 0x05
 
 /**
  *  @brief Defined for basic cluster attributes
@@ -53,6 +55,17 @@ typedef struct {
     uint16_t water_step_preset;
 } zcl_watermeterCfgAttr_t;
 
+/**
+ *  @brief Defined for ias zone cluster attributes
+ */
+typedef struct {
+    uint8_t     zoneState;
+    uint16_t    zoneType;
+    uint16_t    zoneStatus;
+    extAddr_t   iasCieAddr;
+    uint8_t     zoneId;
+} zcl_iasZoneAttr_t;
+
 
 /**
  *  @brief  Defined for poll control cluster attributes
@@ -70,6 +83,7 @@ typedef struct {
 extern uint8_t WATERMETER_EP1_CB_CLUSTER_NUM;
 extern uint8_t WATERMETER_EP2_CB_CLUSTER_NUM;
 extern uint8_t WATERMETER_EP3_CB_CLUSTER_NUM;
+extern uint8_t WATERMETER_EP4_CB_CLUSTER_NUM;
 
 /* Attributes */
 extern zcl_basicAttr_t g_zcl_basicAttrs;
@@ -77,7 +91,10 @@ extern zcl_identifyAttr_t g_zcl_identifyAttrs;
 extern zcl_pollCtrlAttr_t g_zcl_pollCtrlAttrs;
 extern zcl_watermeterAttr_t g_zcl_watermeterAttrs;
 extern zcl_watermeterCfgAttr_t g_zcl_watermeterCfgAttrs;
+extern zcl_iasZoneAttr_t g_zcl_iasZoneAttrs;
 
+
+#define zcl_iasZoneAttrGet()    &g_zcl_iasZoneAttrs
 #define zcl_pollCtrlAttrGet()   &g_zcl_pollCtrlAttrs
 
 

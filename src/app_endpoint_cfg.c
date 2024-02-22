@@ -39,9 +39,6 @@ const uint16_t watermeter_ep1_outClusterList[] =
 #ifdef ZCL_SCENE
     ZCL_CLUSTER_GEN_SCENES,
 #endif
-#ifdef ZCL_ON_OFF
-    ZCL_CLUSTER_GEN_ON_OFF,
-#endif
 #ifdef ZCL_LEVEL_CTRL
     ZCL_CLUSTER_GEN_LEVEL_CONTROL,
 #endif
@@ -80,6 +77,38 @@ const uint16_t watermeter_ep3_outClusterList[] = {
 
 #define WATERMETER_EP3_IN_CLUSTER_NUM   (sizeof(watermeter_ep3_inClusterList)/sizeof(watermeter_ep3_inClusterList[0]))
 #define WATERMETER_EP3_OUT_CLUSTER_NUM  (sizeof(watermeter_ep3_outClusterList)/sizeof(watermeter_ep3_outClusterList[0]))
+
+
+const uint16_t watermeter_ep4_inClusterList[] = {
+#ifdef ZCL_IAS_ZONE
+    ZCL_CLUSTER_SS_IAS_ZONE,
+#endif
+};
+
+const uint16_t watermeter_ep4_outClusterList[] = {
+#ifdef ZCL_ON_OFF
+    ZCL_CLUSTER_GEN_ON_OFF,
+#endif
+};
+
+#define WATERMETER_EP4_IN_CLUSTER_NUM   (sizeof(watermeter_ep4_inClusterList)/sizeof(watermeter_ep4_inClusterList[0]))
+#define WATERMETER_EP4_OUT_CLUSTER_NUM  (sizeof(watermeter_ep4_outClusterList)/sizeof(watermeter_ep4_outClusterList[0]))
+
+const uint16_t watermeter_ep5_inClusterList[] = {
+//#ifdef ZCL_IAS_ZONE
+//    ZCL_CLUSTER_SS_IAS_ZONE,
+//#endif
+};
+
+const uint16_t watermeter_ep5_outClusterList[] = {
+#ifdef ZCL_ON_OFF
+    ZCL_CLUSTER_GEN_ON_OFF,
+#endif
+};
+
+#define WATERMETER_EP5_IN_CLUSTER_NUM   (sizeof(watermeter_ep5_inClusterList)/sizeof(watermeter_ep5_inClusterList[0]))
+#define WATERMETER_EP5_OUT_CLUSTER_NUM  (sizeof(watermeter_ep5_outClusterList)/sizeof(watermeter_ep5_outClusterList[0]))
+
 
 /**
  *  @brief Definition for simple description for HA profile
@@ -120,6 +149,33 @@ const af_simple_descriptor_t watermeter_ep3Desc =
     WATERMETER_EP3_OUT_CLUSTER_NUM,         /* Application output cluster count */
     (uint16_t *)watermeter_ep3_inClusterList,    /* Application input cluster list */
     (uint16_t *)watermeter_ep3_outClusterList,   /* Application output cluster list */
+};
+
+
+const af_simple_descriptor_t watermeter_ep4Desc =
+{
+    HA_PROFILE_ID,                          /* Application profile identifier */
+    HA_DEV_IAS_ZONE,                        /* Application device identifier */
+    WATERMETER_ENDPOINT4,                   /* Endpoint */
+    2,                                      /* Application device version */
+    0,                                      /* Reserved */
+    WATERMETER_EP4_IN_CLUSTER_NUM,          /* Application input cluster count */
+    WATERMETER_EP4_OUT_CLUSTER_NUM,         /* Application output cluster count */
+    (uint16_t *)watermeter_ep4_inClusterList,    /* Application input cluster list */
+    (uint16_t *)watermeter_ep4_outClusterList,   /* Application output cluster list */
+};
+
+const af_simple_descriptor_t watermeter_ep5Desc =
+{
+    HA_PROFILE_ID,                          /* Application profile identifier */
+    HA_DEV_ONOFF_SENSOR,                    /* Application device identifier */
+    WATERMETER_ENDPOINT5,                   /* Endpoint */
+    2,                                      /* Application device version */
+    0,                                      /* Reserved */
+    WATERMETER_EP5_IN_CLUSTER_NUM,          /* Application input cluster count */
+    WATERMETER_EP5_OUT_CLUSTER_NUM,         /* Application output cluster count */
+    (uint16_t *)watermeter_ep5_inClusterList,    /* Application input cluster list */
+    (uint16_t *)watermeter_ep5_outClusterList,   /* Application output cluster list */
 };
 
 /* Basic */
@@ -220,6 +276,33 @@ const zclAttrInfo_t pollCtrl_attrTbl[] =
 #define ZCL_POLLCTRL_ATTR_NUM           sizeof(pollCtrl_attrTbl) / sizeof(zclAttrInfo_t)
 #endif
 
+#ifdef ZCL_IAS_ZONE
+/* IAS Zone */
+zcl_iasZoneAttr_t g_zcl_iasZoneAttrs =
+{
+    .zoneState      = ZONE_STATE_NOT_ENROLLED,
+    .zoneType       = ZONE_TYPE_WATER_SENSOR,
+    .zoneStatus     = ZONE_STATUS_BIT_RESTORE_NOTIFY,
+    .iasCieAddr     = {0x00},
+    .zoneId         = ZCL_ZONE_ID_INVALID,
+};
+
+const zclAttrInfo_t iasZone_attrTbl[] =
+{
+    { ZCL_ATTRID_ZONE_STATE,   ZCL_DATA_TYPE_ENUM8,     ACCESS_CONTROL_READ,                        (u8*)&g_zcl_iasZoneAttrs.zoneState },
+    { ZCL_ATTRID_ZONE_TYPE,    ZCL_DATA_TYPE_ENUM16,    ACCESS_CONTROL_READ,                        (u8*)&g_zcl_iasZoneAttrs.zoneType },
+    { ZCL_ATTRID_ZONE_STATUS,  ZCL_DATA_TYPE_BITMAP16,  ACCESS_CONTROL_READ,                        (u8*)&g_zcl_iasZoneAttrs.zoneStatus },
+    { ZCL_ATTRID_IAS_CIE_ADDR, ZCL_DATA_TYPE_IEEE_ADDR, ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE, (u8*)g_zcl_iasZoneAttrs.iasCieAddr },
+    { ZCL_ATTRID_ZONE_ID,      ZCL_DATA_TYPE_UINT8,     ACCESS_CONTROL_READ,                        (u8*)&g_zcl_iasZoneAttrs.zoneId},
+
+    { ZCL_ATTRID_GLOBAL_CLUSTER_REVISION, ZCL_DATA_TYPE_UINT16,  ACCESS_CONTROL_READ,               (u8*)&zcl_attr_global_clusterRevision},
+};
+
+#define ZCL_IASZONE_ATTR_NUM         sizeof(iasZone_attrTbl) / sizeof(zclAttrInfo_t)
+
+#endif
+
+
 zcl_watermeterAttr_t g_zcl_watermeterAttrs = {
     .hot_water_counter = 1,
     .cold_water_counter = 1,
@@ -293,3 +376,15 @@ const zcl_specClusterInfo_t g_watermeterEp3ClusterList[] =
 };
 
 uint8_t WATERMETER_EP3_CB_CLUSTER_NUM = (sizeof(g_watermeterEp3ClusterList)/sizeof(g_watermeterEp3ClusterList[0]));
+
+
+const zcl_specClusterInfo_t g_watermeterEp4ClusterList[] =
+{
+#ifdef ZCL_IAS_ZONE
+    {ZCL_CLUSTER_SS_IAS_ZONE,   MANUFACTURER_CODE_NONE, ZCL_IASZONE_ATTR_NUM,   iasZone_attrTbl,    zcl_iasZone_register,   leak_iasZoneCb},
+#endif
+};
+
+uint8_t WATERMETER_EP4_CB_CLUSTER_NUM = (sizeof(g_watermeterEp4ClusterList)/sizeof(g_watermeterEp4ClusterList[0]));
+
+

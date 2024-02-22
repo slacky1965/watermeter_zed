@@ -9,6 +9,7 @@ $(OUT_PATH)/$(SRC_PATH)/app_pm.o \
 $(OUT_PATH)/$(SRC_PATH)/app_button.o \
 $(OUT_PATH)/$(SRC_PATH)/app_led.o \
 $(OUT_PATH)/$(SRC_PATH)/app_counter.o \
+$(OUT_PATH)/$(SRC_PATH)/app_leak.o \
 $(OUT_PATH)/$(SRC_PATH)/app_battery.o \
 $(OUT_PATH)/$(SRC_PATH)/app_reporting.o \
 $(OUT_PATH)/$(SRC_PATH)/app_dev_config.o \
