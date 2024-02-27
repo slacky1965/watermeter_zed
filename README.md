@@ -119,15 +119,15 @@
 
 Схема модуля.
 
-<img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/waterleak/doc/images/schematic_watermeter_zed_v2.jpg" alt="schematic_v2"/>
+<img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/schematic_watermeter_zed_v2.jpg" alt="schematic_v2"/>
 
 ---
 
 ### Плата
 
-<img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/waterleak/doc/images/board_top_v2.jpg" alt="Board top v2"/>
+<img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/board_top_v2.jpg" alt="Board top v2"/>
 
-<img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/waterleak/doc/images/board_bottom_v2.jpg" alt="Board bottom v2"/>
+<img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/board_bottom_v2.jpg" alt="Board bottom v2"/>
 
 [Ссылка на проект в easyeda](https://oshwlab.com/slacky/watermeterv2_zed)
 
@@ -154,6 +154,8 @@
 ---
 
 ### Готовое устройство
+
+...
 
 ---
 
