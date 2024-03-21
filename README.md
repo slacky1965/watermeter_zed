@@ -113,6 +113,8 @@
 
 Корпус изготовлен на 3D принтере.
 
+<img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/box/device_v2_big.jpg" alt="Watermeter box v2"/>
+
 ---
 
 ### Схема
@@ -155,7 +157,7 @@
 
 ### Готовое устройство
 
-...
+<img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/box/device_v2_big.jpg" alt="Watermeter box v2"/>
 
 ---
 
@@ -297,12 +299,11 @@
 Открываем на редактирование файл `configuration.yaml` от zigbee2mqtt. И добавляем в конец файла
 
 		external_converters:
-			- watermeter.js
+			- watermeter_wleak.js
 		ota:
 			zigbee_ota_override_index_location: local_ota_index.json
 		  
-
-Файлы `watermeter.js` и `local_ota_index.json` копируем из [папки проекта](https://github.com/slacky1965/watermeter_zed/tree/main/zigbee2mqtt) туда же, где лежит `configuration.yaml` от zigbee2mqtt. Не забываем разрешить подключение новых устройств - `permit_join: true`. Перегружаем zigbee2mqtt. Проверяем его лог, что он запустился и нормально работает.
+Если у Вас старая версия прошивки (ниже 2.0) или Вы не хотите использовать датчики протечки, `watermeter_wleak.js` нужно заменить на `watermeter.js`. Файлы `watermeter_wleak.js` (или `watermeter.js`) и `local_ota_index.json` копируем из [папки проекта](https://github.com/slacky1965/watermeter_zed/tree/main/zigbee2mqtt) туда же, где лежит `configuration.yaml` от zigbee2mqtt. Не забываем разрешить подключение новых устройств - `permit_join: true`. Перегружаем zigbee2mqtt. Проверяем его лог, что он запустился и нормально работает.
 
 Далее, вставляем батарейки в устройство. Если питание было уже подано, то нажимаем 5 раз подряд кнопку. Устройство должно подключиться к сети zigbee. Если подключение прошло удачно, то мы обнаружим наше устройство в zigbee2mqtt.
 
