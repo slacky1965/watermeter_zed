@@ -113,7 +113,7 @@
 
 Корпус изготовлен на 3D принтере.
 
-<img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/box/device_v2_big.jpg" alt="Watermeter box v2"/>
+<img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/box/device_v2_big.png" alt="Watermeter box v2"/>
 
 ---
 
@@ -157,7 +157,7 @@
 
 ### Готовое устройство
 
-<img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/box/device_v2_big.jpg" alt="Watermeter box v2"/>
+<img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/box/device_v2_big.png" alt="Watermeter box v2"/>
 
 ---
 
