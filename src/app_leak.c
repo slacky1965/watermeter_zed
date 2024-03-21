@@ -61,7 +61,7 @@ void waterleak_handler() {
         if (waterleak_debounce1 != DEBOUNCE_COUNTER) {
             waterleak_debounce1++;
             if (waterleak_debounce1 == DEBOUNCE_COUNTER) {
-#if UART_PRINTF_MODE && DEBUG_COUNTER
+#if UART_PRINTF_MODE && DEBUG_WATERLEAK
                 printf("Waterleak first channel leaking\r\n");
 #endif /* UART_PRINTF_MODE */
                 if(zb_isDeviceJoinedNwk()) {
@@ -87,7 +87,7 @@ void waterleak_handler() {
         if (waterleak_debounce1 != 1) {
             waterleak_debounce1--;
             if (waterleak_debounce1 == 1) {
-#if UART_PRINTF_MODE && DEBUG_COUNTER
+#if UART_PRINTF_MODE && DEBUG_WATERLEAK
                 printf("Waterleak first channel clear\r\n");
 #endif /* UART_PRINTF_MODE */
                 if(zb_isDeviceJoinedNwk()){
@@ -113,7 +113,7 @@ void waterleak_handler() {
         if (waterleak_debounce2 != DEBOUNCE_COUNTER) {
             waterleak_debounce2++;
             if (waterleak_debounce2 == DEBOUNCE_COUNTER) {
-#if UART_PRINTF_MODE && DEBUG_COUNTER
+#if UART_PRINTF_MODE && DEBUG_WATERLEAK
                 printf("Waterleak second channel leaking\r\n");
 #endif /* UART_PRINTF_MODE */
                 if(zb_isDeviceJoinedNwk()) {
@@ -139,7 +139,7 @@ void waterleak_handler() {
         if (waterleak_debounce2 != 1) {
             waterleak_debounce2--;
             if (waterleak_debounce2 == 1) {
-#if UART_PRINTF_MODE && DEBUG_COUNTER
+#if UART_PRINTF_MODE && DEBUG_WATERLEAK
                 printf("Waterleak second channel clear\r\n");
 #endif /* UART_PRINTF_MODE */
                 if(zb_isDeviceJoinedNwk()){
