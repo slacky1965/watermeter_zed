@@ -131,6 +131,8 @@
 
 <img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/board_bottom_v2.jpg" alt="Board bottom v2"/>
 
+<img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/board_v2.jpg" alt="Board v2"/>
+
 [Ссылка на проект в easyeda](https://oshwlab.com/slacky/watermeterv2_zed)
 
 ---
@@ -157,7 +159,7 @@
 
 ### Готовое устройство
 
-<img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/images/box/device_v2_big.png" alt="Watermeter device v2"/>
+<img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/device_v2_big.png" alt="Watermeter device v2"/>
 
 ---
 
