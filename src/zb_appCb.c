@@ -82,15 +82,15 @@ int32_t app_bdbFindAndBindStart(void *arg) {
     BDB_ATTR_GROUP_ID_SET(0x1234);//only for initiator
     bdb_findAndBindStart(BDB_COMMISSIONING_ROLE_INITIATOR);
 
-    g_switchAppCtx.bdbFBTimerEvt = NULL;
+    g_watermeterCtx.bdbFBTimerEvt = NULL;
     return -1;
 }
 #endif
 
-ev_timer_event_t *switchRejoinBackoffTimerEvt = NULL;
+ev_timer_event_t *appRejoinBackoffTimerEvt = NULL;
 int32_t app_rejoinBacckoff(void *arg) {
     if (zb_isDeviceFactoryNew()) {
-        switchRejoinBackoffTimerEvt = NULL;
+        appRejoinBackoffTimerEvt = NULL;
         return -1;
     }
 
@@ -150,8 +150,8 @@ void zb_bdbInitCb(uint8_t status, uint8_t joinedNetwork) {
     } else {
         if (joinedNetwork) {
 //			zb_rejoinReqWithBackOff(zb_apsChannelMaskGet(), g_bdbAttrs.scanDuration);
-            if (!switchRejoinBackoffTimerEvt) {
-                switchRejoinBackoffTimerEvt = TL_ZB_TIMER_SCHEDULE(app_rejoinBacckoff, NULL, 60 * 1000);
+            if (!appRejoinBackoffTimerEvt) {
+                appRejoinBackoffTimerEvt = TL_ZB_TIMER_SCHEDULE(app_rejoinBacckoff, NULL, 60 * 1000);
             }
         }
     }
@@ -235,12 +235,12 @@ void zb_bdbCommissioningCb(uint8_t status, void *arg) {
 #endif
 #if FIND_AND_BIND_SUPPORT
 			//start Finding & Binding
-			if(!g_switchAppCtx.bdbFBTimerEvt){
-				g_switchAppCtx.bdbFBTimerEvt = TL_ZB_TIMER_SCHEDULE(app_bdbFindAndBindStart, NULL, 50);
+			if(!g_watermeterCtx.bdbFBTimerEvt){
+			    g_watermeterCtx.bdbFBTimerEvt = TL_ZB_TIMER_SCHEDULE(app_bdbFindAndBindStart, NULL, 50);
 			}
 #endif
-			if (switchRejoinBackoffTimerEvt) {
-			    TL_ZB_TIMER_CANCEL(&switchRejoinBackoffTimerEvt);
+			if (appRejoinBackoffTimerEvt) {
+			    TL_ZB_TIMER_CANCEL(&appRejoinBackoffTimerEvt);
 			}
 			break;
         case BDB_COMMISSION_STA_IN_PROGRESS:
@@ -283,8 +283,8 @@ void zb_bdbCommissioningCb(uint8_t status, void *arg) {
         case BDB_COMMISSION_STA_REJOIN_FAILURE:
             light_blink_stop();
             light_blink_start(3, 30, 250);
-            if (!switchRejoinBackoffTimerEvt) {
-                switchRejoinBackoffTimerEvt = TL_ZB_TIMER_SCHEDULE(app_rejoinBacckoff, NULL, 60 * 1000);
+            if (!appRejoinBackoffTimerEvt) {
+                appRejoinBackoffTimerEvt = TL_ZB_TIMER_SCHEDULE(app_rejoinBacckoff, NULL, 60 * 1000);
             }
             if (!g_watermeterCtx.timerNoJoinedEvt) {
                 g_watermeterCtx.timerNoJoinedEvt = TL_ZB_TIMER_SCHEDULE(no_joinedCb, NULL, TIMEOUT_NET);
@@ -315,7 +315,7 @@ void zb_bdbIdentifyCb(uint8_t endpoint, uint16_t srcAddr, uint16_t identifyTime)
  *
  * @return  None
  */
-void zb_bdbFindBindSuccessCb(findBindDst_t *pDstInfo){
+void zb_bdbFindBindSuccessCb(findBindDst_t *pDstInfo) {
 #if FIND_AND_BIND_SUPPORT
 	epInfo_t dstEpInfo;
 	TL_SETSTRUCTCONTENT(dstEpInfo, 0);
@@ -325,7 +325,7 @@ void zb_bdbFindBindSuccessCb(findBindDst_t *pDstInfo){
 	dstEpInfo.dstEp = pDstInfo->endpoint;
 	dstEpInfo.profileId = HA_PROFILE_ID;
 
-	zcl_identify_identifyCmd(SAMPLE_SWITCH_ENDPOINT, &dstEpInfo, FALSE, 0, 0);
+	zcl_identify_identifyCmd(WATERMETER_ENDPOINT1, &dstEpInfo, FALSE, 0, 0);
 #endif
 }
 
@@ -434,8 +434,8 @@ void app_leaveCnfHandler(nlme_leave_cnf_t *pLeaveCnf) {
     if (pLeaveCnf->status == SUCCESS) {
         //SYSTEM_RESET();
 
-        if (switchRejoinBackoffTimerEvt) {
-            TL_ZB_TIMER_CANCEL(&switchRejoinBackoffTimerEvt);
+        if (appRejoinBackoffTimerEvt) {
+            TL_ZB_TIMER_CANCEL(&appRejoinBackoffTimerEvt);
         }
     }
 }
