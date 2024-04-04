@@ -32,14 +32,14 @@
 #define PULL_WAKEUP_SRC_PB4     PM_PIN_PULLUP_1M
 
 /************************* Configure LEAK GPIO **************************************/
-#define WLEAK1_GPIO              GPIO_PB5
+#define WLEAK1_GPIO             GPIO_PB5
 #define PB5_INPUT_ENABLE        ON
 #define PB5_DATA_OUT            OFF
 #define PB5_OUTPUT_ENABLE       OFF
 #define PB5_FUNC                AS_GPIO
 #define PULL_WAKEUP_SRC_PB5     PM_PIN_PULLUP_1M
 
-#define WLEAK2_GPIO              GPIO_PA1
+#define WLEAK2_GPIO             GPIO_PA1
 #define PA1_INPUT_ENABLE        ON
 #define PA1_DATA_OUT            OFF
 #define PA1_OUTPUT_ENABLE       OFF
@@ -72,26 +72,6 @@
 #define PB1_FUNC                    AS_GPIO
 #define PB1_OUTPUT_ENABLE           ON
 #define PB1_INPUT_ENABLE            OFF
-
-
-///************************* For 512K Flash only ***************************************/
-///* Flash map:
-//  0x00000 Old Firmware bin
-//  0x34000 NV_1
-//  0x40000 OTA New bin storage Area
-//  0x76000 MAC address
-//  0x77000 C_Cfg_Info
-//  0x78000 U_Cfg_Info
-//  0x7A000 NV_2
-//  0x80000 End Flash
-// */
-//#define USER_DATA_SIZE          0x34000
-//#define BEGIN_USER_DATA1        0x00000
-//#define END_USER_DATA1          (BEGIN_USER_DATA1 + USER_DATA_SIZE)
-//#define BEGIN_USER_DATA2        0x40000
-//#define END_USER_DATA2          (BEGIN_USER_DATA2 + USER_DATA_SIZE)
-//#define GEN_USER_CFG_DATA       END_USER_DATA2
-
 
 
 #endif /* SRC_INCLUDE_BOARD_8258_DIY_H_ */
