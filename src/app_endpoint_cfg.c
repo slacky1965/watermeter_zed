@@ -28,6 +28,7 @@
 #define ZCL_BITMAP16    ZCL_DATA_TYPE_BITMAP16
 #define ZCL_BOOLEAN     ZCL_DATA_TYPE_BOOLEAN
 #define ZCL_CHAR_STR    ZCL_DATA_TYPE_CHAR_STR
+#define ZCL_IEEE_ADDR   ZCL_DATA_TYPE_IEEE_ADDR
 
 /**
  *  @brief Definition for Incoming cluster / Sever Cluster
