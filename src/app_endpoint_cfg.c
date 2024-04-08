@@ -14,6 +14,21 @@
 #define ZCL_BASIC_SW_BUILD_ID       {10,'0','1','2','2','0','5','2','0','1','7'}
 #endif
 
+
+#define R               ACCESS_CONTROL_READ
+#define RW              ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE
+#define RR              ACCESS_CONTROL_READ | ACCESS_CONTROL_REPORTABLE
+
+#define ZCL_UINT8       ZCL_DATA_TYPE_UINT8
+#define ZCL_UINT16      ZCL_DATA_TYPE_UINT16
+#define ZCL_UINT32      ZCL_DATA_TYPE_UINT32
+#define ZCL_UINT48      ZCL_DATA_TYPE_UINT48
+#define ZCL_ENUM8       ZCL_DATA_TYPE_ENUM8
+#define ZCL_ENUM16      ZCL_DATA_TYPE_ENUM16
+#define ZCL_BITMAP16    ZCL_DATA_TYPE_BITMAP16
+#define ZCL_BOOLEAN     ZCL_DATA_TYPE_BOOLEAN
+#define ZCL_CHAR_STR    ZCL_DATA_TYPE_CHAR_STR
+
 /**
  *  @brief Definition for Incoming cluster / Sever Cluster
  */
@@ -195,18 +210,17 @@ zcl_basicAttr_t g_zcl_basicAttrs =
 
 const zclAttrInfo_t basic_attrTbl[] =
 {
-    { ZCL_ATTRID_BASIC_ZCL_VER,             ZCL_DATA_TYPE_UINT8,    ACCESS_CONTROL_READ,                        (uint8_t*)&g_zcl_basicAttrs.zclVersion},
-    { ZCL_ATTRID_BASIC_APP_VER,             ZCL_DATA_TYPE_UINT8,    ACCESS_CONTROL_READ,                        (uint8_t*)&g_zcl_basicAttrs.appVersion},
-    { ZCL_ATTRID_BASIC_STACK_VER,           ZCL_DATA_TYPE_UINT8,    ACCESS_CONTROL_READ,                        (uint8_t*)&g_zcl_basicAttrs.stackVersion},
-    { ZCL_ATTRID_BASIC_HW_VER,              ZCL_DATA_TYPE_UINT8,    ACCESS_CONTROL_READ,                        (uint8_t*)&g_zcl_basicAttrs.hwVersion},
-    { ZCL_ATTRID_BASIC_MFR_NAME,            ZCL_DATA_TYPE_CHAR_STR, ACCESS_CONTROL_READ,                        (uint8_t*)g_zcl_basicAttrs.manuName},
-    { ZCL_ATTRID_BASIC_MODEL_ID,            ZCL_DATA_TYPE_CHAR_STR, ACCESS_CONTROL_READ,                        (uint8_t*)g_zcl_basicAttrs.modelId},
-    { ZCL_ATTRID_BASIC_DATE_CODE,           ZCL_DATA_TYPE_CHAR_STR, ACCESS_CONTROL_READ,                        (uint8_t*)g_zcl_basicAttrs.dateCode},
-    { ZCL_ATTRID_BASIC_POWER_SOURCE,        ZCL_DATA_TYPE_ENUM8,    ACCESS_CONTROL_READ,                        (uint8_t*)&g_zcl_basicAttrs.powerSource},
-    { ZCL_ATTRID_BASIC_DEV_ENABLED,         ZCL_DATA_TYPE_BOOLEAN,  ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE, (uint8_t*)&g_zcl_basicAttrs.deviceEnable},
-    { ZCL_ATTRID_BASIC_SW_BUILD_ID,         ZCL_DATA_TYPE_CHAR_STR, ACCESS_CONTROL_READ,                        (uint8_t*)&g_zcl_basicAttrs.swBuildId},
-
-    { ZCL_ATTRID_GLOBAL_CLUSTER_REVISION,   ZCL_DATA_TYPE_UINT16,   ACCESS_CONTROL_READ,                        (uint8_t*)&zcl_attr_global_clusterRevision},
+    { ZCL_ATTRID_BASIC_ZCL_VER,             ZCL_UINT8,      R,  (uint8_t*)&g_zcl_basicAttrs.zclVersion},
+    { ZCL_ATTRID_BASIC_APP_VER,             ZCL_UINT8,      R,  (uint8_t*)&g_zcl_basicAttrs.appVersion},
+    { ZCL_ATTRID_BASIC_STACK_VER,           ZCL_UINT8,      R,  (uint8_t*)&g_zcl_basicAttrs.stackVersion},
+    { ZCL_ATTRID_BASIC_HW_VER,              ZCL_UINT8,      R,  (uint8_t*)&g_zcl_basicAttrs.hwVersion},
+    { ZCL_ATTRID_BASIC_MFR_NAME,            ZCL_CHAR_STR,   R,  (uint8_t*)g_zcl_basicAttrs.manuName},
+    { ZCL_ATTRID_BASIC_MODEL_ID,            ZCL_CHAR_STR,   R,  (uint8_t*)g_zcl_basicAttrs.modelId},
+    { ZCL_ATTRID_BASIC_DATE_CODE,           ZCL_CHAR_STR,   R,  (uint8_t*)g_zcl_basicAttrs.dateCode},
+    { ZCL_ATTRID_BASIC_POWER_SOURCE,        ZCL_ENUM8,      R,  (uint8_t*)&g_zcl_basicAttrs.powerSource},
+    { ZCL_ATTRID_BASIC_DEV_ENABLED,         ZCL_BOOLEAN,    RW, (uint8_t*)&g_zcl_basicAttrs.deviceEnable},
+    { ZCL_ATTRID_BASIC_SW_BUILD_ID,         ZCL_CHAR_STR,   R,  (uint8_t*)&g_zcl_basicAttrs.swBuildId},
+    { ZCL_ATTRID_GLOBAL_CLUSTER_REVISION,   ZCL_UINT16,     R,  (uint8_t*)&zcl_attr_global_clusterRevision},
 
 };
 
@@ -221,9 +235,8 @@ zcl_identifyAttr_t g_zcl_identifyAttrs =
 
 const zclAttrInfo_t identify_attrTbl[] =
 {
-    { ZCL_ATTRID_IDENTIFY_TIME,             ZCL_DATA_TYPE_UINT16,   ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE, (uint8_t*)&g_zcl_identifyAttrs.identifyTime },
-
-    { ZCL_ATTRID_GLOBAL_CLUSTER_REVISION,   ZCL_DATA_TYPE_UINT16,   ACCESS_CONTROL_READ,                        (uint8_t*)&zcl_attr_global_clusterRevision},
+    { ZCL_ATTRID_IDENTIFY_TIME,             ZCL_UINT16,     RW, (uint8_t*)&g_zcl_identifyAttrs.identifyTime },
+    { ZCL_ATTRID_GLOBAL_CLUSTER_REVISION,   ZCL_UINT16,     R,  (uint8_t*)&zcl_attr_global_clusterRevision},
 };
 
 #define ZCL_IDENTIFY_ATTR_NUM           sizeof(identify_attrTbl) / sizeof(zclAttrInfo_t)
@@ -237,10 +250,9 @@ zcl_powerAttr_t g_zcl_powerAttrs =
 
 const zclAttrInfo_t powerCfg_attrTbl[] =
 {
-    { ZCL_ATTRID_BATTERY_VOLTAGE,              ZCL_DATA_TYPE_UINT8,    ACCESS_CONTROL_READ | ACCESS_CONTROL_REPORTABLE, (uint8_t*)&g_zcl_powerAttrs.batteryVoltage},
-    { ZCL_ATTRID_BATTERY_PERCENTAGE_REMAINING, ZCL_DATA_TYPE_UINT8,    ACCESS_CONTROL_READ | ACCESS_CONTROL_REPORTABLE, (uint8_t*)&g_zcl_powerAttrs.batteryPercentage},
-
-    { ZCL_ATTRID_GLOBAL_CLUSTER_REVISION,   ZCL_DATA_TYPE_UINT16,   ACCESS_CONTROL_READ,                        (uint8_t*)&zcl_attr_global_clusterRevision},
+    { ZCL_ATTRID_BATTERY_VOLTAGE,               ZCL_UINT8,  RR, (uint8_t*)&g_zcl_powerAttrs.batteryVoltage},
+    { ZCL_ATTRID_BATTERY_PERCENTAGE_REMAINING,  ZCL_UINT8,  RR, (uint8_t*)&g_zcl_powerAttrs.batteryPercentage},
+    { ZCL_ATTRID_GLOBAL_CLUSTER_REVISION,       ZCL_UINT16, R,  (uint8_t*)&zcl_attr_global_clusterRevision},
 };
 
 #define ZCL_POWER_CFG_ATTR_NUM       sizeof(powerCfg_attrTbl) / sizeof(zclAttrInfo_t)
@@ -262,15 +274,14 @@ zcl_pollCtrlAttr_t g_zcl_pollCtrlAttrs =
 
 const zclAttrInfo_t pollCtrl_attrTbl[] =
 {
-    { ZCL_ATTRID_CHK_IN_INTERVAL,       ZCL_DATA_TYPE_UINT32, ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE, (uint8_t*)&g_zcl_pollCtrlAttrs.chkInInterval },
-    { ZCL_ATTRID_LONG_POLL_INTERVAL,    ZCL_DATA_TYPE_UINT32, ACCESS_CONTROL_READ,                        (uint8_t*)&g_zcl_pollCtrlAttrs.longPollInterval },
-    { ZCL_ATTRID_SHORT_POLL_INTERVAL,   ZCL_DATA_TYPE_UINT16, ACCESS_CONTROL_READ,                        (uint8_t*)&g_zcl_pollCtrlAttrs.shortPollInterval },
-    { ZCL_ATTRID_FAST_POLL_TIMEOUT,     ZCL_DATA_TYPE_UINT16, ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE, (uint8_t*)&g_zcl_pollCtrlAttrs.fastPollTimeout },
-    { ZCL_ATTRID_CHK_IN_INTERVAL_MIN,   ZCL_DATA_TYPE_UINT32, ACCESS_CONTROL_READ,                        (uint8_t*)&g_zcl_pollCtrlAttrs.chkInIntervalMin},
-    { ZCL_ATTRID_LONG_POLL_INTERVAL_MIN,ZCL_DATA_TYPE_UINT32, ACCESS_CONTROL_READ,                        (uint8_t*)&g_zcl_pollCtrlAttrs.longPollIntervalMin },
-    { ZCL_ATTRID_FAST_POLL_TIMEOUT_MAX, ZCL_DATA_TYPE_UINT16, ACCESS_CONTROL_READ,                        (uint8_t*)&g_zcl_pollCtrlAttrs.fastPollTimeoutMax},
-
-    { ZCL_ATTRID_GLOBAL_CLUSTER_REVISION, ZCL_DATA_TYPE_UINT16,  ACCESS_CONTROL_READ,                     (uint8_t*)&zcl_attr_global_clusterRevision},
+    { ZCL_ATTRID_CHK_IN_INTERVAL,           ZCL_UINT32, RW, (uint8_t*)&g_zcl_pollCtrlAttrs.chkInInterval },
+    { ZCL_ATTRID_LONG_POLL_INTERVAL,        ZCL_UINT32, R,  (uint8_t*)&g_zcl_pollCtrlAttrs.longPollInterval },
+    { ZCL_ATTRID_SHORT_POLL_INTERVAL,       ZCL_UINT16, R,  (uint8_t*)&g_zcl_pollCtrlAttrs.shortPollInterval },
+    { ZCL_ATTRID_FAST_POLL_TIMEOUT,         ZCL_UINT16, RW, (uint8_t*)&g_zcl_pollCtrlAttrs.fastPollTimeout },
+    { ZCL_ATTRID_CHK_IN_INTERVAL_MIN,       ZCL_UINT32, R,  (uint8_t*)&g_zcl_pollCtrlAttrs.chkInIntervalMin},
+    { ZCL_ATTRID_LONG_POLL_INTERVAL_MIN,    ZCL_UINT32, R,  (uint8_t*)&g_zcl_pollCtrlAttrs.longPollIntervalMin },
+    { ZCL_ATTRID_FAST_POLL_TIMEOUT_MAX,     ZCL_UINT16, R,  (uint8_t*)&g_zcl_pollCtrlAttrs.fastPollTimeoutMax},
+    { ZCL_ATTRID_GLOBAL_CLUSTER_REVISION,   ZCL_UINT16, R,  (uint8_t*)&zcl_attr_global_clusterRevision},
 };
 
 #define ZCL_POLLCTRL_ATTR_NUM           sizeof(pollCtrl_attrTbl) / sizeof(zclAttrInfo_t)
@@ -289,13 +300,12 @@ zcl_iasZoneAttr_t g_zcl_iasZoneAttrs =
 
 const zclAttrInfo_t iasZone_attrTbl[] =
 {
-    { ZCL_ATTRID_ZONE_STATE,   ZCL_DATA_TYPE_ENUM8,     ACCESS_CONTROL_READ,                        (u8*)&g_zcl_iasZoneAttrs.zoneState },
-    { ZCL_ATTRID_ZONE_TYPE,    ZCL_DATA_TYPE_ENUM16,    ACCESS_CONTROL_READ,                        (u8*)&g_zcl_iasZoneAttrs.zoneType },
-    { ZCL_ATTRID_ZONE_STATUS,  ZCL_DATA_TYPE_BITMAP16,  ACCESS_CONTROL_READ,                        (u8*)&g_zcl_iasZoneAttrs.zoneStatus },
-    { ZCL_ATTRID_IAS_CIE_ADDR, ZCL_DATA_TYPE_IEEE_ADDR, ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE, (u8*)g_zcl_iasZoneAttrs.iasCieAddr },
-    { ZCL_ATTRID_ZONE_ID,      ZCL_DATA_TYPE_UINT8,     ACCESS_CONTROL_READ,                        (u8*)&g_zcl_iasZoneAttrs.zoneId},
-
-    { ZCL_ATTRID_GLOBAL_CLUSTER_REVISION, ZCL_DATA_TYPE_UINT16,  ACCESS_CONTROL_READ,               (u8*)&zcl_attr_global_clusterRevision},
+    { ZCL_ATTRID_ZONE_STATE,                ZCL_ENUM8,      R,  (u8*)&g_zcl_iasZoneAttrs.zoneState },
+    { ZCL_ATTRID_ZONE_TYPE,                 ZCL_ENUM16,     R,  (u8*)&g_zcl_iasZoneAttrs.zoneType },
+    { ZCL_ATTRID_ZONE_STATUS,               ZCL_BITMAP16,   R,  (u8*)&g_zcl_iasZoneAttrs.zoneStatus },
+    { ZCL_ATTRID_IAS_CIE_ADDR,              ZCL_IEEE_ADDR,  RW, (u8*)g_zcl_iasZoneAttrs.iasCieAddr },
+    { ZCL_ATTRID_ZONE_ID,                   ZCL_UINT8,      R,  (u8*)&g_zcl_iasZoneAttrs.zoneId},
+    { ZCL_ATTRID_GLOBAL_CLUSTER_REVISION,   ZCL_UINT16,     R,  (u8*)&zcl_attr_global_clusterRevision},
 };
 
 #define ZCL_IASZONE_ATTR_NUM         sizeof(iasZone_attrTbl) / sizeof(zclAttrInfo_t)
@@ -316,27 +326,24 @@ zcl_watermeterCfgAttr_t g_zcl_watermeterCfgAttrs = {
 
 /* Attribute record list */
 const zclAttrInfo_t zcl_hotWater_attrTbl[] = {
-    { ZCL_ATTRID_CURRENT_SUMMATION_DELIVERD,  ZCL_DATA_TYPE_UINT48,   ACCESS_CONTROL_READ | ACCESS_CONTROL_REPORTABLE,  (uint8_t*)&g_zcl_watermeterAttrs.hot_water_counter},
-
-    { ZCL_ATTRID_GLOBAL_CLUSTER_REVISION, ZCL_DATA_TYPE_UINT16,  ACCESS_CONTROL_READ, (uint8_t*)&zcl_attr_global_clusterRevision},
+    { ZCL_ATTRID_CURRENT_SUMMATION_DELIVERD,    ZCL_UINT48, RR, (uint8_t*)&g_zcl_watermeterAttrs.hot_water_counter},
+    { ZCL_ATTRID_GLOBAL_CLUSTER_REVISION,       ZCL_UINT16, R,  (uint8_t*)&zcl_attr_global_clusterRevision},
 };
 
 #define ZCL_HOT_WATERMETER_ATTR_NUM         sizeof(zcl_hotWater_attrTbl) / sizeof(zclAttrInfo_t)
 
 const zclAttrInfo_t zcl_coldWater_attrTbl[] = {
-    { ZCL_ATTRID_CURRENT_SUMMATION_DELIVERD,  ZCL_DATA_TYPE_UINT48,   ACCESS_CONTROL_READ | ACCESS_CONTROL_REPORTABLE,  (uint8_t*)&g_zcl_watermeterAttrs.cold_water_counter},
-
-    { ZCL_ATTRID_GLOBAL_CLUSTER_REVISION, ZCL_DATA_TYPE_UINT16,  ACCESS_CONTROL_READ, (uint8_t*)&zcl_attr_global_clusterRevision},
+    { ZCL_ATTRID_CURRENT_SUMMATION_DELIVERD,    ZCL_UINT48, RR, (uint8_t*)&g_zcl_watermeterAttrs.cold_water_counter},
+    { ZCL_ATTRID_GLOBAL_CLUSTER_REVISION,       ZCL_UINT16, R,  (uint8_t*)&zcl_attr_global_clusterRevision},
 };
 
 #define ZCL_COLD_WATERMETER_ATTR_NUM         sizeof(zcl_coldWater_attrTbl) / sizeof(zclAttrInfo_t)
 
 const zclAttrInfo_t zcl_watermeterCfg_attrTbl[] = {
-    { ZCL_ATTRID_CUSTOM_HOT_WATER_PRESET,  ZCL_DATA_TYPE_UINT32, ACCESS_CONTROL_WRITE | ACCESS_CONTROL_READ, (uint8_t*)&g_zcl_watermeterCfgAttrs.hot_water_preset},
-    { ZCL_ATTRID_CUSTOM_COLD_WATER_PRESET, ZCL_DATA_TYPE_UINT32, ACCESS_CONTROL_WRITE | ACCESS_CONTROL_READ, (uint8_t*)&g_zcl_watermeterCfgAttrs.cold_water_preset},
-    { ZCL_ATTRID_CUSTOM_WATER_STEP_PRESET, ZCL_DATA_TYPE_UINT16, ACCESS_CONTROL_WRITE | ACCESS_CONTROL_READ, (uint8_t*)&g_zcl_watermeterCfgAttrs.water_step_preset},
-
-    { ZCL_ATTRID_GLOBAL_CLUSTER_REVISION, ZCL_DATA_TYPE_UINT16,  ACCESS_CONTROL_READ, (uint8_t*)&zcl_attr_global_clusterRevision},
+    { ZCL_ATTRID_CUSTOM_HOT_WATER_PRESET,   ZCL_UINT32, RW, (uint8_t*)&g_zcl_watermeterCfgAttrs.hot_water_preset},
+    { ZCL_ATTRID_CUSTOM_COLD_WATER_PRESET,  ZCL_UINT32, RW, (uint8_t*)&g_zcl_watermeterCfgAttrs.cold_water_preset},
+    { ZCL_ATTRID_CUSTOM_WATER_STEP_PRESET,  ZCL_UINT16, RW, (uint8_t*)&g_zcl_watermeterCfgAttrs.water_step_preset},
+    { ZCL_ATTRID_GLOBAL_CLUSTER_REVISION,   ZCL_UINT16, R,  (uint8_t*)&zcl_attr_global_clusterRevision},
 };
 
 #define ZCL_WATERMETER_CFG_ATTR_NUM         sizeof(zcl_watermeterCfg_attrTbl) / sizeof(zclAttrInfo_t)
