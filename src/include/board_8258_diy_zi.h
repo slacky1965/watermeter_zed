@@ -2,12 +2,12 @@
 #define SRC_INCLUDE_BOARD_8258_DIY_H_
 
 /************************* Configure KEY GPIO ***************************************/
-#define BUTTON                  GPIO_PB6
-#define PB6_INPUT_ENABLE        ON
-#define PB6_DATA_OUT            OFF
-#define PB6_OUTPUT_ENABLE       OFF
-#define PB6_FUNC                AS_GPIO
-#define PULL_WAKEUP_SRC_PB6     PM_PIN_PULLUP_1M
+#define BUTTON                  GPIO_PC1
+#define PC1_INPUT_ENABLE        ON
+#define PC1_DATA_OUT            OFF
+#define PC1_OUTPUT_ENABLE       OFF
+#define PC1_FUNC                AS_GPIO
+#define PULL_WAKEUP_SRC_PC1     PM_PIN_PULLUP_1M
 
 #define PM_WAKEUP_LEVEL         PM_WAKEUP_LEVEL_LOW // only for KEY
 
@@ -16,28 +16,28 @@
 #define COUNTERS_OVERFLOW       100000000       /* counters overflow             */
 
 /************************* Configure HOT GPIO ***************************************/
-#define HOT_GPIO                GPIO_PB7
-#define PB7_INPUT_ENABLE        ON
-#define PB7_DATA_OUT            OFF
-#define PB7_OUTPUT_ENABLE       OFF
-#define PB7_FUNC                AS_GPIO
-#define PULL_WAKEUP_SRC_PB7     PM_PIN_PULLUP_1M
-
-/************************* Configure COLD GPIO **************************************/
-#define COLD_GPIO               GPIO_PB4
+#define HOT_GPIO                GPIO_PB4
 #define PB4_INPUT_ENABLE        ON
 #define PB4_DATA_OUT            OFF
 #define PB4_OUTPUT_ENABLE       OFF
 #define PB4_FUNC                AS_GPIO
 #define PULL_WAKEUP_SRC_PB4     PM_PIN_PULLUP_1M
 
+/************************* Configure COLD GPIO **************************************/
+#define COLD_GPIO               GPIO_PC0
+#define PC0_INPUT_ENABLE        ON
+#define PC0_DATA_OUT            OFF
+#define PC0_OUTPUT_ENABLE       OFF
+#define PC0_FUNC                AS_GPIO
+#define PULL_WAKEUP_SRC_PC0     PM_PIN_PULLUP_1M
+
 /************************* Configure LEAK GPIO **************************************/
-#define WLEAK1_GPIO             GPIO_PB5
-#define PB5_INPUT_ENABLE        ON
-#define PB5_DATA_OUT            OFF
-#define PB5_OUTPUT_ENABLE       OFF
-#define PB5_FUNC                AS_GPIO
-#define PULL_WAKEUP_SRC_PB5     PM_PIN_PULLUP_1M
+#define WLEAK1_GPIO             GPIO_PB1
+#define PB1_INPUT_ENABLE        ON
+#define PB1_DATA_OUT            OFF
+#define PB1_OUTPUT_ENABLE       OFF
+#define PB1_FUNC                AS_GPIO
+#define PULL_WAKEUP_SRC_PB1     PM_PIN_PULLUP_1M
 
 #define WLEAK2_GPIO             GPIO_PA1
 #define PA1_INPUT_ENABLE        ON
@@ -68,10 +68,10 @@
 
 /**************************** Configure LED ******************************************/
 
-#define LED1                        GPIO_PB1
-#define PB1_FUNC                    AS_GPIO
-#define PB1_OUTPUT_ENABLE           ON
-#define PB1_INPUT_ENABLE            OFF
+#define LED1                        GPIO_PB6
+#define PB6_FUNC                    AS_GPIO
+#define PB6_OUTPUT_ENABLE           ON
+#define PB6_INPUT_ENABLE            OFF
 
 
 #endif /* SRC_INCLUDE_BOARD_8258_DIY_H_ */

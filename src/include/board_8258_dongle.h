@@ -81,19 +81,19 @@ extern "C" {
 *********************8258Dongle with 48 Pins: Start*****************************************************
 *******************************************************************************************************/
 //KEY
-#define	BUTTON 					    GPIO_PD6
-#define PD6_FUNC					AS_GPIO
-#define PD6_OUTPUT_ENABLE			0
-#define PD6_INPUT_ENABLE			1
-#define	PULL_WAKEUP_SRC_PD6			PM_PIN_PULLUP_1M //PM_PIN_PULLUP_10K
+#define	BUTTON                  GPIO_PD6
+#define PD6_FUNC                AS_GPIO
+#define PD6_OUTPUT_ENABLE       OFF
+#define PD6_INPUT_ENABLE        ON
+#define	PULL_WAKEUP_SRC_PD6     PM_PIN_PULLUP_1M //PM_PIN_PULLUP_10K
 
 //#define BUTTON  BUTTON1
 
-#define	BUTTON2 					GPIO_PD5
-#define PD5_FUNC					AS_GPIO
-#define PD5_OUTPUT_ENABLE			0
-#define PD5_INPUT_ENABLE			1
-#define	PULL_WAKEUP_SRC_PD5			PM_PIN_PULLUP_1M //PM_PIN_PULLUP_10K
+#define	BUTTON2                 GPIO_PD5
+#define PD5_FUNC                AS_GPIO
+#define PD5_OUTPUT_ENABLE       OFF
+#define PD5_INPUT_ENABLE        ON
+#define	PULL_WAKEUP_SRC_PD5     PM_PIN_PULLUP_1M //PM_PIN_PULLUP_10K
 
 /************************* Configure counters ***************************************/
 #define LITERS_PER_PULSE        10              /* How many liters per one pulse */
@@ -131,17 +131,17 @@ extern "C" {
 #define PULL_WAKEUP_SRC_PB5     PM_PIN_PULLUP_1M
 
 //LED
-#define LED1						GPIO_PA2
-#define PA2_FUNC					AS_GPIO
-#define PA2_OUTPUT_ENABLE			1
-#define PA2_INPUT_ENABLE			0
+#define LED1                    GPIO_PA2
+#define PA2_FUNC                AS_GPIO
+#define PA2_OUTPUT_ENABLE       ON
+#define PA2_INPUT_ENABLE        OFF
 
-#define LED3						GPIO_PA3
-#define PA3_FUNC					AS_GPIO
-#define PA3_OUTPUT_ENABLE			1
-#define PA3_INPUT_ENABLE			0
+#define LED3                    GPIO_PA3
+#define PA3_FUNC                AS_GPIO
+#define PA3_OUTPUT_ENABLE       ON
+#define PA3_INPUT_ENABLE        OFF
 
-#define	PM_WAKEUP_LEVEL		  		PM_WAKEUP_LEVEL_LOW
+#define	PM_WAKEUP_LEVEL         PM_WAKEUP_LEVEL_LOW
 
 // UART
 #if ZBHCI_UART
