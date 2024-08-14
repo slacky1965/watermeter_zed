@@ -132,15 +132,16 @@ static void app_reportAttrTimerStart() {
     }
 }
 
-static void app_reportNoMinLimit(void)
-{
-    if(zcl_reportingEntryActiveNumGet()){
+static void app_reportNoMinLimit(void) {
+
+    if(zcl_reportingEntryActiveNumGet()) {
         zclAttrInfo_t *pAttrEntry = NULL;
         uint16_t len = 0;
 
         for(uint8_t i = 0; i < ZCL_REPORTING_TABLE_NUM; i++){
             reportCfgInfo_t *pEntry = &reportingTab.reportCfgInfo[i];
             if(pEntry->used && (pEntry->maxInterval == 0 || ((pEntry->maxInterval != 0xFFFF) && (pEntry->minInterval == 0)))) {
+//                printf("app_reportNoMinLimit()\r\n");
                 //there is no minimum limit
                 pAttrEntry = zcl_findAttribute(pEntry->endPoint, pEntry->clusterID, pEntry->attrID);
                 if(!pAttrEntry){
@@ -160,17 +161,19 @@ static void app_reportNoMinLimit(void)
 
                         reportAttr(pEntry);
                         app_reporting[i].time_posted = clock_time();
-    #if UART_PRINTF_MODE && DEBUG_REPORTING
+#if UART_PRINTF_MODE && DEBUG_REPORTING
                         printf("Report No_Min_Limit has been sent. endPoint: %d, clusterID: 0x%x, attrID: 0x%x, minInterval: %d, maxInterval: %d\r\n",
                                 pEntry->endPoint, pEntry->clusterID, pEntry->attrID, pEntry->minInterval, pEntry->maxInterval);
-    #endif
-                        if (app_reporting[i].timerReportMaxEvt) {
-                            TL_ZB_TIMER_CANCEL(&app_reporting[i].timerReportMaxEvt);
+#endif
+                        if (pEntry->maxInterval) {
+                            if (app_reporting[i].timerReportMaxEvt) {
+                                TL_ZB_TIMER_CANCEL(&app_reporting[i].timerReportMaxEvt);
+                            }
+                            app_reporting[i].timerReportMaxEvt = TL_ZB_TIMER_SCHEDULE(app_reportMaxAttrTimerCb, &app_reporting[i], pEntry->maxInterval*1000);
+#if UART_PRINTF_MODE && DEBUG_REPORTING
+                            printf("Start maxTimer. endPoint: %d, clusterID: 0x%x, attrID: 0x%x, min: %d, max: %d\r\n", pEntry->endPoint, pEntry->clusterID, pEntry->attrID, pEntry->minInterval, pEntry->maxInterval);
+#endif
                         }
-                        app_reporting[i].timerReportMaxEvt = TL_ZB_TIMER_SCHEDULE(app_reportMaxAttrTimerCb, &app_reporting[i], pEntry->maxInterval*1000);
-    #if UART_PRINTF_MODE && DEBUG_REPORTING
-                        printf("Start maxTimer. endPoint: %d, clusterID: 0x%x, attrID: 0x%x, min: %d, max: %d\r\n", pEntry->endPoint, pEntry->clusterID, pEntry->attrID, pEntry->minInterval, pEntry->maxInterval);
-    #endif
                     }
 
                 }
