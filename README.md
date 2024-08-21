@@ -4,14 +4,6 @@
 
 ---
 
-## На данный момент существует два варианта устройства.
-
-* V1 - только счетчик на два канала.
-* V2 - счетчик на два канала + два датчика протечки.
-* В обоих вариантах прошивка одинаковая.
-
----
-
 * [Описание](#description)
 * [Железо](#hardware)
 * [Софт](#software)  
@@ -26,10 +18,8 @@
 * Рассчитано на два счетчика воды и на два датчика протечки.
 * Не работает с системой namur и счетчиками, где применен датчик "холла". Только замыкание-размыкание, например геркон.
 * Ведет подсчет замыканий-размыканий, увеличивая каждый раз количество литров на заданное значение от 1 до 10 литров (по умолчанию 10 литров на один импульс).
-* Посылает команду On при обнаружении протечки на любом датчике сразу на два привода.
 * Сохраняет показания в энергонезависимой памяти модуля.
 * Передает показания по сети Zigbee.
-* EndPoint'ы с кластерами On_Off имеют возможность напрямую подключаться к исполнительному устройству минуя координатор.
 * Взаимодейстивие с "умными домами" через zigbee2mqtt.
 * Первоначальная настройка происходит через web-интерфейс zigbee2mqtt.
 * Подключиться к сети zigbee - нажать кнопку 5 раз.
@@ -41,9 +31,6 @@
 
 ## <a id="hardware">Железо</a>
 
-* [Версия V1](#hardware1)
-* [Версия V2](#hardware2)
-
 В проекте используется модуль от компании E-BYTE на чипе TLSR8258F512ET32 - E180-Z5812SP.
 
 <img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/E180-Z5812SP.jpg" alt="E-BYTE E180-Z5812SP"/>
@@ -53,9 +40,6 @@
 <img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/telink_tlsr8258_dongle.jpg" alt="Telink TLSR8258 dongle"/>
 
 ---
-
-## <a id="hardware1">Версия V1</a>
-
 
 ### Корпус
 
@@ -104,62 +88,6 @@
 <img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/device_close_box.jpg" alt="Watermeter close box"/>
 
 <img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/device_front.jpg" alt="Watermeter front"/>
-
----
-
-## <a id="hardware2">Версия V2</a>
-
-### Корпус
-
-Корпус изготовлен на 3D принтере.
-
-<img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/box/box_v2.jpg" alt="Watermeter box v2"/>
-
----
-
-### Схема
-
-Схема модуля.
-
-<img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/schematic_watermeter_zed_v2.jpg" alt="schematic_v2"/>
-
----
-
-### Плата
-
-<img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/board_top_v2.jpg" alt="Board top v2"/>
-
-<img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/board_bottom_v2.jpg" alt="Board bottom v2"/>
-
-<img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/board_v2.jpg" alt="Board v2"/>
-
-[Ссылка на проект в easyeda](https://oshwlab.com/slacky/watermeterv2_zed)
-
----
-
-### Датчики протечки
-
-Непосредственно сам датчик протечки представляет из себя два контакта. При погружении контактов в воду меняется сопротивление между ними. Это и фиксирует устройство. 
-
-Можно приобрести готовые, например у фирмы Гидролок - Gidrolock WSP.
-
-<img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/gidrolock_wsp1.jpg" alt="Gidrolock WSP"/>
-
-<img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/gidrolock_wsp2.jpg" alt="Gidrolock WSP"/>
-
-Или на Aliexpress вот такие
-
-<img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/wl_sensor.jpg" alt="Water Leak Sensor"/>
-
-Или припаять два провода к двум контактам, например, разъема pin header. Результат будет одинаковый :)
-
-<img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/pin_header.jpg" alt="Pin Header"/>
-
----
-
-### Готовое устройство
-
-<img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/device_v2_big.png" alt="Watermeter device v2"/>
 
 ---
 
@@ -274,14 +202,6 @@
 
 ---
 
-**Датчики протечки**
-
-При обнаружении протечки (т.е. контакты любого датчика протечки погружены в воду) меняется состояние кластера IAS и отправляются сразу две команды On в кластеры On_Off в 4 и 5 эндпоинтах. При высыхании воды меняется состояние кластера IAS, никакие команды в кластер On_Off не отсылаются.
-
-Оба кластера On_Off должны напрямую "биндиться" к исполнительному устройству (принудительно настраивается в web-интерфейсе zigbee2mqtt в разделе bind устройсва). Что это дает. Даже при падении сети, когда например координатор не работает, Watermeter все равно пошлет команду On напрямую в исполнительное устройство и все сработает (мы же понимаем, что исполнительное устройство в виде привода на кран должно иметь дублирующее автономное питание!).
-
----
-
 **Zigbee Claster and Attribute**
 
 В прошивке используется 5 endpoint'ов, это как бы 5 разных логических устройства на одном физическом. Для чего. Стандарт Zigbee не позволяет использовать одинаковые кластеры с одинаковыми атрибутами на одном endpoint'е. А у нас два одинаковых счетчика с одинаковыми атрибутами CurrentSummationDelivered в кластере SeMetering. И два одинаковых кластера On_Off. Поэтому в первом enpoint'е счетчик горячей воды, во втором - счетчик холодной, в третьем - настройки, в четвертом - IAS и первый On_Off, в пятом - второй On_Off.
@@ -289,8 +209,6 @@
 * WATERMETER_ENDPOINT1 содержит все необходимые для работы zigbee базовые кластеры, а также кластер SeMetering (первый счетчик)
 * WATERMETER_ENDPOINT2 содержит второй кластер SeMetering (второй счетчик)
 * WATERMETER_ENDPOINT3 содержит третий кластер SeMetering - здесь используются кастомные (которых нет в спецификации zcl) атрибуты для первоначальной настройки счетчика.
-* WATERMETER_ENDPOINT4 содержит кластер IAS для информирования о протечке и кластер ON_OFF для отправки команды на первый привод крана воды (например горячей).
-* WATERMETER_ENDPOINT5 содержит еще один кластер ON_OFF для отправки команды на второй привод крана воды (например холодной).
 
 В принципе WATERMETER_ENDPOINT3 можно было не применять, а все поместить в WATERMETER_ENDPOINT2, но сделано так.
 
@@ -301,11 +219,11 @@
 Открываем на редактирование файл `configuration.yaml` от zigbee2mqtt. И добавляем в конец файла
 
 		external_converters:
-			- watermeter_wleak.js
+			- watermeter.js
 		ota:
 			zigbee_ota_override_index_location: local_ota_index.json
 		  
-Если у Вас старая версия прошивки (ниже 2.0) или Вы не хотите использовать датчики протечки, `watermeter_wleak.js` нужно заменить на `watermeter.js`. Файлы `watermeter_wleak.js` (или `watermeter.js`) и `local_ota_index.json` копируем из [папки проекта](https://github.com/slacky1965/watermeter_zed/tree/main/zigbee2mqtt) туда же, где лежит `configuration.yaml` от zigbee2mqtt. Не забываем разрешить подключение новых устройств - `permit_join: true`. Перегружаем zigbee2mqtt. Проверяем его лог, что он запустился и нормально работает.
+Файлы `watermeter.js` и `local_ota_index.json` копируем из [папки проекта](https://github.com/slacky1965/watermeter_zed/tree/main/zigbee2mqtt) туда же, где лежит `configuration.yaml` от zigbee2mqtt. Не забываем разрешить подключение новых устройств - `permit_join: true`. Перегружаем zigbee2mqtt. Проверяем его лог, что он запустился и нормально работает.
 
 Далее, вставляем батарейки в устройство. Если питание было уже подано, то нажимаем 5 раз подряд кнопку. Устройство должно подключиться к сети zigbee. Если подключение прошло удачно, то мы обнаружим наше устройство в zigbee2mqtt.
 
@@ -318,20 +236,6 @@
 <img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/exposes.jpg" alt="z2m exposes"/>
 
 Затем нажать кнопку на устройстве, чтобы оно проснулось и приняло данные. После этого в этот раздел лучше больше не заходить, потому что если вы щелкните мышью по какому-то полю настройки, то zigbee2mqtt сразу отправит то значение, которое там отмечено. К сожалению я не нашел, как можно сделать через кнопку подтверждения в web-интерфейсе.
-
-**Датчики протечки**
-
-Заходим в раздел bind устройства watermeter.
-
-<img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/z2m_bind1.jpg" alt="Watermeter bind1"/>
-
-И добавляем новые "биндинги" для endpoint 4 и endpoint 5.
-
-<img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/z2m_bind2.jpg" alt="Watermeter bind2"/>
-
-Перед тем, как использовать в реальном режиме, нужно пару раз дать "ложную" протечку, т.е. закоротить поочередно датчики протечки и убедиться, что все работает!!!
-
-И еще, 100% гарантию может дать только Бог, помните это :))
 
 ---
 
