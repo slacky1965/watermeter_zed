@@ -1,6 +1,6 @@
 # Watermeter Zigbee Telink TLSR8258 (E-BYTE E180-Z5812SP)
 
-[Repository watermeter_zed](https://github.com/slacky1965/watermeter_zed)
+[Repository watermeter_zed V1](https://github.com/slacky1965/watermeter_zed/tree/version1)
 
 ---
 
