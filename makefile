@@ -29,7 +29,8 @@ TOOLS_PATH := ./tools
 #VERSION_RELEASE := V$(shell awk -F " " '/APP_RELEASE/ {gsub("0x",""); printf "%d", $$3/10; exit}' $(SRC_PATH)/include/version_cfg.h)
 VERSION_RELEASE := V$(shell awk -F " " '/APP_RELEASE/ {gsub("0x",""); printf "%.1f", $$3/10.0; exit}' $(SRC_PATH)/include/version_cfg.h)
 VERSION_BUILD := $(shell awk -F " " '/APP_BUILD/ {gsub("0x",""); printf "%02d", $$3; exit}' ./src/include/version_cfg.h)
-ZCL_VERSION_FILE := $(shell  git show -s --format=%cd --date=format:%Y%m%d |  sed -e "'s/./\'&\',/g'" -e "'s/.$$//'")
+ZCL_VERSION_FILE := $(shell git log -1 --format=%cd --date=format:%Y%m%d -- src |  sed -e "'s/./\'&\',/g'" -e "'s/.$$//'")
+
 
 TL_CHECK = $(TOOLS_PATH)/tl_check_fw.py
 MAKE_OTA = $(TOOLS_PATH)/make_ota.py
@@ -159,6 +160,7 @@ $(BIN_FILE): $(ELF_FILE)
 	@echo 'Create zigbee OTA file'
 	@python3 $(MAKE_OTA) -ot $(PROJECT_NAME) $(PROJECT_NAME)_$(VERSION_RELEASE).$(VERSION_BUILD).bin
 	@echo ' '
+#	@echo GCC_FLAGS: $(GCC_FLAGS)
 	 
 
 sizedummy: $(ELF_FILE)
