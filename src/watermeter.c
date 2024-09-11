@@ -178,11 +178,6 @@ void app_task(void) {
 
 
     if(bdb_isIdle()) {
-#if PM_ENABLE
-        if(!button_idle() && !counters_idle() && !waterleak_idle()) {
-            app_lowPowerEnter();
-        }
-#endif
         if (clock_time_exceed(last_light, TIMEOUT_TICK_5SEC)) {
             if (zb_isDeviceJoinedNwk()) {
                 light_blink_stop();
@@ -195,6 +190,11 @@ void app_task(void) {
             last_light = clock_time();
         }
         report_handler();
+#if PM_ENABLE
+        if(!button_idle() && !counters_idle() && !waterleak_idle()) {
+            app_lowPowerEnter();
+        }
+#endif
     }
 }
 
