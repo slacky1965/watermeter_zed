@@ -273,6 +273,13 @@ static void app_zclCfgReportCmd(uint8_t endPoint, uint16_t clusterId, zclCfgRepo
         for (uint8_t ii = 0; ii < ZCL_REPORTING_TABLE_NUM; ii++) {
             if (app_reporting[ii].pEntry->used) {
                 if (app_reporting[ii].pEntry->endPoint == endPoint && app_reporting[ii].pEntry->attrID == pCfgReportCmd->attrList[i].attrID) {
+#if UART_PRINTF_MODE && DEBUG_REPORTING
+                    printf("app_zclCfgReportCmd. EP: %d, attr: 0x%x, min: %d, max: %d\r\n",
+                                                        app_reporting[ii].pEntry->endPoint,
+                                                        app_reporting[ii].pEntry->attrID,
+                                                        app_reporting[ii].pEntry->minInterval,
+                                                        app_reporting[ii].pEntry->maxInterval);
+#endif
                     if (app_reporting[ii].timerReportMinEvt) {
                         TL_ZB_TIMER_CANCEL(&app_reporting[ii].timerReportMinEvt);
                     }
