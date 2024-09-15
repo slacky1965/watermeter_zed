@@ -65,9 +65,9 @@ extern "C" {
 #define USB_PRINTF_MODE         		OFF
 
 #define DEBUG_CONFIG                    OFF
-#define DEBUG_WATERLEAK                 ON
+#define DEBUG_WATERLEAK                 OFF
 #define DEBUG_REPORTING                 OFF
-#define DEBUG_COUNTER                   ON
+#define DEBUG_COUNTER                   OFF
 #define DEBUG_BATTERY                   OFF
 #define DEBUG_PM                        OFF
 #define DEBUG_OTA                       OFF
