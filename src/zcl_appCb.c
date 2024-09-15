@@ -269,11 +269,20 @@ static void app_zclDfltRspCmd(uint16_t clusterId, zclDefaultRspCmd_t *pDftRspCmd
 static void app_zclCfgReportCmd(uint8_t endPoint, uint16_t clusterId, zclCfgReportCmd_t *pCfgReportCmd)
 {
     //printf("app_zclCfgReportCmd\r\n");
+
+#if UART_PRINTF_MODE
+    for (uint8_t i = 0; i < ZCL_REPORTING_TABLE_NUM; i++) {
+        reportCfgInfo_t *pEntry = &reportingTab.reportCfgInfo[i];
+        printf("report_tab[%d]. report_used: %s, EP: %d, cluster: 0x%0x, attr: 0x%x, min: %d, max: %d\r\n", i,
+                pEntry->used?"true":"false", pEntry->endPoint, pEntry->clusterID, pEntry->attrID, pEntry->minInterval, pEntry->maxInterval);
+    }
+#endif
+
     for(uint8_t i = 0; i < pCfgReportCmd->numAttr; i++) {
         for (uint8_t ii = 0; ii < ZCL_REPORTING_TABLE_NUM; ii++) {
             if (app_reporting[ii].pEntry->used) {
                 if (app_reporting[ii].pEntry->endPoint == endPoint && app_reporting[ii].pEntry->attrID == pCfgReportCmd->attrList[i].attrID) {
-#if UART_PRINTF_MODE // && DEBUG_REPORTING
+#if UART_PRINTF_MODE //&& DEBUG_REPORTING
                     printf("app_zclCfgReportCmd. EP: %d, attr: 0x%x, min: %d, max: %d\r\n",
                                                         app_reporting[ii].pEntry->endPoint,
                                                         app_reporting[ii].pEntry->attrID,
