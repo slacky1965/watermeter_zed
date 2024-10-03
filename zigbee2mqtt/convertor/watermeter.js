@@ -76,7 +76,7 @@ const fzLocal = {
         const payload = {};
         if (msg.data.hasOwnProperty('currentSummDelivered')) {
             const data = msg.data['currentSummDelivered'];
-            const value = (parseInt(data[0]) << 32) + parseInt(data[1]);
+            const value = parseInt(data);
             let volume = value; // * 0.001; //* factor;
 				    payload[postfixWithEndpointName('volume', msg, model, meta)] = precisionRound(volume, 2);
         } else {
