@@ -48,6 +48,7 @@ INCLUDE_PATHS := \
 -I$(SRC_PATH) \
 -I$(SRC_PATH)/include \
 -I$(SRC_PATH)/common \
+-I$(SRC_PATH)/zcl \
 -I./common
  
 

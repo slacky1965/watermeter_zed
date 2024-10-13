@@ -1,7 +1,3 @@
-#include "tl_common.h"
-#include "zcl_include.h"
-#include "ota.h"
-
 #include "watermeter.h"
 
 static uint32_t last_light = 0;
@@ -139,6 +135,7 @@ void user_app_init(void)
     af_endpointRegister(WATERMETER_ENDPOINT4, (af_simple_descriptor_t *)&watermeter_ep4Desc, zcl_rx_handler, NULL);
     af_endpointRegister(WATERMETER_ENDPOINT5, (af_simple_descriptor_t *)&watermeter_ep5Desc, zcl_rx_handler, NULL);
 
+    zcl_onOffCfgAttr_restore();
     zcl_reportingTabInit();
 
     /* Register ZCL specific cluster information */
@@ -146,6 +143,7 @@ void user_app_init(void)
     zcl_register(WATERMETER_ENDPOINT2, WATERMETER_EP2_CB_CLUSTER_NUM, (zcl_specClusterInfo_t *)g_watermeterEp2ClusterList);
     zcl_register(WATERMETER_ENDPOINT3, WATERMETER_EP3_CB_CLUSTER_NUM, (zcl_specClusterInfo_t *)g_watermeterEp3ClusterList);
     zcl_register(WATERMETER_ENDPOINT4, WATERMETER_EP4_CB_CLUSTER_NUM, (zcl_specClusterInfo_t *)g_watermeterEp4ClusterList);
+    zcl_register(WATERMETER_ENDPOINT5, WATERMETER_EP5_CB_CLUSTER_NUM, (zcl_specClusterInfo_t *)g_watermeterEp5ClusterList);
 
 #if ZCL_OTA_SUPPORT
     ota_init(OTA_TYPE_CLIENT, (af_simple_descriptor_t *)&watermeter_ep1Desc, &watermeter_otaInfo, &app_otaCb);
@@ -153,7 +151,7 @@ void user_app_init(void)
 
     init_config(true);
     init_counters();
-    init_button();
+//    init_button();
 
     batteryCb(NULL);
     g_watermeterCtx.timerBatteryEvt = TL_ZB_TIMER_SCHEDULE(batteryCb, NULL, BATTERY_TIMER_INTERVAL);
