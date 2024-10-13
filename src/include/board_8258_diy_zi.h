@@ -2,7 +2,9 @@
 #define SRC_INCLUDE_BOARD_8258_DIY_H_
 
 /************************* Configure KEY GPIO ***************************************/
-#define BUTTON                  GPIO_PC1
+#define MAX_BUTTON_NUM  1
+
+#define BUTTON1                 GPIO_PC1
 #define PC1_INPUT_ENABLE        ON
 #define PC1_DATA_OUT            OFF
 #define PC1_OUTPUT_ENABLE       OFF
@@ -10,6 +12,20 @@
 #define PULL_WAKEUP_SRC_PC1     PM_PIN_PULLUP_1M
 
 #define PM_WAKEUP_LEVEL         PM_WAKEUP_LEVEL_LOW // only for KEY
+
+enum {
+    VK_SW1 = 0x01,
+};
+
+#define KB_MAP_NORMAL   {\
+        {VK_SW1,}}
+
+#define KB_MAP_NUM      KB_MAP_NORMAL
+#define KB_MAP_FN       KB_MAP_NORMAL
+
+#define KB_DRIVE_PINS  {NULL }
+#define KB_SCAN_PINS   {BUTTON1}
+
 
 /************************* Configure counters ***************************************/
 #define LITERS_PER_PULSE        10              /* How many liters per one pulse */

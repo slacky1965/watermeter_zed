@@ -6,7 +6,7 @@
 
 ## На данный момент существует два варианта устройства.
 
-* V1 - только счетчик на два канала.
+* V1 - только счетчик на два канала. Вынесена в [отдельную ветку](https://github.com/slacky1965/watermeter_zed/tree/version1) и больше не поддерживается.
 * V2 - счетчик на два канала + два датчика протечки.
 * В обоих вариантах прошивка одинаковая.
 
@@ -41,9 +41,6 @@
 
 ## <a id="hardware">Железо</a>
 
-* [Версия V1](#hardware1)
-* [Версия V2](#hardware2)
-
 В проекте используется модуль от компании E-BYTE на чипе TLSR8258F512ET32 - E180-Z5812SP.
 
 <img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/E180-Z5812SP.jpg" alt="E-BYTE E180-Z5812SP"/>
@@ -53,61 +50,6 @@
 <img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/telink_tlsr8258_dongle.jpg" alt="Telink TLSR8258 dongle"/>
 
 ---
-
-## <a id="hardware1">Версия V1</a>
-
-
-### Корпус
-
-Корпус взят от Battery Holder Box на 3 батарейки АА. Переделываем на 2 батарейки и получаем питание 3 вольта и один сегмент под плату.
-
-<img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/box/box1.jpg" alt="BOX 3AA"/>
-<img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/box/box2.jpg" alt="BOX 3AA"/>
-<img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/box/box3.jpg" alt="BOX 3AA"/>
-<img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/box/box4.jpg" alt="BOX 3AA"/>
-
----
-
-### Схема
-
-Схема модуля.
-
-<img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/schematic_watermeter_zed.jpg" alt="schematic"/>
-
----
-
-### Плата
-
-<img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/board_top.jpg" alt="Board top"/>
-
-[Ссылка на проект в easyeda](https://oshwlab.com/slacky/watermeter_zed)
-
-На гребенку выведены следующие пины модуля
-
-* SWS, GND - для заливки в модуль прошивки
-* VCC, RST, TX, RX - на всякий случай, вдруг кому-то пригодится.
-
-Если кто-то будет повторять, сдвиньте кнопку немного вглубь. Корпус кнопки немного выходит за габаритты платы. Ничего криминального, страдает только эстетика.
-
----
-
-### Готовое устройство
-
-<img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/watermeter_board_top.jpg" alt="Watermeter board top"/>
-
-На схеме конденсатор C1 - танталовый электролит Case B. Но более грамотные люди, чем я, посоветовали не ставить его, так как у танталовых электролитов больший ток утечки, чем у керамических. Керамический неполярный конденсатор в этом плане выигрывает. В готовом устройстве применен именно керамический конденсатор размера 1206. Посадочное место позволяет такую замену.
-
-<img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/device_open_box.jpg" alt="Watermeter open box"/>
-
-<img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/device_open_box2.jpg" alt="Watermeter open box 2"/>
-
-<img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/device_close_box.jpg" alt="Watermeter close box"/>
-
-<img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/device_front.jpg" alt="Watermeter front"/>
-
----
-
-## <a id="hardware2">Версия V2</a>
 
 ### Корпус
 
@@ -278,7 +220,7 @@
 
 При обнаружении протечки (т.е. контакты любого датчика протечки погружены в воду) меняется состояние кластера IAS и отправляются сразу две команды On в кластеры On_Off в 4 и 5 эндпоинтах. При высыхании воды меняется состояние кластера IAS, никакие команды в кластер On_Off не отсылаются.
 
-Оба кластера On_Off должны напрямую "биндиться" к исполнительному устройству (принудительно настраивается в web-интерфейсе zigbee2mqtt в разделе bind устройсва). Что это дает. Даже при падении сети, когда например координатор не работает, Watermeter все равно пошлет команду On напрямую в исполнительное устройство и все сработает (мы же понимаем, что исполнительное устройство в виде привода на кран должно иметь дублирующее автономное питание!).
+Оба кластера On_Off должны напрямую "биндиться" к исполнительному устройству (принудительно настраивается в web-интерфейсе zigbee2mqtt в разделе bind устройсва). Что это дает. Даже при падении сети, когда например координатор не работает, Watermeter все равно пошлет выбранную команду on (off или toggle) напрямую в исполнительное устройство и все сработает (мы же понимаем, что исполнительное устройство в виде привода на кран должно иметь дублирующее автономное питание!).
 
 ---
 
@@ -289,8 +231,8 @@
 * WATERMETER_ENDPOINT1 содержит все необходимые для работы zigbee базовые кластеры, а также кластер SeMetering (первый счетчик)
 * WATERMETER_ENDPOINT2 содержит второй кластер SeMetering (второй счетчик)
 * WATERMETER_ENDPOINT3 содержит третий кластер SeMetering - здесь используются кастомные (которых нет в спецификации zcl) атрибуты для первоначальной настройки счетчика.
-* WATERMETER_ENDPOINT4 содержит кластер IAS для информирования о протечке и кластер ON_OFF для отправки команды на первый привод крана воды (например горячей).
-* WATERMETER_ENDPOINT5 содержит еще один кластер ON_OFF для отправки команды на второй привод крана воды (например холодной).
+* WATERMETER_ENDPOINT4 содержит кластер IAS для информирования о протечке, кластер ON_OFF для отправки команды на первый привод крана воды (например горячей) и кластер OnOffSwitchCfg для выбора команды.
+* WATERMETER_ENDPOINT5 содержит еще один кластер ON_OFF для отправки команды на второй привод крана воды (например холодной) и кластер OnOffSwitchCfg для выбора команды.
 
 В принципе WATERMETER_ENDPOINT3 можно было не применять, а все поместить в WATERMETER_ENDPOINT2, но сделано так.
 
@@ -305,7 +247,7 @@
 		ota:
 			zigbee_ota_override_index_location: local_ota_index.json
 		  
-Если у Вас старая версия прошивки (ниже 2.0) или Вы не хотите использовать датчики протечки, `watermeter_wleak.js` нужно заменить на `watermeter.js`. Файлы `watermeter_wleak.js` (или `watermeter.js`) и `local_ota_index.json` копируем из [папки проекта](https://github.com/slacky1965/watermeter_zed/tree/main/zigbee2mqtt) туда же, где лежит `configuration.yaml` от zigbee2mqtt. Не забываем разрешить подключение новых устройств - `permit_join: true`. Перегружаем zigbee2mqtt. Проверяем его лог, что он запустился и нормально работает.
+Файлы `watermeter_wleak.js` и `local_ota_index.json` копируем из [папки проекта](https://github.com/slacky1965/watermeter_zed/tree/main/zigbee2mqtt) туда же, где лежит `configuration.yaml` от zigbee2mqtt. Не забываем разрешить подключение новых устройств - `permit_join: true`. Перегружаем zigbee2mqtt. Проверяем его лог, что он запустился и нормально работает.
 
 Далее, вставляем батарейки в устройство. Если питание было уже подано, то нажимаем 5 раз подряд кнопку. Устройство должно подключиться к сети zigbee. Если подключение прошло удачно, то мы обнаружим наше устройство в zigbee2mqtt.
 
@@ -321,7 +263,17 @@
 
 **Датчики протечки**
 
-Заходим в раздел bind устройства watermeter.
+Заходим в раздел exposes устройства watermeter.
+
+Выбираем, какие команды отправлять при обнаружении протечки.
+
+<img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/z2m_onoffSwitchCfg.jpg" alt="Watermeter Switch Action"/>
+
+* Если выбрать on_off, то, при обнаружении протечки, устройство пошлет команду off.
+* Если выбрать off_on, то, при обнаружении протечки, устройство пошлет команду on.
+* Если выбрать toggle, то, при обнаружении протечки, устройство пошлет команду toggle.
+
+Далее заходим в раздел bind.
 
 <img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/z2m_bind1.jpg" alt="Watermeter bind1"/>
 
@@ -413,15 +365,12 @@
 
 ## Стоимость
 
-Стоимость основных деталей на октябрь-ноябрь 2023 года в России (V2 февраль 2024).
+Стоимость основных деталей на февраль 2024 года в России.
 
-* Плата V1 50 шт. - 2448 р. (Aliexpress)
-* Плата V2 10 шт. - 1500 р. (Aliexpress)
+* Плата 10 шт. - 1500 р. (Aliexpress)
 * Модуль E-BYTE E180-Z5812SP - 300 р. (Aliexpress)
-* Корпус V1 - 150 р. (Aliexpress)
-* Клемник V1 - 35 р. (Aliexpress)
-* Battery Holder AA V2 - 42 р. x 2 (Aliexpress)
-* Клемник V2 - 49 р. (Aliexpress)
+* Battery Holder AA - 42 р. x 2 (Aliexpress)
+* Клемник - 49 р. (Aliexpress)
 * Кнопка - 3 р. (Aliexpress)
 * Светодиод - 12 р. (Chipdip)
 * Пара конденсаторов и сопротивление - 200 р.
@@ -445,4 +394,6 @@
 - 1.3.06 - Добавлена возможность чтения кастомных атрибутов (нужно для HOMEd).
 - 1.3.07 - Устранен баг со считыванием кастомного атрибута ZCL_ATTRID_CUSTOM_WATER_STEP_PRESET.
 - 2.0.01 - Добавлены два датчика протечки. Изменена плата и корпус.
+- 2.0.02 - Устранен баг с репортингом, когда maxInterval равен 0.
+- 2.0.03 - Добавлена конфигурация команд OnOff. Теперь при обнаружениии протечки устройство может послать on, off или toggle. Обновлен конвертор для zigbee2mqtt.
 

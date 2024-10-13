@@ -41,8 +41,8 @@
 		#define CHIP_TYPE					TLSR_B91
 #endif
 
-#define APP_RELEASE                         0x20        //app release 1.3
-#define APP_BUILD                           0x01        //app build 01, full version - v1.3.01
+#define APP_RELEASE                         0x20        //app release 2.0
+#define APP_BUILD                           0x03        //app build 01, full version - v2.0.03
 #define STACK_RELEASE						0x30        //stack release 3.0
 #define STACK_BUILD							0x01        //stack build 01
 #define HW_VERSION                          0x01
@@ -75,6 +75,20 @@
 #ifndef BUILD_DATE
 #define BUILD_DATE "20231118"
 #endif
+
+/*
+ * 0x04 - Watermeter
+ * 0x07 - ElectricityMeter
+ * 0x08 - Template
+ * 0x09 - Remote Control
+ * 0x0a - Livolo_switch_2keys
+ * 0x0b - Livolo_switch_1key
+ * 0x0c - Livolo_switch_1key_dimmable
+ * 0x0d - Smoke_sensor
+ * 0x0e - Livolo_curtain_control
+ * 0x0f - Livolo_thermostat
+ */
+
 
 #define IMAGE_TYPE_WATERMETER        (0x04 | (IMAGE_TYPE_BOOT_FLAG << 7))
 
