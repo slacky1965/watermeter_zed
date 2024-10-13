@@ -53,6 +53,7 @@ extern "C" {
 
 #define ZCL_BASIC_MFG_NAME     {10,'S','l','a','c','k','y','-','D','I','Y'}
 #define ZCL_BASIC_MODEL_ID     {19,'W','a','t','e','r','m','e','t','e','r','_','T','L','S','R','8','2','5','8'}
+//#define ZCL_BASIC_MODEL_ID     {15,'W','a','t','e','r','m','e','t','e','r','_','T','E','S','T'}
 
 
 /**********************************************************************
@@ -67,6 +68,7 @@ extern "C" {
 #define DEBUG_CONFIG                    OFF
 #define DEBUG_WATERLEAK                 OFF
 #define DEBUG_REPORTING                 OFF
+#define DEBUG_BUTTON                    OFF
 #define DEBUG_COUNTER                   OFF
 #define DEBUG_BATTERY                   OFF
 #define DEBUG_PM                        OFF
@@ -95,7 +97,7 @@ extern "C" {
 #define BOARD_B91_EVK                   8
 #define BOARD_B91_DONGLE                9
 #define BOARD_8258_DIY                  10
-#define BOARD_TB_04                     11
+#define BOARD_8258_DIY_ZI               11
 
 /* Board define */
 #if defined(MCU_CORE_826x)
@@ -109,7 +111,7 @@ extern "C" {
 #if (CHIP_TYPE == TLSR_8258_1M)
     #define FLASH_CAP_SIZE_1M           1
 #endif
-    #define BOARD                       BOARD_8258_DIY //BOARD_8258_DONGLE //BOARD_TB_04 //BOARD_8258_EVK //
+    #define BOARD                       BOARD_8258_DIY //BOARD_8258_DIY_ZI //BOARD_8258_DONGLE //BOARD_TB_04 //BOARD_8258_EVK //
     #define CLOCK_SYS_CLOCK_HZ          48000000
     /************************* For 512K Flash only ***************************************/
     /* Flash map:
@@ -163,8 +165,8 @@ extern "C" {
     #include "board_b91_dongle.h"
 #elif (BOARD == BOARD_8258_DIY)
     #include "board_8258_diy.h"
-#elif (BOARD == BOARD_TB_04)
-    #include "board_TB-04.h"
+#elif (BOARD == BOARD_8258_DIY_ZI)
+    #include "board_8258_diy_zi.h"
 #endif
 
 
@@ -204,7 +206,7 @@ extern "C" {
  */
 #define ZCL_IAS_ZONE_SUPPORT            ON
 #define ZCL_ON_OFF_SUPPORT              ON
-#define ZCL_LEVEL_CTRL_SUPPORT			ON
+#define ZCL_ON_OFF_SWITCH_CFG_SUPPORT   ON
 #define ZCL_GROUP_SUPPORT               ON
 #define ZCL_POWER_CFG_SUPPORT           ON
 #define ZCL_METERING_SUPPORT            ON

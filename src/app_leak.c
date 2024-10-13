@@ -24,17 +24,25 @@ static void cmdOnOff(uint8_t endpoint, uint8_t command) {
 
     dstEpInfo.dstAddrMode = APS_DSTADDR_EP_NOTPRESETNT;
 
-    /* command is true - on, command is false - off */
+    /* command 0x00 - off, 0x01 - on, 0x02 - toggle */
 
-    if (command) {
-        zcl_onOff_onCmd(endpoint, &dstEpInfo, FALSE);
-    } else {
-        zcl_onOff_offCmd(endpoint, &dstEpInfo, FALSE);
+    switch(command) {
+        case ZCL_CMD_ONOFF_OFF:
+            zcl_onOff_offCmd(endpoint, &dstEpInfo, FALSE);
+            break;
+        case ZCL_CMD_ONOFF_ON:
+            zcl_onOff_onCmd(endpoint, &dstEpInfo, FALSE);
+            break;
+        case ZCL_CMD_ONOFF_TOGGLE:
+            zcl_onOff_toggleCmd(endpoint, &dstEpInfo, FALSE);
+            break;
+        default:
+            break;
     }
 }
 
 
-static void fillIASAddress(epInfo_t* pdstEpInfo) {
+void fillIASAddress(epInfo_t* pdstEpInfo) {
     u16 len;
     u8 zoneState;
 
@@ -61,6 +69,7 @@ void waterleak_handler() {
     uint16_t len;
     epInfo_t dstEpInfo;
     zoneStatusChangeNoti_t statusChangeNotification;
+    zcl_onOffSwitchCfg_4_5_Attr_t *onoffCfgAttrs = zcl_onOffSwitchCfgAttrGet();
 
     if (!drv_gpio_read(WLEAK1_GPIO)) {
         if (waterleak_debounce1 != DEBOUNCE_COUNTER) {
@@ -70,8 +79,35 @@ void waterleak_handler() {
                 printf("Waterleak first channel leaking\r\n");
 #endif /* UART_PRINTF_MODE */
                 if(zb_isDeviceJoinedNwk()) {
-                    cmdOnOff(WATERMETER_ENDPOINT4, true);
-                    cmdOnOff(WATERMETER_ENDPOINT5, true);
+
+                    switch(onoffCfgAttrs->ep4_attrs.switchActions) {
+                        case ZCL_SWITCH_ACTION_ON_OFF:
+                            cmdOnOff(WATERMETER_ENDPOINT4, ZCL_CMD_ONOFF_OFF);
+                            break;
+                        case ZCL_SWITCH_ACTION_OFF_ON:
+                            cmdOnOff(WATERMETER_ENDPOINT4, ZCL_CMD_ONOFF_ON);
+                            break;
+                        case ZCL_SWITCH_ACTION_TOGGLE:
+                            cmdOnOff(WATERMETER_ENDPOINT4, ZCL_CMD_ONOFF_TOGGLE);
+                            break;
+                        default:
+                            break;
+                    }
+
+                    switch(onoffCfgAttrs->ep5_attrs.switchActions) {
+                        case ZCL_SWITCH_ACTION_ON_OFF:
+                            cmdOnOff(WATERMETER_ENDPOINT5, ZCL_CMD_ONOFF_OFF);
+                            break;
+                        case ZCL_SWITCH_ACTION_OFF_ON:
+                            cmdOnOff(WATERMETER_ENDPOINT5, ZCL_CMD_ONOFF_ON);
+                            break;
+                        case ZCL_SWITCH_ACTION_TOGGLE:
+                            cmdOnOff(WATERMETER_ENDPOINT5, ZCL_CMD_ONOFF_TOGGLE);
+                            break;
+                        default:
+                            break;
+                    }
+
                     fillIASAddress(&dstEpInfo);
 
                     zoneStatusChangeNoti_t statusChangeNotification;
@@ -97,8 +133,34 @@ void waterleak_handler() {
 #endif /* UART_PRINTF_MODE */
                 if(zb_isDeviceJoinedNwk()){
 #if UART_PRINTF_MODE && DEBUG_WATERLEAK
-                    cmdOnOff(WATERMETER_ENDPOINT4, false);
-                    cmdOnOff(WATERMETER_ENDPOINT5, false);
+                    switch(onoffCfgAttrs->ep4_attrs.switchActions) {
+                        case ZCL_SWITCH_ACTION_ON_OFF:
+                            cmdOnOff(WATERMETER_ENDPOINT4, ZCL_CMD_ONOFF_ON);
+                            break;
+                        case ZCL_SWITCH_ACTION_OFF_ON:
+                            cmdOnOff(WATERMETER_ENDPOINT4, ZCL_CMD_ONOFF_OFF);
+                            break;
+                        case ZCL_SWITCH_ACTION_TOGGLE:
+                            cmdOnOff(WATERMETER_ENDPOINT4, ZCL_CMD_ONOFF_TOGGLE);
+                            break;
+                        default:
+                            break;
+                    }
+
+                    switch(onoffCfgAttrs->ep5_attrs.switchActions) {
+                        case ZCL_SWITCH_ACTION_ON_OFF:
+                            cmdOnOff(WATERMETER_ENDPOINT5, ZCL_CMD_ONOFF_ON);
+                            break;
+                        case ZCL_SWITCH_ACTION_OFF_ON:
+                            cmdOnOff(WATERMETER_ENDPOINT5, ZCL_CMD_ONOFF_OFF);
+                            break;
+                        case ZCL_SWITCH_ACTION_TOGGLE:
+                            cmdOnOff(WATERMETER_ENDPOINT5, ZCL_CMD_ONOFF_TOGGLE);
+                            break;
+                        default:
+                            break;
+                    }
+
 #endif /* UART_PRINTF_MODE */
                     fillIASAddress(&dstEpInfo);
 
@@ -124,8 +186,35 @@ void waterleak_handler() {
                 printf("Waterleak second channel leaking\r\n");
 #endif /* UART_PRINTF_MODE */
                 if(zb_isDeviceJoinedNwk()) {
-                    cmdOnOff(WATERMETER_ENDPOINT4, true);
-                    cmdOnOff(WATERMETER_ENDPOINT5, true);
+
+                    switch(onoffCfgAttrs->ep4_attrs.switchActions) {
+                        case ZCL_SWITCH_ACTION_ON_OFF:
+                            cmdOnOff(WATERMETER_ENDPOINT4, ZCL_CMD_ONOFF_OFF);
+                            break;
+                        case ZCL_SWITCH_ACTION_OFF_ON:
+                            cmdOnOff(WATERMETER_ENDPOINT4, ZCL_CMD_ONOFF_ON);
+                            break;
+                        case ZCL_SWITCH_ACTION_TOGGLE:
+                            cmdOnOff(WATERMETER_ENDPOINT4, ZCL_CMD_ONOFF_TOGGLE);
+                            break;
+                        default:
+                            break;
+                    }
+
+                    switch(onoffCfgAttrs->ep5_attrs.switchActions) {
+                        case ZCL_SWITCH_ACTION_ON_OFF:
+                            cmdOnOff(WATERMETER_ENDPOINT5, ZCL_CMD_ONOFF_OFF);
+                            break;
+                        case ZCL_SWITCH_ACTION_OFF_ON:
+                            cmdOnOff(WATERMETER_ENDPOINT5, ZCL_CMD_ONOFF_ON);
+                            break;
+                        case ZCL_SWITCH_ACTION_TOGGLE:
+                            cmdOnOff(WATERMETER_ENDPOINT5, ZCL_CMD_ONOFF_TOGGLE);
+                            break;
+                        default:
+                            break;
+                    }
+
                     fillIASAddress(&dstEpInfo);
 
                     zoneStatusChangeNoti_t statusChangeNotification;
@@ -151,8 +240,33 @@ void waterleak_handler() {
 #endif /* UART_PRINTF_MODE */
                 if(zb_isDeviceJoinedNwk()){
 #if UART_PRINTF_MODE && DEBUG_WATERLEAK
-                    cmdOnOff(WATERMETER_ENDPOINT4, false);
-                    cmdOnOff(WATERMETER_ENDPOINT5, false);
+                    switch(onoffCfgAttrs->ep4_attrs.switchActions) {
+                        case ZCL_SWITCH_ACTION_ON_OFF:
+                            cmdOnOff(WATERMETER_ENDPOINT4, ZCL_CMD_ONOFF_ON);
+                            break;
+                        case ZCL_SWITCH_ACTION_OFF_ON:
+                            cmdOnOff(WATERMETER_ENDPOINT4, ZCL_CMD_ONOFF_OFF);
+                            break;
+                        case ZCL_SWITCH_ACTION_TOGGLE:
+                            cmdOnOff(WATERMETER_ENDPOINT4, ZCL_CMD_ONOFF_TOGGLE);
+                            break;
+                        default:
+                            break;
+                    }
+
+                    switch(onoffCfgAttrs->ep5_attrs.switchActions) {
+                        case ZCL_SWITCH_ACTION_ON_OFF:
+                            cmdOnOff(WATERMETER_ENDPOINT5, ZCL_CMD_ONOFF_ON);
+                            break;
+                        case ZCL_SWITCH_ACTION_OFF_ON:
+                            cmdOnOff(WATERMETER_ENDPOINT5, ZCL_CMD_ONOFF_OFF);
+                            break;
+                        case ZCL_SWITCH_ACTION_TOGGLE:
+                            cmdOnOff(WATERMETER_ENDPOINT5, ZCL_CMD_ONOFF_TOGGLE);
+                            break;
+                        default:
+                            break;
+                    }
 #endif /* UART_PRINTF_MODE */
                     fillIASAddress(&dstEpInfo);
 
