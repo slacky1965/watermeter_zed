@@ -27,6 +27,34 @@
 
 #include "version_cfg.h"
 
+ /**
+ * @brief	Set "DP_THROUGH_SWIRE_DIS" as "1" to disable the "dp_through_swire" function. Set "DP_THROUGH_SWIRE_DIS" as "0" to enable the "dp_through_swire" function.
+ *			Risk description:
+ *	        The "dp_through_swire" function is enabled by default.When DP and DM pin are used as GPIO function and trigger "dp_through_swire" timing,
+ *	        there may be a problem of miswriting the chip through swire to cause the chip to crash. Therefore, disable the "dp_through_swire" function in this startup file.(set "DP_THROUGH_SWIRE_DIS" as "1").
+ *	        If the chip has only dp pin but no sws pin, using the above scheme (set "DP_THROUGH_SWIRE_DIS" as "1") will cause the following problems.
+ *	        1. During fixture production, burning a firmware program that disables the "dp_through_swire"function into unprogrammed chip will cause the problem that chip can not be burned again due to swire communication failure.
+ *	        2. Burning a firmware program that disables the "dp_through_swire" function with BDT tool may result in failure of debugging due to swire communication failure.
+ *	        If developers evaluate that the above scheme (set "DP_THROUGH_SWIRE_DIS" as "1") cannot be used, they can only set "DP_THROUGH_SWIRE_DIS" to "0" to enable the "dp_through_swire" function. However, be careful not to make DP and DM pin trigger "dp_through_swire" timing.
+ *          In USB applications, 1. calling the usb_set_pin(1) interface (equivalent to usb_set_pin_en) will re-enable the dp_through_swire function 2. calling the usb_set_pin(0) interface will disable the dp_through_swire function.
+ */
+#ifndef DP_THROUGH_SWIRE_DIS
+#define DP_THROUGH_SWIRE_DIS      1
+#endif
+
+/* If using Andes toolchain, these two Macro are defined in it's toolchain */
+/* If using std gcc toolchain, these two core registers(not standard risc-v core registers)
+    should be defined here. */
+#ifdef STD_GCC
+#define mmisc_ctl  0x7D0
+#define mcache_ctl 0x7CA
+#endif
+
+//According to the current internal seal flash model of B91m, the maximum time between the flash awakening and the operating flash is 20us, which leaves some margin and is set to 25us.
+//When adding flash later, if tRES1 is greater than 25us, this waiting time needs to be updated. (flash tRES1, which can be viewed in the comments of the variable flash_support_mid.)
+//(add by weihua.zhang 20230811)
+#define EFUSE_LOAD_AND_FLASH_WAKEUP_LOOP_NUM		320	//25us
+
     .section .vectors, "ax"
 
     //.org  and linker's relaxation (-flto) cannot be used at the same time
@@ -36,9 +64,9 @@
 	.option norelax
     .org 0x0
 
-	.extern FILE_VERSION
-	.extern MANUFACTURER_CODE_TELINK
-	.extern IMAGE_TYPE
+    .extern FILE_VERSION
+    .extern MANUFACTURER_CODE_TELINK
+    .extern IMAGE_TYPE
 
     .global _RESET_ENTRY
  	.type _RESET_ENTRY,@function
@@ -46,14 +74,12 @@
     .align 2
 _RESET_ENTRY:
 	j 		 _START
-
-	.word (FILE_VERSION)
-
 	//free the 6th ~ 7th byte to store the crc type of the bin file
 
-	.org 0x12
-	.short (MANUFACTURER_CODE_TELINK)
-	.short (IMAGE_TYPE)
+    .word (FILE_VERSION)
+    .org 0x12
+    .short (MANUFACTURER_CODE_TELINK)
+    .short (IMAGE_TYPE)
 
     .org 0x18
     .word (BIN_SIZE)
@@ -62,7 +88,6 @@ _RESET_ENTRY:
     .word ('T'<<24 | 'L'<<16 | 'N'<<8 | 'K')
 
     .org 0x26
-    //.short (0x0003)           //READ:    cmd:1x, addr:1x, data:1x, dummy cycle:0
     //.short (0x070B)           //FREAD:   cmd:1x, addr:1x, data:1x, dummy cycle:8
     .short (0x173B)           //DREAD:   cmd:1x, addr:1x, data:2x, dummy cycle:8
     //.short (0x53BB)           //X2READ:  cmd:1x, addr:2x, data:2x, dummy cycle:4
@@ -72,31 +97,27 @@ _RESET_ENTRY:
     .align 2
 
 _START:
-
 #if 0
 	// add debug, PB4 output 1
-	lui		t0,0x80140 			//0x8014030a
+	lui		t0, 0x80140 		//0x8014030a
 	li		t1, 0xef
 	li		t2, 0x10
-	sb		t1 , 0x30a(t0)		 //0x8014030a  PB oen     =  0xef
-	sb		t2 , 0x30b(t0)		 //0x8014030b  PB output  =  0x10
+	sb		t1, 0x30a(t0)		//0x8014030a  PB oen     =  0xef
+	sb		t2, 0x30b(t0)		//0x8014030b  PB output  =  0x10
 #endif
+
 	/* Initialize global pointer */
     .option push
     .option norelax
     la     gp, __global_pointer$
     .option pop
 
-/*
-* swire usb enable default.when dp and dm use as GPIO, it has a risk to trigger the swire through usb function
-* to do something unexcept when toggle dp pin
-*/
-_SWS_USB_DIS:
-	lui		t0, 0x80100
-	addi	t0 , t0 , 0x700
-	li		t1, 0x40
-	sb		t1, 0x501(t0)  //0x80100c01 -> 0x40  <7>: 0 swire_usb_dis
-
+#if DP_THROUGH_SWIRE_DIS
+    lui     t0, 0x80100
+    addi    t0 , t0 , 0x700
+    li      t1, 0x00
+    sb      t1, 0x501(t0)  //0x80100c01 -> 0x00  <7>: 0 swire_usb_dis 
+#endif
 	/* Initialize stack pointer */
     la     t0, _STACK_TOP
     mv     sp, t0
@@ -188,8 +209,7 @@ _RAMCODE_INIT_BEGIN:
     addi   t2, t2, 4
     j      _RAMCODE_INIT_BEGIN
 
-
-	/* Move Data from flash to sram */
+    /* Move Data from flash to sram */
 _DATA_INIT:
     la     t1, _DATA_LMA_START
     la     t2, _DATA_VMA_START
@@ -201,6 +221,7 @@ _DATA_INIT_BEGIN:
     addi   t1, t1, 4
     addi   t2, t2, 4
     j      _DATA_INIT_BEGIN
+
 
 	/* Zero .bss section in sram */
 _ZERO_BSS:
@@ -218,8 +239,8 @@ _FILL_STK:
 #if 0
     lui    t0, 0x55555
     addi   t0, t0, 0x555
-    la     t2, _BSS_VMA_END
-    la     t3, _STACK_TOP
+    la     t2, _BSS_VMA_END  //_BSS_VMA_END must be 4-byte aligned
+    la     t3, _STACK_TOP    //_STACK_TOP   must be 4-byte aligend
 _FILL_STK_BEGIN:
     bleu   t3, t2, _MAIN_FUNC
     sw     t0, 0(t2)
@@ -257,14 +278,14 @@ _IRESET_ENTRY:
 _ISTART:
 #if 0
 	// add debug, PB4 output 1
-	lui		t0,0x80140 			//0x8014030a
+	lui		t0, 0x80140 		//0x8014030a
 	li		t1, 0xef
 	li		t2, 0x10
-	sb		t1 , 0x30a(t0)		 //0x8014030a  PB oen     =  0xef
-	sb		t2 , 0x30b(t0)		 //0x8014030b  PB output  =  0x10
+	sb		t1, 0x30a(t0)		//0x8014030a  PB oen     =  0xef
+	sb		t2, 0x30b(t0)		//0x8014030b  PB output  =  0x10
 #endif
-	/* Initialize global pointer */
 
+	/* Initialize global pointer */
     la     gp, __global_pointer$
     .option pop
 
@@ -332,30 +353,34 @@ _MSPI_WAIT:
 	li		t4 , 0x10
 	beq 	t3 , t2 ,_MSPI_WAIT
 	sb		t4 , 0x101(t0)			//cs_high			:0x140101:0x10
-#if 0
-	// add debug, PB4 output 1
-	lui		t0,0x80140 			//0x8014030a
-	li		t1, 0x00
-	sb		t1 , 0x30b(t0)		 //0x8014030b  PB output  =  0x00
-#endif
-/*efuse load need delay about 18us */
-	li		t0 , 0
-	li		t1 , 226
-_WAIT_EFUSE_LOAD_FINISH:
-	addi 	t0 , t0 , 1
-	bgeu 	t1 , t0 , _WAIT_EFUSE_LOAD_FINISH
 
 #if 0
 	// add debug, PB4 output 1
-	lui		t0,0x80140 			//0x8014030a
-	li		t1, 0x10
-	sb		t1 , 0x30b(t0)		 //0x8014030b  PB output  =  0x00
+	lui		t0, 0x80140 			//0x8014030a
+	li		t1, 0x00
+	sb		t1, 0x30b(t0)		 	//0x8014030b  PB output  =  0x00
 #endif
+
+	/*flash wakeup need delay about 20us */
+	/*efuse load need delay about 18us */
+	li		t0, 0
+	li		t1, EFUSE_LOAD_AND_FLASH_WAKEUP_LOOP_NUM
+_WAIT_EFUSE_LOAD_AND_FLASH_WAKEUP_FINISH:
+	addi 	t0, t0 , 1
+	bgeu 	t1, t0 , _WAIT_EFUSE_LOAD_AND_FLASH_WAKEUP_FINISH
+
+#if 0
+	// add debug, PB4 output 1
+	lui		t0, 0x80140 			//0x8014030a
+	li		t1, 0x10
+	sb		t1, 0x30b(t0)		 //0x8014030b  PB output  =  0x00
+#endif
+
 _MULTI_ADDRESS_BEGIN:
-	lui		t0 , 0x80140
-	la		t1 , g_pm_mspi_cfg
-	lw		t2 , 0(t1)
-	sw		t2 , 0x104(t0)			 //g_pm_mspi_cfg->0x80140104
+	lui		t0, 0x80140
+	la		t1, g_pm_mspi_cfg
+	lw		t2, 0(t1)
+	sw		t2, 0x104(t0)			 //g_pm_mspi_cfg->0x80140104
 
 	/* Zero .aes section in sram */
 _IZERO_AES:
