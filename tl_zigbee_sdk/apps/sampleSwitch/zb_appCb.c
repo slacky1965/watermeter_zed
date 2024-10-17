@@ -187,6 +187,9 @@ void zbdemo_bdbCommissioningCb(u8 status, void *arg){
 			if(switchRejoinBackoffTimerEvt){
 				TL_ZB_TIMER_CANCEL(&switchRejoinBackoffTimerEvt);
 			}
+			if(!g_zbNwkCtx.joined){
+				zb_rejoinReq(zb_apsChannelMaskGet(), g_bdbAttrs.scanDuration);
+			}
 
 #ifdef ZCL_POLL_CTRL
 			sampleSwitch_zclCheckInStart();
@@ -245,10 +248,10 @@ void zbdemo_bdbCommissioningCb(u8 status, void *arg){
 	}
 }
 
-
-extern void sampleSwitch_zclIdentifyCmdHandler(u8 endpoint, u16 srcAddr, u16 identifyTime);
 void zbdemo_bdbIdentifyCb(u8 endpoint, u16 srcAddr, u16 identifyTime){
 #if FIND_AND_BIND_SUPPORT
+	extern void sampleSwitch_zclIdentifyCmdHandler(u8 endpoint, u16 srcAddr, u16 identifyTime);
+
 	sampleSwitch_zclIdentifyCmdHandler(endpoint, srcAddr, identifyTime);
 #endif
 }
