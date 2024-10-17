@@ -37,7 +37,7 @@ typedef struct {
     uint32_t long_poll;
     uint32_t current_poll;
 
-    button_t button[MAX_BUTTON_NUM];
+    button_t button;
     u8  keyPressed;
 
     uint16_t ledOnTime;

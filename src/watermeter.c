@@ -151,7 +151,7 @@ void user_app_init(void)
 
     init_config(true);
     init_counters();
-//    init_button();
+    init_button();
 
     batteryCb(NULL);
     g_watermeterCtx.timerBatteryEvt = TL_ZB_TIMER_SCHEDULE(batteryCb, NULL, BATTERY_TIMER_INTERVAL);

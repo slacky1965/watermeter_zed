@@ -13,18 +13,18 @@
 
 #define PM_WAKEUP_LEVEL         PM_WAKEUP_LEVEL_LOW // only for KEY
 
-enum {
-    VK_SW1 = 0x01,
-};
-
-#define KB_MAP_NORMAL   {\
-        {VK_SW1,}}
-
-#define KB_MAP_NUM      KB_MAP_NORMAL
-#define KB_MAP_FN       KB_MAP_NORMAL
-
-#define KB_DRIVE_PINS  {NULL }
-#define KB_SCAN_PINS   {BUTTON1}
+//enum {
+//    VK_SW1 = 0x01,
+//};
+//
+//#define KB_MAP_NORMAL   {/*\*/
+//        {VK_SW1,}}
+//
+//#define KB_MAP_NUM      KB_MAP_NORMAL
+//#define KB_MAP_FN       KB_MAP_NORMAL
+//
+//#define KB_DRIVE_PINS  {NULL }
+//#define KB_SCAN_PINS   {BUTTON1}
 
 /************************* Configure counters ***************************************/
 #define LITERS_PER_PULSE        10              /* How many liters per one pulse */
