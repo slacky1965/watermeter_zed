@@ -62,14 +62,14 @@ extern "C" {
 #include "version_cfg.h"
 
 /* Debug mode config */
-#define	UART_PRINTF_MODE                OFF
+#define	UART_PRINTF_MODE                ON
 #define USB_PRINTF_MODE         		OFF
 
 #define DEBUG_CONFIG                    OFF
 #define DEBUG_WATERLEAK                 OFF
 #define DEBUG_REPORTING                 OFF
-#define DEBUG_BUTTON                    OFF
-#define DEBUG_COUNTER                   OFF
+#define DEBUG_BUTTON                    ON
+#define DEBUG_COUNTER                   ON
 #define DEBUG_BATTERY                   OFF
 #define DEBUG_PM                        OFF
 #define DEBUG_OTA                       OFF
@@ -111,7 +111,7 @@ extern "C" {
 #if (CHIP_TYPE == TLSR_8258_1M)
     #define FLASH_CAP_SIZE_1M           1
 #endif
-    #define BOARD                       BOARD_8258_DIY //BOARD_8258_DIY_ZI //BOARD_8258_DONGLE //
+    #define BOARD                       BOARD_8258_DIY_ZI //BOARD_8258_DIY //BOARD_8258_DONGLE //
     #define CLOCK_SYS_CLOCK_HZ          48000000
     /************************* For 512K Flash only ***************************************/
     /* Flash map:
