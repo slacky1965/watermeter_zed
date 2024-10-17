@@ -3,7 +3,7 @@
 
 #include "watermeter.h"
 
-#define DEBOUNCE_BUTTON     16                          /* number of polls for debounce       */
+#define DEBOUNCE_BUTTON     40                          /* usec for debounce                  */
 #define COUNT_FACTORY_RESET 5                           /* number of clicks for factory reset */
 
 void init_button() {
@@ -18,22 +18,22 @@ void init_button() {
 void button_handler() {
 
     if (!drv_gpio_read(BUTTON1)) {
-        if (g_watermeterCtx.button.debounce != DEBOUNCE_BUTTON) {
-            g_watermeterCtx.button.debounce++;
-            if (g_watermeterCtx.button.debounce == DEBOUNCE_BUTTON) {
-                g_watermeterCtx.button.pressed = true;
-                g_watermeterCtx.button.pressed_time = clock_time();
-                if (!clock_time_exceed(g_watermeterCtx.button.released_time, TIMEOUT_TICK_1SEC)) {
-                    g_watermeterCtx.button.counter++;
-                } else {
-                    g_watermeterCtx.button.counter = 1;
-                }
+        sleep_us(DEBOUNCE_BUTTON);
+        if (!drv_gpio_read(BUTTON1) && !g_watermeterCtx.button.pressed) {
+            //printf("button pressed\r\n");
+            g_watermeterCtx.button.pressed = true;
+            g_watermeterCtx.button.pressed_time = clock_time();
+            if (!clock_time_exceed(g_watermeterCtx.button.released_time, TIMEOUT_TICK_1SEC)) {
+                g_watermeterCtx.button.counter++;
+            } else {
+                g_watermeterCtx.button.counter = 1;
             }
         }
     } else {
-        if (g_watermeterCtx.button.debounce != 1) {
-            g_watermeterCtx.button.debounce--;
-            if (g_watermeterCtx.button.debounce == 1 && g_watermeterCtx.button.pressed) {
+        sleep_us(DEBOUNCE_BUTTON);
+        if (drv_gpio_read(BUTTON1) && !g_watermeterCtx.button.released) {
+            if (g_watermeterCtx.button.pressed) {
+                //printf("button released\r\n");
                 g_watermeterCtx.button.released = true;
                 g_watermeterCtx.button.released_time = clock_time();
             }
@@ -89,9 +89,7 @@ void button_handler() {
 }
 
 u8 button_idle() {
-    if ((g_watermeterCtx.button.debounce != 1 && g_watermeterCtx.button.debounce != DEBOUNCE_BUTTON)
-            || g_watermeterCtx.button.pressed
-            || g_watermeterCtx.button.counter) {
+    if (g_watermeterCtx.button.pressed || g_watermeterCtx.button.counter) {
         return true;
     }
     return false;
