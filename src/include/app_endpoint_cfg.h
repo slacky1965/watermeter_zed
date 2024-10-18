@@ -40,8 +40,8 @@ typedef struct{
     uint16_t mainsVoltage;
     uint8_t  mainsFrequency;
 #endif
-    uint8_t  batteryVoltage;      //0x20
-    uint8_t  batteryPercentage;   //0x21
+    uint8_t  batteryVoltage;        //0x20
+    uint8_t  batteryPercentage;     //0x21
 }zcl_powerAttr_t;
 
 typedef struct {
@@ -54,6 +54,13 @@ typedef struct {
     uint32_t cold_water_preset;
     uint16_t water_step_preset;
 } zcl_watermeterCfgAttr_t;
+
+typedef struct {
+    uint8_t     status;
+    uint8_t     unit;                   // 0x07 - Litres
+    uint8_t     summationFormatting;    // 0b0100000 - 7bit - 0, 3-6bit - 8, 0-2bit - 0 = 0x40
+    uint8_t     deviceType;             // 2 - Water Metering
+} zcl_se_meteringAttr_t;
 
 /**
  *  @brief Defined for ias zone cluster attributes
