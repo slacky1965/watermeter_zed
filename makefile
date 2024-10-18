@@ -42,6 +42,7 @@ INCLUDE_PATHS := \
 -I$(SDK_PATH)/zigbee/common/includes \
 -I$(SDK_PATH)/zigbee/zbapi \
 -I$(SDK_PATH)/zigbee/bdb/includes \
+-I$(SDK_PATH)/zigbee/gp \
 -I$(SDK_PATH)/zigbee/zcl \
 -I$(SDK_PATH)/zigbee/ota \
 -I$(SDK_PATH)/zbhci \
@@ -96,6 +97,7 @@ RM := rm -rf
 # All of the sources participating in the build are defined here
 -include $(MAKE_INCLUDES)/zdo.mk
 -include $(MAKE_INCLUDES)/zcl.mk
+-include $(MAKE_INCLUDES)/wwah.mk
 -include $(MAKE_INCLUDES)/ss.mk
 -include $(MAKE_INCLUDES)/ota.mk
 -include $(MAKE_INCLUDES)/mac.mk
