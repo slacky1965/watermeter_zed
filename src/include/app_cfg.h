@@ -111,7 +111,7 @@ extern "C" {
 #if (CHIP_TYPE == TLSR_8258_1M)
     #define FLASH_CAP_SIZE_1M           1
 #endif
-    #define BOARD                       BOARD_8258_DIY_ZI //BOARD_8258_DIY //BOARD_8258_DONGLE //
+    #define BOARD                       BOARD_8258_DIY //BOARD_8258_DIY_ZI //BOARD_8258_DONGLE //
     #define CLOCK_SYS_CLOCK_HZ          48000000
     /************************* For 512K Flash only ***************************************/
     /* Flash map:
