@@ -25,6 +25,7 @@
 #define ZCL_UINT48      ZCL_DATA_TYPE_UINT48
 #define ZCL_ENUM8       ZCL_DATA_TYPE_ENUM8
 #define ZCL_ENUM16      ZCL_DATA_TYPE_ENUM16
+#define ZCL_BITMAP8     ZCL_DATA_TYPE_BITMAP8
 #define ZCL_BITMAP16    ZCL_DATA_TYPE_BITMAP16
 #define ZCL_BOOLEAN     ZCL_DATA_TYPE_BOOLEAN
 #define ZCL_CHAR_STR    ZCL_DATA_TYPE_CHAR_STR
@@ -377,26 +378,51 @@ zcl_watermeterCfgAttr_t g_zcl_watermeterCfgAttrs = {
     .water_step_preset = LITERS_PER_PULSE,
 };
 
+zcl_se_meteringAttr_t g_zcl_se_metering1Attrs = {
+    .status = 0,
+    .unit = 0x07,                   // 0x07 - Litres
+    .summationFormatting = 0x40,    // 0b0100000 - 7bit - 0, 3-6bit - 8, 0-2bit - 0 = 0x40
+    .deviceType = 2,                // 2 - Water Metering
+};
+
+zcl_se_meteringAttr_t g_zcl_se_metering2Attrs = {
+    .status = 0,
+    .unit = 0x07,                   // 0x07 - Litres
+    .summationFormatting = 0x40,    // 0b0100000 - 7bit - 0, 3-6bit - 8, 0-2bit - 0 = 0x40
+    .deviceType = 2,                // 2 - Water Metering
+};
+
 /* Attribute record list */
 const zclAttrInfo_t zcl_hotWater_attrTbl[] = {
-    { ZCL_ATTRID_CURRENT_SUMMATION_DELIVERD,    ZCL_UINT48, RR, (uint8_t*)&g_zcl_watermeterAttrs.hot_water_counter},
-    { ZCL_ATTRID_GLOBAL_CLUSTER_REVISION,       ZCL_UINT16, R,  (uint8_t*)&zcl_attr_global_clusterRevision},
+    { ZCL_ATTRID_CURRENT_SUMMATION_DELIVERD,    ZCL_UINT48,     RR, (uint8_t*)&g_zcl_watermeterAttrs.hot_water_counter      },
+    { ZCL_ATTRID_STATUS,                        ZCL_BITMAP8,    R, (uint8_t*)&g_zcl_se_metering1Attrs.status                },
+    { ZCL_ATTRID_UNIT_OF_MEASURE,               ZCL_ENUM8,      R, (uint8_t*)&g_zcl_se_metering1Attrs.unit                  },
+    { ZCL_ATTRID_SUMMATION_FORMATTING,          ZCL_BITMAP8,    R, (uint8_t*)&g_zcl_se_metering1Attrs.summationFormatting   },
+    { ZCL_ATTRID_METERING_DEVICE_TYPE,          ZCL_BITMAP8,    R, (uint8_t*)&g_zcl_se_metering1Attrs.deviceType            },
+
+    { ZCL_ATTRID_GLOBAL_CLUSTER_REVISION,       ZCL_UINT16,     R,  (uint8_t*)&zcl_attr_global_clusterRevision              },
 };
 
 #define ZCL_HOT_WATERMETER_ATTR_NUM         sizeof(zcl_hotWater_attrTbl) / sizeof(zclAttrInfo_t)
 
 const zclAttrInfo_t zcl_coldWater_attrTbl[] = {
     { ZCL_ATTRID_CURRENT_SUMMATION_DELIVERD,    ZCL_UINT48, RR, (uint8_t*)&g_zcl_watermeterAttrs.cold_water_counter},
+    { ZCL_ATTRID_STATUS,                        ZCL_BITMAP8,    R, (uint8_t*)&g_zcl_se_metering2Attrs.status                },
+    { ZCL_ATTRID_UNIT_OF_MEASURE,               ZCL_ENUM8,      R, (uint8_t*)&g_zcl_se_metering2Attrs.unit                  },
+    { ZCL_ATTRID_SUMMATION_FORMATTING,          ZCL_BITMAP8,    R, (uint8_t*)&g_zcl_se_metering2Attrs.summationFormatting   },
+    { ZCL_ATTRID_METERING_DEVICE_TYPE,          ZCL_BITMAP8,    R, (uint8_t*)&g_zcl_se_metering2Attrs.deviceType            },
+
     { ZCL_ATTRID_GLOBAL_CLUSTER_REVISION,       ZCL_UINT16, R,  (uint8_t*)&zcl_attr_global_clusterRevision},
 };
 
 #define ZCL_COLD_WATERMETER_ATTR_NUM         sizeof(zcl_coldWater_attrTbl) / sizeof(zclAttrInfo_t)
 
 const zclAttrInfo_t zcl_watermeterCfg_attrTbl[] = {
-    { ZCL_ATTRID_CUSTOM_HOT_WATER_PRESET,   ZCL_UINT32, RW, (uint8_t*)&g_zcl_watermeterCfgAttrs.hot_water_preset},
-    { ZCL_ATTRID_CUSTOM_COLD_WATER_PRESET,  ZCL_UINT32, RW, (uint8_t*)&g_zcl_watermeterCfgAttrs.cold_water_preset},
-    { ZCL_ATTRID_CUSTOM_WATER_STEP_PRESET,  ZCL_UINT16, RW, (uint8_t*)&g_zcl_watermeterCfgAttrs.water_step_preset},
-    { ZCL_ATTRID_GLOBAL_CLUSTER_REVISION,   ZCL_UINT16, R,  (uint8_t*)&zcl_attr_global_clusterRevision},
+    { ZCL_ATTRID_CUSTOM_HOT_WATER_PRESET,   ZCL_UINT32, RW, (uint8_t*)&g_zcl_watermeterCfgAttrs.hot_water_preset    },
+    { ZCL_ATTRID_CUSTOM_COLD_WATER_PRESET,  ZCL_UINT32, RW, (uint8_t*)&g_zcl_watermeterCfgAttrs.cold_water_preset   },
+    { ZCL_ATTRID_CUSTOM_WATER_STEP_PRESET,  ZCL_UINT16, RW, (uint8_t*)&g_zcl_watermeterCfgAttrs.water_step_preset   },
+
+    { ZCL_ATTRID_GLOBAL_CLUSTER_REVISION,   ZCL_UINT16, R,  (uint8_t*)&zcl_attr_global_clusterRevision              },
 };
 
 #define ZCL_WATERMETER_CFG_ATTR_NUM         sizeof(zcl_watermeterCfg_attrTbl) / sizeof(zclAttrInfo_t)
