@@ -32,29 +32,28 @@ extern "C" {
 
 #include "app_types.h"
 
-#define ON                      1
-#define OFF                     0
+#define ON                              1
+#define OFF                             0
 
 #ifndef MCU_CORE_8258
-#define MCU_CORE_8258   1
+#define MCU_CORE_8258                   1
 #endif
 
 /* for reporting */
-#define REPORTING_MIN       300             /* 5 min            */
-#define REPORTING_MAX       3600            /* 60 min           */
+#define REPORTING_MIN                   300             /* 5 min            */
+#define REPORTING_MAX                   3600            /* 60 min           */
 
 /* for polling */
-#define LONG_POLL           REPORTING_MIN
-#define TIMEOUT_NET         TIMEOUT_30MIN
+#define LONG_POLL                       REPORTING_MIN
+#define TIMEOUT_NET                     TIMEOUT_30MIN
+
 
 /**********************************************************************
  * Product Information
  */
-
-#define ZCL_BASIC_MFG_NAME     {10,'S','l','a','c','k','y','-','D','I','Y'}
-#define ZCL_BASIC_MODEL_ID     {19,'W','a','t','e','r','m','e','t','e','r','_','T','L','S','R','8','2','5','8'}
-//#define ZCL_BASIC_MODEL_ID     {15,'W','a','t','e','r','m','e','t','e','r','_','T','E','S','T'}
-
+#define ZCL_BASIC_MFG_NAME              {10,'S','l','a','c','k','y','-','D','I','Y'}
+#define ZCL_BASIC_MODEL_ID              {19,'W','a','t','e','r','m','e','t','e','r','_','T','L','S','R','8','2','5','8'}
+//#define ZCL_BASIC_MODEL_ID              {15,'W','a','t','e','r','m','e','t','e','r','_','T','E','S','T'}
 
 /**********************************************************************
  * Version configuration
@@ -62,28 +61,31 @@ extern "C" {
 #include "version_cfg.h"
 
 /* Debug mode config */
-#define	UART_PRINTF_MODE                OFF
-#define USB_PRINTF_MODE         		OFF
+#define UART_PRINTF_MODE                ON
+#define USB_PRINTF_MODE                 OFF
 
 #define DEBUG_CONFIG                    OFF
 #define DEBUG_WATERLEAK                 OFF
 #define DEBUG_REPORTING                 OFF
-#define DEBUG_BUTTON                    OFF
-#define DEBUG_COUNTER                   OFF
+#define DEBUG_BUTTON                    ON
+#define DEBUG_COUNTER                   ON
 #define DEBUG_BATTERY                   OFF
 #define DEBUG_PM                        OFF
 #define DEBUG_OTA                       OFF
 #define DEBUG_STA_STATUS                OFF
 
 /* PM */
-#define PM_ENABLE						ON
+#define PM_ENABLE                       ON
 
 /* PA */
-#define PA_ENABLE						OFF
+#define PA_ENABLE                       OFF
+
+/* 32K RC or External 32K crystal */
+#define CLOCK_32K_EXT_CRYSTAL           OFF
 
 /* BDB */
-#define TOUCHLINK_SUPPORT				ON
-#define FIND_AND_BIND_SUPPORT			OFF
+#define TOUCHLINK_SUPPORT               ON
+#define FIND_AND_BIND_SUPPORT           OFF
 
 /* Board ID */
 #define BOARD_826x_EVK                  0
@@ -96,23 +98,30 @@ extern "C" {
 #define BOARD_8278_DONGLE               7
 #define BOARD_B91_EVK                   8
 #define BOARD_B91_DONGLE                9
-#define BOARD_8258_DIY                  10
-#define BOARD_8258_DIY_ZI               11
+#define BOARD_B92_EVK                   10
+#define BOARD_B92_DONGLE                11
+#define BOARD_TL721X_EVK                12
+#define BOARD_TL721X_DONGLE             13
+#define BOARD_TL321X_EVK                14
+#define BOARD_TL321X_DONGLE             15
+#define BOARD_8258_DIY                  16
+#define BOARD_8258_DIY_ZI               17
+
 
 /* Board define */
 #if defined(MCU_CORE_826x)
 #if !PA_ENABLE
-    #define BOARD                       BOARD_826x_DONGLE
+	#define BOARD                       BOARD_826x_DONGLE
 #else
-    #define BOARD                       BOARD_826x_DONGLE_PA
+	#define BOARD                       BOARD_826x_DONGLE_PA
 #endif
-    #define CLOCK_SYS_CLOCK_HZ          32000000
+	#define CLOCK_SYS_CLOCK_HZ          32000000
 #elif defined(MCU_CORE_8258)
 #if (CHIP_TYPE == TLSR_8258_1M)
-    #define FLASH_CAP_SIZE_1M           1
+	#define FLASH_CAP_SIZE_1M           1
 #endif
-    #define BOARD                       BOARD_8258_DIY //BOARD_8258_DIY_ZI //BOARD_8258_DONGLE //
-    #define CLOCK_SYS_CLOCK_HZ          48000000
+	#define BOARD                       BOARD_8258_DIY //BOARD_8258_DIY_ZI //BOARD_8258_DONGLE //
+	#define CLOCK_SYS_CLOCK_HZ          48000000
     /************************* For 512K Flash only ***************************************/
     /* Flash map:
         0x00000 Old Firmware bin
@@ -124,45 +133,69 @@ extern "C" {
         0x7A000 NV_2
         0x80000 End Flash
      */
-    #define USER_DATA_SIZE              0x34000
-    #define BEGIN_USER_DATA1            0x00000
+    #define USER_DATA_SIZE              FLASH_OTA_IMAGE_MAX_SIZE            //0x34000
+    #define BEGIN_USER_DATA1            APP_IMAGE_ADDR                      //0x0
     #define END_USER_DATA1              (BEGIN_USER_DATA1 + USER_DATA_SIZE)
-    #define BEGIN_USER_DATA2            0x40000
+    #define BEGIN_USER_DATA2            FLASH_ADDR_OF_OTA_IMAGE             //0x40000
     #define END_USER_DATA2              (BEGIN_USER_DATA2 + USER_DATA_SIZE)
     #define NV_ITEM_APP_USER_CFG        (NV_ITEM_APP_GP_TRANS_TABLE + 1)    // see sdk/proj/drivers/drv_nv.h
 #elif defined(MCU_CORE_8278)
-    #define FLASH_CAP_SIZE_1M           1
-    #define BOARD                       BOARD_8278_DONGLE//BOARD_8278_EVK
-    #define CLOCK_SYS_CLOCK_HZ          48000000
+	#define FLASH_CAP_SIZE_1M           1
+	#define BOARD                       BOARD_8278_DONGLE//BOARD_8278_EVK
+	#define CLOCK_SYS_CLOCK_HZ          48000000
 #elif defined(MCU_CORE_B91)
-    #define FLASH_CAP_SIZE_1M           1
-    #define BOARD                       BOARD_B91_DONGLE//BOARD_B91_EVK
-    #define CLOCK_SYS_CLOCK_HZ          48000000
+	#define FLASH_CAP_SIZE_1M           1
+	#define BOARD                       BOARD_B91_DONGLE//BOARD_B91_EVK
+	#define CLOCK_SYS_CLOCK_HZ          48000000
+#elif defined(MCU_CORE_B92)
+	#define FLASH_CAP_SIZE_1M           1
+	#define BOARD                       BOARD_B92_DONGLE//BOARD_B92_EVK
+	#define CLOCK_SYS_CLOCK_HZ          48000000
+#elif defined(MCU_CORE_TL721X)
+	#define FLASH_CAP_SIZE_1M           1
+	#define BOARD                       BOARD_TL721X_DONGLE//BOARD_TL721X_EVK
+	#define CLOCK_SYS_CLOCK_HZ          120000000
+#elif defined(MCU_CORE_TL321X)
+	#define FLASH_CAP_SIZE_1M           1
+	#define BOARD                       BOARD_TL321X_DONGLE//BOARD_TL321X_EVK
+	#define CLOCK_SYS_CLOCK_HZ          96000000
 #else
-    #error "MCU is undefined!"
+	#error "MCU is undefined!"
 #endif
 
 /* Board include */
 #if (BOARD == BOARD_826x_EVK)
-    #include "board_826x_evk.h"
+	#include "board_826x_evk.h"
 #elif (BOARD == BOARD_826x_DONGLE)
-    #include "board_826x_dongle.h"
+	#include "board_826x_dongle.h"
 #elif (BOARD == BOARD_826x_DONGLE_PA)
-    #include "board_826x_dongle_pa.h"
+	#include "board_826x_dongle_pa.h"
 #elif (BOARD == BOARD_8258_DONGLE)
-    #include "board_8258_dongle.h"
+	#include "board_8258_dongle.h"
 #elif (BOARD == BOARD_8258_EVK)
-    #include "board_8258_evk.h"
+	#include "board_8258_evk.h"
 #elif (BOARD == BOARD_8258_EVK_V1P2)
-    #include "board_8258_evk_v1p2.h"
+	#include "board_8258_evk_v1p2.h"
 #elif (BOARD == BOARD_8278_EVK)
-    #include "board_8278_evk.h"
+	#include "board_8278_evk.h"
 #elif (BOARD == BOARD_8278_DONGLE)
-    #include "board_8278_dongle.h"
+	#include "board_8278_dongle.h"
 #elif (BOARD == BOARD_B91_EVK)
-    #include "board_b91_evk.h"
+	#include "board_b91_evk.h"
 #elif (BOARD == BOARD_B91_DONGLE)
-    #include "board_b91_dongle.h"
+	#include "board_b91_dongle.h"
+#elif (BOARD == BOARD_B92_EVK)
+	#include "board_b92_evk.h"
+#elif (BOARD == BOARD_B92_DONGLE)
+	#include "board_b92_dongle.h"
+#elif (BOARD == BOARD_TL721X_EVK)
+	#include "board_tl721x_evk.h"
+#elif (BOARD == BOARD_TL721X_DONGLE)
+	#include "board_tl721x_dongle.h"
+#elif (BOARD == BOARD_TL321X_EVK)
+	#include "board_tl321x_evk.h"
+#elif (BOARD == BOARD_TL321X_DONGLE)
+	#include "board_tl321x_dongle.h"
 #elif (BOARD == BOARD_8258_DIY)
     #include "board_8258_diy.h"
 #elif (BOARD == BOARD_8258_DIY_ZI)
@@ -180,26 +213,25 @@ extern "C" {
  * we need to configure the detection IO port, and the IO must be connected to the target under test,
  * such as VCC.
  */
-#define VOLTAGE_DETECT_ENABLE						ON
+#define VOLTAGE_DETECT_ENABLE			OFF
+#define VOLTAGE_DETECT_ADC_PIN			VOLTAGE_DETECT_PIN
 
-#if defined(MCU_CORE_826x)
-    #define VOLTAGE_DETECT_ADC_PIN                  0
-#elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
-    #define VOLTAGE_DETECT_ADC_PIN                  GPIO_PC4
-#elif defined(MCU_CORE_B91)
-    #define VOLTAGE_DETECT_ADC_PIN                  ADC_GPIO_PB0
-#endif
-
+/* Flash protect module */
+/* Only the firmware area will be locked, the NV data area will not be locked.
+ * For details, please refer to drv_flash.c file.
+ */
+#define FLASH_PROTECT_ENABLE            ON
 
 /* Watch dog module */
-#define MODULE_WATCHDOG_ENABLE						OFF
+#define MODULE_WATCHDOG_ENABLE          OFF
 
 /* UART module */
-#define	MODULE_UART_ENABLE							OFF
+#define	MODULE_UART_ENABLE              OFF
 
 #if (ZBHCI_USB_PRINT || ZBHCI_USB_CDC || ZBHCI_USB_HID || ZBHCI_UART)
-	#define ZBHCI_EN								1
+	#define ZBHCI_EN                    ON
 #endif
+
 
 /**********************************************************************
  * ZCL cluster support setting

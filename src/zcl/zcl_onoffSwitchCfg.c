@@ -2,7 +2,7 @@
  * INCLUDES
  */
 #include "zcl_include.h"
-#include "watermeter.h"
+//#include "watermeter.h"
 
 #ifdef ZCL_ON_OFF_SWITCH_CFG
 _CODE_ZCL_ status_t zcl_onOffSwitchCfg_register(u8 endpoint, u16 manuCode, u8 attrNum, const zclAttrInfo_t attrTbl[], cluster_forAppCb_t cb)

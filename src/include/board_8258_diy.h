@@ -83,10 +83,14 @@ enum {
 
 /**************************** Configure LED ******************************************/
 
+#define MAX_LED_NUM                 2
+
 #define LED1                        GPIO_PB1
 #define PB1_FUNC                    AS_GPIO
 #define PB1_OUTPUT_ENABLE           ON
 #define PB1_INPUT_ENABLE            OFF
+
+#define VOLTAGE_DETECT_PIN          GPIO_PC4
 
 
 #endif /* SRC_INCLUDE_BOARD_8258_DIY_H_ */

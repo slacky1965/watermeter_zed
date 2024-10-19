@@ -2,65 +2,40 @@
 #define SRC_INCLUDE_BOARD_8258_DIY_H_
 
 /************************* Configure KEY GPIO ***************************************/
-#define MAX_BUTTON_NUM  1
 
-#define BUTTON1                 GPIO_PC1
-#define PC1_INPUT_ENABLE        ON
-#define PC1_DATA_OUT            OFF
-#define PC1_OUTPUT_ENABLE       OFF
-#define PC1_FUNC                AS_GPIO
-#define PULL_WAKEUP_SRC_PC1     PM_PIN_PULLUP_1M
+#define MAX_BUTTON_NUM  2
 
-#define PM_WAKEUP_LEVEL         PM_WAKEUP_LEVEL_LOW // only for KEY
+#define BUTTON                      GPIO_PC1
+#define PC1_FUNC                    AS_GPIO
+#define PC1_OUTPUT_ENABLE           0
+#define PC1_INPUT_ENABLE            1
+#define PULL_WAKEUP_SRC_PC1         PM_PIN_PULLUP_1M //PM_PIN_PULLUP_10K //
 
-enum {
+#define BUTTON1  BUTTON
+
+#define BUTTON2                     GPIO_PC4
+#define PC4_FUNC                    AS_GPIO
+#define PC4_OUTPUT_ENABLE           0
+#define PC4_INPUT_ENABLE            1
+#define PULL_WAKEUP_SRC_PC4         PM_PIN_PULLUP_1M //PM_PIN_PULLUP_10K //
+
+#define PM_WAKEUP_LEVEL             PM_WAKEUP_LEVEL_LOW
+
+enum{
     VK_SW1 = 0x01,
+    VK_SW2 = 0x02
 };
 
 #define KB_MAP_NORMAL   {\
-        {VK_SW1,}}
+        {VK_SW1,}, \
+        {VK_SW2,}, }
 
 #define KB_MAP_NUM      KB_MAP_NORMAL
 #define KB_MAP_FN       KB_MAP_NORMAL
 
 #define KB_DRIVE_PINS  {NULL }
-#define KB_SCAN_PINS   {BUTTON1}
+#define KB_SCAN_PINS   {BUTTON1,  BUTTON2}
 
-
-/************************* Configure counters ***************************************/
-#define LITERS_PER_PULSE        10              /* How many liters per one pulse */
-#define COUNTERS_OVERFLOW       100000000       /* counters overflow             */
-
-/************************* Configure HOT GPIO ***************************************/
-#define HOT_GPIO                GPIO_PB4
-#define PB4_INPUT_ENABLE        ON
-#define PB4_DATA_OUT            OFF
-#define PB4_OUTPUT_ENABLE       OFF
-#define PB4_FUNC                AS_GPIO
-#define PULL_WAKEUP_SRC_PB4     PM_PIN_PULLUP_1M
-
-/************************* Configure COLD GPIO **************************************/
-#define COLD_GPIO               GPIO_PC0
-#define PC0_INPUT_ENABLE        ON
-#define PC0_DATA_OUT            OFF
-#define PC0_OUTPUT_ENABLE       OFF
-#define PC0_FUNC                AS_GPIO
-#define PULL_WAKEUP_SRC_PC0     PM_PIN_PULLUP_1M
-
-/************************* Configure LEAK GPIO **************************************/
-#define WLEAK1_GPIO             GPIO_PB1
-#define PB1_INPUT_ENABLE        ON
-#define PB1_DATA_OUT            OFF
-#define PB1_OUTPUT_ENABLE       OFF
-#define PB1_FUNC                AS_GPIO
-#define PULL_WAKEUP_SRC_PB1     PM_PIN_PULLUP_1M
-
-#define WLEAK2_GPIO             GPIO_PA1
-#define PA1_INPUT_ENABLE        ON
-#define PA1_DATA_OUT            OFF
-#define PA1_OUTPUT_ENABLE       OFF
-#define PA1_FUNC                AS_GPIO
-#define PULL_WAKEUP_SRC_PA1     PM_PIN_PULLUP_1M
 
 /**************************** Configure UART ***************************************
 *    UART_TX_PA2 = GPIO_PA2,
@@ -78,16 +53,37 @@ enum {
 */
 
 #if UART_PRINTF_MODE
-#define DEBUG_INFO_TX_PIN       UART_TX_PD7//print
-#define BAUDRATE                115200
+#define DEBUG_INFO_TX_PIN       UART_TX_PD3//print
+#define BAUDRATE                9600
 #endif /* UART_PRINTF_MODE */
+
+// UART
+#if ZBHCI_UART
+    #define UART_TX_PIN             UART_TX_PD7
+    #define UART_RX_PIN             UART_RX_PA0
+
+    #define UART_PIN_CFG()          uart_gpio_set(UART_TX_PIN, UART_RX_PIN);// uart tx/rx pin set
+#endif
+
+
 
 /**************************** Configure LED ******************************************/
 
-#define LED1                        GPIO_PB6
+#define LED3                        GPIO_PB5
+#define PB5_FUNC                    AS_GPIO
+#define PB5_OUTPUT_ENABLE           ON
+#define PB5_INPUT_ENABLE            OFF
+
+#define LED2                        GPIO_PB6
 #define PB6_FUNC                    AS_GPIO
 #define PB6_OUTPUT_ENABLE           ON
 #define PB6_INPUT_ENABLE            OFF
 
+#define LED1                        GPIO_PB7
+#define PB7_FUNC                    AS_GPIO
+#define PB7_OUTPUT_ENABLE           ON
+#define PB7_INPUT_ENABLE            OFF
+
+/**************************************************************************************/
 
 #endif /* SRC_INCLUDE_BOARD_8258_DIY_H_ */

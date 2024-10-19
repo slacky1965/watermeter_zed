@@ -39,67 +39,26 @@
 		#define CHIP_TYPE					TLSR_8278
 #elif defined(MCU_CORE_B91)
 		#define CHIP_TYPE					TLSR_B91
+#elif defined(MCU_CORE_B92)
+		#define CHIP_TYPE					TLSR_B92
+#elif defined(MCU_CORE_TL721X)
+		#define CHIP_TYPE					TLSR_TL721X
+#elif defined(MCU_CORE_TL321X)
+		#define CHIP_TYPE					TLSR_TL321X
 #endif
 
-#define APP_RELEASE                         0x20        //app release 2.0
-#define APP_BUILD                           0x04        //app build 01, full version - v2.0.03
-#define STACK_RELEASE						0x30        //stack release 3.0
-#define STACK_BUILD							0x01        //stack build 01
-#define HW_VERSION                          0x01
-
-#ifndef ZCL_BASIC_MFG_NAME
-    #define ZCL_BASIC_MFG_NAME     {6,'T','E','L','I','N','K'}
-#endif
-#ifndef ZCL_BASIC_MODEL_ID
-    #define ZCL_BASIC_MODEL_ID     {8,'T','L','S','R','8','2','6','x'}
-#endif
-
-#ifndef ZCL_BASIC_DATE_CODE
-#ifdef BUILD_DATE
-    #define ZCL_BASIC_DATE_CODE    BUILD_DATE
-#else
-    #define ZCL_BASIC_DATE_CODE    {8,'2','0','2','3','1','1','1','7'}
-#endif
-
-#endif
-#ifndef ZCL_BASIC_LOC_DESC
-    #define ZCL_BASIC_LOC_DESC     {7,'U','N','K','N','O','W','N'}
-#endif
-#ifndef ZCL_BASIC_BUILD_ID
-    #define ZCL_BASIC_BUILD_ID     {10,'0','1','2','2','0','5','2','0','1','7'}
-#endif
-#ifndef ZCL_BASIC_SW_BUILD_ID //max 16 chars v1.3.02
-    #define ZCL_BASIC_SW_BUILD_ID       {7,'v',(APP_RELEASE>>4)+0x30,'.',(APP_RELEASE&0xf)+0x30,'.',(APP_BUILD>>4)+0x30,(APP_BUILD&0xf)+0x30}
-#endif
-
-#ifndef BUILD_DATE
-#define BUILD_DATE "20231118"
-#endif
-
-/*
- * 0x04 - Watermeter
- * 0x07 - ElectricityMeter
- * 0x08 - Template
- * 0x09 - Remote Control
- * 0x0a - Livolo_switch_2keys
- * 0x0b - Livolo_switch_1key
- * 0x0c - Livolo_switch_1key_dimmable
- * 0x0d - Smoke_sensor
- * 0x0e - Livolo_curtain_control
- * 0x0f - Livolo_thermostat
- */
-
-
-#define IMAGE_TYPE_WATERMETER        (0x04 | (IMAGE_TYPE_BOOT_FLAG << 7))
+#define APP_RELEASE							0x10//app release 1.0
+#define APP_BUILD							0x01//app build 01
+#define STACK_RELEASE						0x30//stack release 3.0
+#define STACK_BUILD							0x01//stack build 01
 
 /*********************************************************************************************
  * During OTA upgrade, the upgraded device will check the rules of the following three fields.
  * Refer to ZCL OTA specification for details.
  */
-//#define MANUFACTURER_CODE_TELINK    0x1141//Telink ID
-#define MANUFACTURER_CODE_TELINK    0x6565//Custom ID
-#define	IMAGE_TYPE					((CHIP_TYPE << 8) | IMAGE_TYPE_WATERMETER)
-#define	FILE_VERSION				((APP_RELEASE << 24) | (APP_BUILD << 16) | (STACK_RELEASE << 8) | STACK_BUILD)
+#define MANUFACTURER_CODE_TELINK           	0x1141//Telink ID
+#define	IMAGE_TYPE							((CHIP_TYPE << 8) | IMAGE_TYPE_SWITCH)
+#define	FILE_VERSION					  	((APP_RELEASE << 24) | (APP_BUILD << 16) | (STACK_RELEASE << 8) | STACK_BUILD)
 
 /* Pre-compiled link configuration. */
 #define IS_BOOT_LOADER_IMAGE				0

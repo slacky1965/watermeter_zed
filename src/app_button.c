@@ -1,4 +1,7 @@
-#include "watermeter.h"
+#include "tl_common.h"
+#include "zb_api.h"
+#include "zcl_include.h"
+#include "app_main.h"
 
 static void buttonKeepPressed(uint8_t btNum) {
     g_watermeterCtx.button[btNum-1].state = APP_FACTORY_NEW_DOING;
