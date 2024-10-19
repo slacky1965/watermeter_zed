@@ -107,13 +107,13 @@
 
 ## <a id="software">Софт</a>
 
-[Последнюю прошивку](https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/watermeter_zed_V1.3.04.bin) нужно залить в модуль с помощью [github.com/pvvx/TLSRPGM](https://github.com/pvvx/TLSRPGM) или оригинального программатора от Telink.
+[Последнюю прошивку](https://github.com/slacky1965/watermeter_zed) нужно залить в модуль с помощью [github.com/pvvx/TLSRPGM](https://github.com/pvvx/TLSRPGM) или оригинального программатора от Telink.
 
 <img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/telink_pgm.jpg" alt="Telink PGM"/>
 
 Как сделать недорогой программатор на базе модулей TB-03 или TB-04 можно почитать [тут](https://slacky1965.github.io/electricity_meter_zrd/#%D0%B7%D0%B0%D0%B3%D1%80%D1%83%D0%B7%D0%BA%D0%B0-%D0%BF%D1%80%D0%BE%D1%88%D0%B8%D0%B2%D0%BA%D0%B8)
 
-Используется последнее [SDK zigbee](http://wiki.telink-semi.cn/tools_and_sdk/Zigbee/Zigbee_SDK.zip) от Telink'а. Проект сформирован таким образом, что его можно собрать обычным make'ом как под Windows, в оболочке [Git Bash](https://git-scm.com/download/win), а также под Linux'ом (я проверял на Debian 11).
+Используется [Telink SDK Zigbee V3.7.1.0(PR)](https://github.com/telink-semi/telink_zigbee_sdk/releases/tag/V3.7.1.0). Проект сформирован таким образом, что его можно собрать обычным make'ом как под Windows, в оболочке [Git Bash](https://git-scm.com/download/win), а также под Linux'ом (я проверял на Debian 11).
 
 Как добавить проект в Eclipse можно почитать [тут](https://slacky1965.github.io/electricity_meter_zrd/#%D0%BA%D0%BE%D0%BC%D0%BF%D0%B8%D0%BB%D1%8F%D1%86%D0%B8%D1%8F). Все точно так же, только для другого проекта.
 
@@ -396,4 +396,5 @@
 - 2.0.01 - Добавлены два датчика протечки. Изменена плата и корпус.
 - 2.0.02 - Устранен баг с репортингом, когда maxInterval равен 0.
 - 2.0.03 - Добавлена конфигурация команд OnOff. Теперь при обнаружениии протечки устройство может послать on, off или toggle. Обновлен конвертор для zigbee2mqtt.
+- 2.0.04 - Обновлена Telink SDK Zigbee до V3.7.1.0(PR).
 
