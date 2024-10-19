@@ -47,6 +47,4 @@
 #include "mdec_reg.h"
 #include "swire_reg.h"
 #include "charger_reg.h"
-#include "plic_sw_reg.h"
-#include "plmt_reg.h"
 #endif

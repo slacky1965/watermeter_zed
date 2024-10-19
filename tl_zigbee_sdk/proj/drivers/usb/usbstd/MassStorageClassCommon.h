@@ -34,6 +34,8 @@
 extern "C" {
 #endif
 
+#pragma pack(1)
+
 /* Macros: */
 /** Magic signature for a Command Block Wrapper used in the Mass Storage Bulk-Only transport protocol. */
 #define MS_CBW_SIGNATURE                               0x43425355UL
@@ -231,7 +233,7 @@ enum MS_CommandStatusCodes_t
  *
  *  \note Regardless of CPU architecture, these values should be stored as little endian.
  */
-typedef struct _attribute_packed_
+typedef struct
 {
 	u32 Signature; /**< Command block signature, must be \ref MS_CBW_SIGNATURE to indicate a valid Command Block. */
 	u32 Tag; /**< Unique command ID value, to associate a command block wrapper with its command status wrapper. */
@@ -248,7 +250,7 @@ typedef struct _attribute_packed_
  *
  *  \note Regardless of CPU architecture, these values should be stored as little endian.
  */
-typedef struct _attribute_packed_
+typedef struct
 {
 	u32 Signature; /**< Status block signature, must be \ref MS_CSW_SIGNATURE to indicate a valid Command Status. */
 	u32 Tag; /**< Unique command ID value, to associate a command block wrapper with its command status wrapper. */
@@ -263,7 +265,7 @@ typedef struct _attribute_packed_
  *  device (giving explicit error codes for the last issued command). For details of the
  *  structure contents, refer to the SCSI specifications.
  */
-typedef struct _attribute_packed_
+typedef struct
 {
 	u8  ResponseCode;
 
@@ -292,7 +294,7 @@ typedef struct _attribute_packed_
  *
  *  For details of the structure contents, refer to the SCSI specifications.
  */
-typedef struct _attribute_packed_
+typedef struct
 {
 	u8 DeviceType          : 5;
 	u8 PeripheralQualifier : 3;
@@ -324,6 +326,8 @@ typedef struct _attribute_packed_
 	u8  ProductID[16];
 	u8  RevisionID[4];
 } SCSI_Inquiry_Response_t;
+
+#pragma pack()
 
 /* Disable C linkage for C++ Compilers: */
 #if defined(__cplusplus)

@@ -577,7 +577,7 @@ typedef struct
 {
 	extPANId_t 			extPANId;
   	u32  				scanChannels;
-  	u8 					rejoinNwk;//rejoinNwk_method_t
+  	rejoinNwk_method_t 	rejoinNwk;
   	u8 					scanDuration;
   	capability_info_t 	capabilityInfo;
   	bool 				securityEnabled;
@@ -591,7 +591,7 @@ typedef struct
   	extAddr_t 			extAddr;
   	u16 				nwkAddr;
   	capability_info_t 	capabilityInfo;
-  	u8 					rejoinNwk;//rejoinNwk_method_t
+  	rejoinNwk_method_t 	rejoinNwk;
   	bool				secureRejoin;
 }nlme_join_ind_t;
 
@@ -691,7 +691,7 @@ typedef struct
 */
 typedef struct
 {
-	u8 nibAttr;//nib_attribute_t
+	nib_attribute_t nibAttr;
 }nlme_get_req_t;
 
 /***************************************************************************
@@ -699,10 +699,10 @@ typedef struct
 */
 typedef struct
 {
-	u8 status;
-	u8 nibAttr;//nib_attribute_t
+	u8 	status;
+	nib_attribute_t nibAttr;
 	u16 nibAttrLen;
-	u8 *nibAttrVal;
+	u8	*nibAttrVal;
 }nlme_get_cnf_t;
 
 /***************************************************************************
@@ -710,9 +710,9 @@ typedef struct
 */
 typedef struct
 {
-	u8 *nibAttrVal;
+	u8	*nibAttrVal;
 	u16 nibAttrLen;
-	u8 nibAttr;//nib_attribute_t
+	nib_attribute_t nibAttr;
 }nlme_set_req_t;
 
 /***************************************************************************
@@ -721,7 +721,7 @@ typedef struct
 typedef struct
 {
 	u8 status;
-	u8 nibAttr;//nib_attribute_t
+	nib_attribute_t nibAttr;
 }nlme_set_cnf_t;
 
 /***************************************************************************
@@ -729,8 +729,8 @@ typedef struct
 */
 typedef struct
 {
-	u16 nwkAddr;
-	u8 status;//nwk_statusCode_t
+	u16 				nwkAddr;
+	nwk_statusCode_t 	status;
 }nlme_nwkStatus_ind_t;
 
 /***************************************************************************
@@ -738,10 +738,10 @@ typedef struct
 */
 typedef struct
 {
-  	u16 dstAddr;
-  	u8 dstAddrMode;//zb_addr_mode_t
-  	u8 radius;
-  	bool noRouteCache;
+  	u16 			dstAddr;
+  	zb_addr_mode_t 	dstAddrMode;
+  	u8 				radius;
+  	bool 			noRouteCache;
 }nlme_routeDisc_req_t;
 
 /***************************************************************************
@@ -749,8 +749,8 @@ typedef struct
 */
 typedef struct
 {
-  	u8 status;
-  	u8 nwkStatusCode;//nwk_statusCode_t
+  	u8 					status;
+  	nwk_statusCode_t 	nwkStatusCode;
 }nlme_routeDisc_cnf_t;
 
 /****************************************************************************
@@ -819,8 +819,8 @@ typedef struct
 */
 typedef struct
 {
-	u16	dstAddr;
-	u8 statusCode;//nwk_statusCode_t
+	u16				 dstAddr;
+	nwk_statusCode_t statusCode;
 }nwkCmd_nwkStatus_t;
 
 /****************************************************************************
@@ -828,15 +828,15 @@ typedef struct
 */
 typedef struct
 {
-	u8 cmdId;//nwk_cmdId_t
-	u8 statusCode;//nwk_statusCode_t
-	u8 srcIEEEAddrPresent;
-	u8 dstIEEEAddrPresent;
-	extAddr_t dstIeeeAddr;
-	u16 dstAddr;
-	u8 handle;
-	u8 payloadLen;
-	u8 payload[1];
+	nwk_cmdId_t 	 cmdId;
+	nwk_statusCode_t statusCode;
+	u8				srcIEEEAddrPresent;
+	u8				dstIEEEAddrPresent;
+	extAddr_t 		dstIeeeAddr;
+	u16				dstAddr;
+	u8				handle;
+	u8				payloadLen;
+	u8				payload[1];
 }myNwkCmd_nwkStatus_t;
 
 
@@ -875,14 +875,15 @@ typedef struct
 */
 typedef struct
 {
-	u16 nwkAddr;
-	u8 rejoinStatus;
+	u16  		nwkAddr;
+	u8	 		rejoinStatus;
 }nwkCmd_rejoinResp_t;
 
 /****************************************************************************
 * @brief	Link status entry
 */
-typedef struct _attribute_packed_{
+typedef struct
+{
 	u16	 neighborNwkAddr;
 	struct{
 		u8  incomingCost:3;
@@ -966,7 +967,7 @@ typedef enum{
 */
 typedef struct
 {
-	u8 reqTimeoutEnum;//reqTimeoutEnum_t
+	reqTimeoutEnum_t reqTimeoutEnum;
 	u8 endDevCfg;
 }nwkCmd_endDevTimeoutReq_t;
 
@@ -991,7 +992,7 @@ typedef enum{
 */
 typedef struct
 {
-	u8 status;//endDevTimeoutRspStatus_t
+	endDevTimeoutRspStatus_t status;
 	u8 parentInfo;
 }nwkCmd_endDevTimeoutResp_t;
 
@@ -1000,7 +1001,7 @@ typedef struct
 */
 typedef struct
 {
-	u8 cmdId;								/*!< nwk_cmdId_t, Nwk cmd frame command ID */
+	nwk_cmdId_t cmdId;						/*!< Nwk cmd frame command ID */
 	u8 reserved[3];
 	union
 	{

@@ -12,7 +12,7 @@ static uint8_t  default_config = false;
 static uint32_t config_addr_start = 0;
 static uint32_t config_addr_end = 0;
 
-uint32_t mcuBootAddrGet(void);
+uint8_t mcuBootAddrGet(void);
 
 static uint16_t checksum(const uint8_t *src_buffer, uint8_t len) {
 

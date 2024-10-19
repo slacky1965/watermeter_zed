@@ -389,19 +389,17 @@ typedef struct{
  *  @{
  */
 typedef struct{
-	u16		dstPanId;
 	addr_t 	srcAddr;
+	u16		dstPanId;
 	addr_t 	dstAddr;
 	u8 		msduLength;
-	u8 		msduHandle;
 	u8 		*msdu;
+	u8 		msduHandle;
 	u8 		txOptions;
-#ifdef ZB_MAC_SECURITY
 	u8 		securityLevel;
 	u8 		keyIdMode;
+	u64 	keySource;
 	u8 		keyIndex;
-	u8   	keySource[MAC_KEY_SOURCE_MAX_LEN];
-#endif
 }zb_mscp_data_req_t;
 
 /** @defgroup mac_mcsp_data_primitive MAC-MCSP:confirm primitive Types
@@ -423,19 +421,17 @@ typedef struct{
 typedef struct{
 	u32		timestamp;
 	u8		*msdu;
+	u64		KeySource;
 	u16 	srcPanId;
 	u16		dstPanId;
 	addr_t	srcAddr;
-	addr_t	dstAddr;
 	u8		msduLength;
+	addr_t	dstAddr;
 	u8		mpduLinkQuality;
 	u8		dsn;
-#ifdef ZB_MAC_SECURITY
 	u8		securityLevel;
 	u8		keyIdMode;
 	u8		keyIndex;
-	u8   	keySource[MAC_KEY_SOURCE_MAX_LEN];
-#endif
 }zb_mscp_data_ind_t;
 
 /** @defgroup mac_mcsp_purge_primitive MAC-MCSP:PURGE primitive Types
@@ -695,7 +691,7 @@ typedef enum{
 typedef struct{
 	u16 panId; 						/* The PAN identifier with which the device lost
 					   	   	   	   	 * synchronization or to which it was realigned */
-	u8 reason; 						/* zb_sync_loss_reason_t, Lost syncronisation reason */
+	zb_sync_loss_reason_t reason; 	/* Lost syncronisation reason */
 	u8 logicalChannel; 				/* Logical channel */
 	u8 channelPage;					/* Channel page */
 }zb_mlme_sync_loss_ind_t;
@@ -766,7 +762,7 @@ typedef struct{
 /*
  * beacon payload
  * */
-typedef struct{
+typedef struct zb_mac_beacon_payload_s{
 	u8 protocol_id;
 	u8 stack_profile:4;
 	u8 protocol_version:4;
@@ -841,9 +837,9 @@ enum{
    Parameters for storing data in a pending queue
 */
 typedef struct zb_mac_pending_data_s{
-	zb_buf_t *pending_data;
-	u8 dst_addr_mode;//zb_addr_mode_t
-	tl_zb_addr_t dst_addr;
+	zb_buf_t 		*pending_data;
+	zb_addr_mode_t 	dst_addr_mode;
+	tl_zb_addr_t 	dst_addr;
 }zb_mac_pending_data_t;
 
 /**

@@ -68,20 +68,6 @@ typedef struct {
 
 
 /**
- *  @brief Defined for onoffconfig cluster attributes
- */
-typedef struct {
-    u8 switchType;
-    u8 switchActions;
-} zcl_onOffSwitchCfgAttr_t;
-
-typedef struct {
-    zcl_onOffSwitchCfgAttr_t ep4_attrs;
-    zcl_onOffSwitchCfgAttr_t ep5_attrs;
-} zcl_onOffSwitchCfg_4_5_Attr_t;
-
-
-/**
  *  @brief  Defined for poll control cluster attributes
  */
 typedef struct {
@@ -98,20 +84,18 @@ extern uint8_t WATERMETER_EP1_CB_CLUSTER_NUM;
 extern uint8_t WATERMETER_EP2_CB_CLUSTER_NUM;
 extern uint8_t WATERMETER_EP3_CB_CLUSTER_NUM;
 extern uint8_t WATERMETER_EP4_CB_CLUSTER_NUM;
-extern uint8_t WATERMETER_EP5_CB_CLUSTER_NUM;
 
 /* Attributes */
-extern zcl_basicAttr_t                  g_zcl_basicAttrs;
-extern zcl_identifyAttr_t               g_zcl_identifyAttrs;
-extern zcl_pollCtrlAttr_t               g_zcl_pollCtrlAttrs;
-extern zcl_watermeterAttr_t             g_zcl_watermeterAttrs;
-extern zcl_watermeterCfgAttr_t          g_zcl_watermeterCfgAttrs;
-extern zcl_iasZoneAttr_t                g_zcl_iasZoneAttrs;
-extern zcl_onOffSwitchCfg_4_5_Attr_t    g_zcl_onOffSwitchCfgAttrs;
+extern zcl_basicAttr_t g_zcl_basicAttrs;
+extern zcl_identifyAttr_t g_zcl_identifyAttrs;
+extern zcl_pollCtrlAttr_t g_zcl_pollCtrlAttrs;
+extern zcl_watermeterAttr_t g_zcl_watermeterAttrs;
+extern zcl_watermeterCfgAttr_t g_zcl_watermeterCfgAttrs;
+extern zcl_iasZoneAttr_t g_zcl_iasZoneAttrs;
 
-#define zcl_iasZoneAttrGet()        &g_zcl_iasZoneAttrs
-#define zcl_pollCtrlAttrGet()       &g_zcl_pollCtrlAttrs
-#define zcl_onOffSwitchCfgAttrGet() &g_zcl_onOffSwitchCfgAttrs
+
+#define zcl_iasZoneAttrGet()    &g_zcl_iasZoneAttrs
+#define zcl_pollCtrlAttrGet()   &g_zcl_pollCtrlAttrs
 
 
 #endif /* SRC_INCLUDE_APP_ENDPOINT_CFG_H_ */

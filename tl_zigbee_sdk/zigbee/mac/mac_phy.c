@@ -453,7 +453,6 @@ u8 rf_stopEDScan(void)
 #endif
 }
 
-volatile s8 T_rssiPeak = 0;
 _attribute_ram_code_ u8 rf_performCCA(void)
 {
 	if(isWLANActive()){
@@ -484,14 +483,15 @@ _attribute_ram_code_ u8 rf_performCCA(void)
 	}
 	rssi_peak = rssiSum/cnt;
 
-	T_rssiPeak = rssi_peak;
-
 	if(rssi_peak > CCA_THRESHOLD || (rf_busyFlag & TX_BUSY)){//Return if currently in TX state
 		return PHY_CCA_BUSY;
 	}else{
 		return PHY_CCA_IDLE;
 	}
 }
+
+
+
 
 void rf802154_tx_ready(u8 *buf, u8 len)
 {
@@ -587,6 +587,7 @@ _attribute_ram_code_ bool isWLANActive(void)
 	return FALSE;
 }
 
+
 /*********************************************************************
  * @fn      rf_rx_irq_handler
  *
@@ -596,12 +597,7 @@ _attribute_ram_code_ bool isWLANActive(void)
  *
  * @return  none
  */
-#if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
-_attribute_ram_code_ __attribute__((optimize("-Os")))
-#else
-_attribute_ram_code_
-#endif
-void rf_rx_irq_handler(void)
+_attribute_ram_code_ __attribute__((optimize("-Os"))) void rf_rx_irq_handler(void)
 {
     u8 *p = rf_rxBuf;
     u8 fAck = 0;
@@ -757,12 +753,7 @@ void rf_rx_irq_handler(void)
  *
  * @return  none
  */
-#if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
-_attribute_ram_code_ __attribute__((optimize("-Os")))
-#else
-_attribute_ram_code_
-#endif
-void rf_tx_irq_handler(void)
+_attribute_ram_code_ __attribute__((optimize("-Os"))) void rf_tx_irq_handler(void)
 {
 	rf_busyFlag &= ~TX_BUSY;//Clear TX busy flag after receive TX done signal
 

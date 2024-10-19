@@ -623,7 +623,7 @@ _CODE_ZCL_ static u8 zcl_buildHdr(u8 *buf, u8 clusterSpec, u8 dir, u8 disDefRsp,
 _CODE_ZCL_ status_t zcl_sendCmd(u8 srcEp, epInfo_t *pDstEpInfo, u16 clusterId, u8 cmd, u8 specific,
 				  	  	  	  	u8 direction, u8 disableDefaultRsp, u16 manuCode, u8 seqNo, u16 cmdPldLen, u8 *cmdPld)
 {
-	u8 *asdu = (u8 *)ev_buf_allocate(5 /* ZCL header */ + cmdPldLen);
+	u8 *asdu = (u8 *)ev_buf_allocate(sizeof(zclHdr_t) + cmdPldLen);
 	if(!asdu){
 		return ZCL_STA_INSUFFICIENT_SPACE;
 	}
@@ -827,7 +827,7 @@ _CODE_ZCL_ void zcl_cmdHandler(void *pCmd)
 		}else{/* Cluster command */
 			clusterInfo_t *pCluster = zcl_findCluster(pApsdeInd->indInfo.dst_ep, pApsdeInd->indInfo.cluster_id);
 
-			if(!pCluster || (pCluster && (pCluster->manuCode != inMsg.hdr.manufCode) && (inMsg.hdr.manufCode != 0))){
+			if(!pCluster || (pCluster && (pCluster->manuCode != inMsg.hdr.manufCode))){
 				status = (inMsg.hdr.manufCode == MANUFACTURER_CODE_NONE) ? ZCL_STA_UNSUP_CLUSTER_COMMAND : ZCL_STA_UNSUP_MANU_CLUSTER_COMMAND;
 			}else{
 				/* Check if basic device enable support */
@@ -1222,23 +1222,21 @@ _CODE_ZCL_ status_t zcl_writeRsp(u8 srcEp, epInfo_t *pDstEpInfo, u16 clusterId, 
 _CODE_ZCL_ zclWriteRspCmd_t *zcl_parseInWriteRspCmd(zclIncoming_t *pCmd)
 {
 	u8 *pBuf = pCmd->pData;
-	u8 numAttr = (pCmd->dataLen == 1) ? 1 : (pCmd->dataLen / 3);
+	u8 i = 0;
 
-	u16 len = sizeof(zclWriteRspCmd_t) + numAttr * sizeof(zclWriteRspStatus_t);
+	u16 len = sizeof(zclWriteRspCmd_t) + pCmd->dataLen;
 	zclWriteRspCmd_t *p = (zclWriteRspCmd_t *)ev_buf_allocate(len);
 	if(p != NULL){
-		p->numAttr = numAttr;
-
 		if(pCmd->dataLen == 1){
-			p->attrList[0].status = *pBuf;
-			p->attrList[0].attrID = 0xFFFF;
+			p->attrList[i++].status = *pBuf;
 		}else{
-			for(u8 i = 0; i < numAttr; i++){
+			while(pBuf < (pCmd->pData + pCmd->dataLen)){
 				p->attrList[i].status = *pBuf++;
-				p->attrList[i].attrID = BUILD_U16(pBuf[0], pBuf[1]);
+				p->attrList[i++].attrID = BUILD_U16(pBuf[0], pBuf[1]);
 				pBuf += 2;
 			}
 		}
+		p->numAttr = i;
 	}
 
 	return p;
@@ -1334,9 +1332,6 @@ _CODE_ZCL_ status_t zcl_writeHandler(zclIncoming_t *pCmd)
 		}
 
 		rspSend = TRUE;
-	}else if(pCmd->hdr.cmd == ZCL_CMD_WRITE_NO_RSP){
-		//shall not any response to this command
-		//rspSend = FALSE;
 	}
 
 	for(u8 i = 0; i < pWriteCmd->numAttr; i++){
@@ -1380,8 +1375,6 @@ _CODE_ZCL_ status_t zcl_writeHandler(zclIncoming_t *pCmd)
 			status = ZCL_STA_CMD_HAS_RESP;
 
 		ev_buf_free((void *)pWriteRspCmd);
-	}else{
-		status = ZCL_STA_CMD_HAS_RESP;
 	}
 
 	return status;

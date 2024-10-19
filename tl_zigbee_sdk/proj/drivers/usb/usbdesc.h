@@ -35,19 +35,13 @@ extern "C" {
 #endif
 
 #ifndef STRING_VENDOR
-//#define STRING_VENDOR       		L"Telink"
-#define STRING_VENDOR       		{'T', 'e', 'l', 'i', 'n', 'k'}
-#define STRING_VENDOR_LEN			(6 * 2)//UTF-16 length
+#define STRING_VENDOR       		L"Telink"
 #endif
 #ifndef STRING_PRODUCT
-//#define STRING_PRODUCT      		L"USBDongle"
-#define STRING_PRODUCT      		{'U', 'S', 'B', 'D', 'o', 'n', 'g', 'l', 'e'}
-#define STRING_PRODUCT_LEN			(9 * 2)//UTF-16 length
+#define STRING_PRODUCT      		L"TelinkUSBDongle"
 #endif
 #ifndef STRING_SERIAL
-//#define STRING_SERIAL       		L"TLSR"
-#define STRING_SERIAL       		{'T', 'L', 'S', 'R'}
-#define STRING_SERIAL_LEN			(4 * 2)//UTF-16 length
+#define STRING_SERIAL       		L"TLSR82xx"
 #endif
 #ifndef ID_VENDOR
 #define ID_VENDOR					0x248A
@@ -268,34 +262,34 @@ enum {
 	USB_STRING_MS_OS 				   = 0xee,
 };
 
-typedef struct _attribute_packed_{
+typedef struct {
 	USB_HID_Descriptor_HID_t audio_hid;
 	USB_Descriptor_Endpoint_t audio_in_endpoint;
 } USB_HID_Descriptor_HID_Audio_t;
 
-typedef struct _attribute_packed_{
+typedef struct {
 	USB_HID_Descriptor_HID_t mouse_hid;
 	USB_Descriptor_Endpoint_t mouse_in_endpoint;
 } USB_HID_Descriptor_HID_Mouse_t;
 
-typedef struct _attribute_packed_{
+typedef struct {
 	USB_HID_Descriptor_HID_t keyboard_hid;
 	USB_Descriptor_Endpoint_t keyboard_in_endpoint;
 } USB_HID_Descriptor_HID_Keyboard_t;
 
-typedef struct _attribute_packed_{
+typedef struct {
 	USB_HID_Descriptor_HID_t somatic_hid;
 	USB_Descriptor_Endpoint_t somatic_in_endpoint;
 	USB_Descriptor_Endpoint_t somatic_out_endpoint;
 } USB_HID_Descriptor_HID_Somatic_t;
 
-typedef struct _attribute_packed_{
+typedef struct {
 	USB_HID_Descriptor_HID_t vendor_hid;
 	USB_Descriptor_Endpoint_t vendor_in_endpoint;
 	USB_Descriptor_Endpoint_t vendor_out_endpoint;
 } USB_HID_Descriptor_HID_Vendor_t;
 
-typedef struct _attribute_packed_{
+typedef struct {
 	// CDC Control Interface
 	USB_CDC_Descriptor_FunctionalHeader_t    CDC_Functional_Header;
 	USB_CDC_Descriptor_FunctionalACM_t       CDC_Functional_ACM;
@@ -310,7 +304,7 @@ typedef struct _attribute_packed_{
 } USB_CDC_Descriptor_t;
 
 
-typedef struct _attribute_packed_{
+typedef struct {
 	USB_Descriptor_Configuration_Header_t 	Config;
 
 #if (USB_CDC_ENABLE)
@@ -344,6 +338,7 @@ typedef struct _attribute_packed_{
 	USB_Descriptor_Endpoint_t 				sniffer_endpoint;
 #endif
 } USB_Descriptor_Configuration_t;
+
 
 
 u8 *usbdesc_get_language(void);

@@ -64,12 +64,6 @@ extern "C" {
 #define BOARD_8278_DONGLE				7
 #define BOARD_B91_EVK					8
 #define BOARD_B91_DONGLE				9
-#define BOARD_B92_EVK					10
-#define BOARD_B92_DONGLE				11
-#define BOARD_TL721X_EVK				12
-#define BOARD_TL721X_DONGLE				13
-#define BOARD_TL321X_EVK				14
-#define BOARD_TL321X_DONGLE				15
 
 /* Board define */
 #if defined(MCU_CORE_826x)
@@ -93,18 +87,6 @@ extern "C" {
 	#define FLASH_CAP_SIZE_1M			1
 	#define BOARD						BOARD_B91_DONGLE//BOARD_B91_EVK
 	#define CLOCK_SYS_CLOCK_HZ  		48000000
-#elif defined(MCU_CORE_B92)
-	#define FLASH_CAP_SIZE_1M			1
-	#define BOARD						BOARD_B92_DONGLE//BOARD_B92_EVK
-	#define CLOCK_SYS_CLOCK_HZ  		48000000
-#elif defined(MCU_CORE_TL721X)
-	#define FLASH_CAP_SIZE_1M			1
-	#define BOARD						BOARD_TL721X_DONGLE//BOARD_TL721X_EVK
-	#define CLOCK_SYS_CLOCK_HZ  		120000000
-#elif defined(MCU_CORE_TL321X)
-	#define FLASH_CAP_SIZE_1M			1
-	#define BOARD						BOARD_TL321X_DONGLE//BOARD_TL321X_EVK
-	#define CLOCK_SYS_CLOCK_HZ  		96000000
 #else
 	#error "MCU is undefined!"
 #endif
@@ -130,18 +112,6 @@ extern "C" {
 	#include "board_b91_evk.h"
 #elif (BOARD == BOARD_B91_DONGLE)
 	#include "board_b91_dongle.h"
-#elif (BOARD == BOARD_B92_EVK)
-	#include "board_b92_evk.h"
-#elif (BOARD == BOARD_B92_DONGLE)
-	#include "board_b92_dongle.h"
-#elif (BOARD == BOARD_TL721X_EVK)
-	#include "board_tl721x_evk.h"
-#elif (BOARD == BOARD_TL721X_DONGLE)
-	#include "board_tl721x_dongle.h"
-#elif (BOARD == BOARD_TL321X_EVK)
-	#include "board_tl321x_evk.h"
-#elif (BOARD == BOARD_TL321X_DONGLE)
-	#include "board_tl321x_dongle.h"
 #endif
 
 
@@ -156,13 +126,14 @@ extern "C" {
  * such as VCC.
  */
 #define VOLTAGE_DETECT_ENABLE						0
-#define VOLTAGE_DETECT_ADC_PIN						VOLTAGE_DETECT_PIN
 
-/* Flash protect module */
-/* Only the firmware area will be locked, the NV data area will not be locked.
- * For details, please refer to drv_flash.c file.
- */
-#define FLASH_PROTECT_ENABLE						1
+#if defined(MCU_CORE_826x)
+	#define VOLTAGE_DETECT_ADC_PIN					0
+#elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
+	#define VOLTAGE_DETECT_ADC_PIN					GPIO_PC5
+#elif defined(MCU_CORE_B91)
+	#define VOLTAGE_DETECT_ADC_PIN					ADC_GPIO_PB0
+#endif
 
 /* Watch dog module */
 #define MODULE_WATCHDOG_ENABLE						0
