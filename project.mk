@@ -6,12 +6,19 @@ OUT_DIR += \
  
 OBJS += \
 $(OUT_PATH)/$(SRC_PATH)/common/main.o \
+$(OUT_PATH)/$(SRC_PATH)/zcl/zcl_onoffSwitchCfg.o \
 $(OUT_PATH)/$(SRC_PATH)/app_button.o \
-$(OUT_PATH)/$(SRC_PATH)/app_ui.o \
+$(OUT_PATH)/$(SRC_PATH)/app_led.o \
+$(OUT_PATH)/$(SRC_PATH)/app_battery.o \
+$(OUT_PATH)/$(SRC_PATH)/app_utility.o \
 $(OUT_PATH)/$(SRC_PATH)/app_main.o \
 $(OUT_PATH)/$(SRC_PATH)/app_endpoint_cfg.o \
 $(OUT_PATH)/$(SRC_PATH)/zb_appCb.o \
-$(OUT_PATH)/$(SRC_PATH)/zcl_sampleSwitchCb.o 
+$(OUT_PATH)/$(SRC_PATH)/zcl_appCb.o
+
+
+#$(OUT_PATH)/$(SRC_PATH)/app_ui.o \
+ 
 
 #$(OUT_PATH)/$(SRC_PATH)/zcl/zcl_onoffSwitchCfg.o \
 #$(OUT_PATH)/$(SRC_PATH)/app_pm.o \

@@ -1,6 +1,11 @@
 #ifndef SRC_INCLUDE_APP_MAIN_H_
 #define SRC_INCLUDE_APP_MAIN_H_
 
+#include "app_utility.h"
+#include "app_button.h"
+#include "app_led.h"
+#include "app_utility.h"
+
 /**********************************************************************
  * CONSTANT
  */
@@ -17,18 +22,28 @@ typedef struct{
 
 typedef struct{
     ev_timer_event_t *bdbFBTimerEvt;
+    ev_timer_event_t *timerForcedReportEvt;
+    ev_timer_event_t *timerStopReportEvt;
+    ev_timer_event_t *timerPollRateEvt;
+    ev_timer_event_t *timerBatteryEvt;
     ev_timer_event_t *timerLedEvt;
-    s32 Vbat;       //current voltage
-    u32 keyPressedTime;
+    ev_timer_event_t *timerNoJoinedEvt;
 
-    u16 ledOnTime;
-    u16 ledOffTime;
-    u8  oriSta;     //original state before blink
-    u8  sta;        //current state in blink
-    u8  times;      //blink times
-    u8  state;
+    uint32_t short_poll;
+    uint32_t long_poll;
+    uint32_t current_poll;
 
+    button_t button;
     u8  keyPressed;
+
+    uint16_t ledOnTime;
+    uint16_t ledOffTime;
+    uint8_t  oriSta;     //original state before blink
+    uint8_t  sta;        //current state in blink
+    uint8_t  times;      //blink times
+    uint8_t  state;
+
+    uint32_t time_without_joined;
 
     app_linkKey_info_t tcLinkKey;
 }app_ctx_t;
@@ -36,26 +51,29 @@ typedef struct{
 /**********************************************************************
  * GLOBAL VARIABLES
  */
-extern app_ctx_t g_switchAppCtx;
+extern app_ctx_t g_appCtx;
 
-extern bdb_appCb_t g_zbDemoBdbCb;
+extern bdb_appCb_t g_zbBdbCb;
 
 extern bdb_commissionSetting_t g_bdbCommissionSetting;
 
 /**********************************************************************
  * FUNCTIONS
  */
-void sampleSwitch_zclProcessIncomingMsg(zclIncoming_t *pInHdlrMsg);
+void app_zclProcessIncomingMsg(zclIncoming_t *pInHdlrMsg);
 
-status_t sampleSwitch_basicCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload);
-status_t sampleSwitch_identifyCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload);
-status_t sampleSwitch_groupCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload);
-status_t sampleSwitch_sceneCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload);
-status_t sampleSwitch_pollCtrlCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload);
+status_t app_basicCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload);
+status_t app_identifyCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload);
+status_t app_groupCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload);
+status_t app_sceneCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload);
+status_t app_pollCtrlCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload);
+status_t app_meteringCb(zclIncomingAddrInfo_t *pAddrInfo, uint8_t cmdId, void *cmdPayload);
+status_t app_powerCfgCb(zclIncomingAddrInfo_t *pAddrInfo, uint8_t cmdId, void *cmdPayload);
+status_t leak_iasZoneCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload);
 
-void sampleSwitch_leaveCnfHandler(nlme_leave_cnf_t *pLeaveCnf);
-void sampleSwitch_leaveIndHandler(nlme_leave_ind_t *pLeaveInd);
-void sampleSwitch_otaProcessMsgHandler(u8 evt, u8 status);
+void app_leaveCnfHandler(nlme_leave_cnf_t *pLeaveCnf);
+void app_leaveIndHandler(nlme_leave_ind_t *pLeaveInd);
+void app_otaProcessMsgHandler(u8 evt, u8 status);
 
 
 #endif /* SRC_INCLUDE_APP_MAIN_H_ */

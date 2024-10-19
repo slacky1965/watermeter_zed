@@ -1,7 +1,7 @@
 /********************************************************************************************************
- * @file    zcl_sampleSwitchCb.c
+ * @file    zcl_appCb.c
  *
- * @brief   This is the source file for zcl_sampleSwitchCb
+ * @brief   This is the source file for zcl_appCb
  *
  * @author  Zigbee Group
  * @date    2021
@@ -48,18 +48,18 @@
  * LOCAL FUNCTIONS
  */
 #ifdef ZCL_READ
-static void sampleSwitch_zclReadRspCmd(u16 clusterId, zclReadRspCmd_t *pReadRspCmd);
+static void app_zclReadRspCmd(u16 clusterId, zclReadRspCmd_t *pReadRspCmd);
 #endif
 #ifdef ZCL_WRITE
-static void sampleSwitch_zclWriteRspCmd(u16 clusterId, zclWriteRspCmd_t *pWriteRspCmd);
-static void sampleSwitch_zclWriteReqCmd(u16 clusterId, zclWriteCmd_t *pWriteReqCmd);
+static void app_zclWriteRspCmd(u16 clusterId, zclWriteRspCmd_t *pWriteRspCmd);
+static void app_zclWriteReqCmd(u16 clusterId, zclWriteCmd_t *pWriteReqCmd);
 #endif
 #ifdef ZCL_REPORT
-static void sampleSwitch_zclCfgReportCmd(u16 clusterId, zclCfgReportCmd_t *pCfgReportCmd);
-static void sampleSwitch_zclCfgReportRspCmd(u16 clusterId, zclCfgReportRspCmd_t *pCfgReportRspCmd);
-static void sampleSwitch_zclReportCmd(u16 clusterId, zclReportCmd_t *pReportCmd);
+static void app_zclCfgReportCmd(u16 clusterId, zclCfgReportCmd_t *pCfgReportCmd);
+static void app_zclCfgReportRspCmd(u16 clusterId, zclCfgReportRspCmd_t *pCfgReportRspCmd);
+static void app_zclReportCmd(u16 clusterId, zclReportCmd_t *pReportCmd);
 #endif
-static void sampleSwitch_zclDfltRspCmd(u16 clusterId, zclDefaultRspCmd_t *pDftRspCmd);
+static void app_zclDfltRspCmd(u16 clusterId, zclDefaultRspCmd_t *pDftRspCmd);
 
 
 /**********************************************************************
@@ -79,7 +79,7 @@ static ev_timer_event_t *identifyTimerEvt = NULL;
  */
 
 /*********************************************************************
- * @fn      sampleSwitch_zclProcessIncomingMsg
+ * @fn      app_zclProcessIncomingMsg
  *
  * @brief   Process ZCL Foundation incoming message.
  *
@@ -87,39 +87,39 @@ static ev_timer_event_t *identifyTimerEvt = NULL;
  *
  * @return  None
  */
-void sampleSwitch_zclProcessIncomingMsg(zclIncoming_t *pInHdlrMsg)
+void app_zclProcessIncomingMsg(zclIncoming_t *pInHdlrMsg)
 {
-	//printf("sampleSwitch_zclProcessIncomingMsg\n");
+	//printf("app_zclProcessIncomingMsg\n");
 
 	u16 cluster = pInHdlrMsg->msg->indInfo.cluster_id;
 	switch(pInHdlrMsg->hdr.cmd)
 	{
 #ifdef ZCL_READ
 		case ZCL_CMD_READ_RSP:
-			sampleSwitch_zclReadRspCmd(cluster, pInHdlrMsg->attrCmd);
+			app_zclReadRspCmd(cluster, pInHdlrMsg->attrCmd);
 			break;
 #endif
 #ifdef ZCL_WRITE
 		case ZCL_CMD_WRITE_RSP:
-			sampleSwitch_zclWriteRspCmd(cluster, pInHdlrMsg->attrCmd);
+			app_zclWriteRspCmd(cluster, pInHdlrMsg->attrCmd);
 			break;
 		case ZCL_CMD_WRITE:
-			sampleSwitch_zclWriteReqCmd(cluster, pInHdlrMsg->attrCmd);
+			app_zclWriteReqCmd(cluster, pInHdlrMsg->attrCmd);
 			break;
 #endif
 #ifdef ZCL_REPORT
 		case ZCL_CMD_CONFIG_REPORT:
-			sampleSwitch_zclCfgReportCmd(cluster, pInHdlrMsg->attrCmd);
+			app_zclCfgReportCmd(cluster, pInHdlrMsg->attrCmd);
 			break;
 		case ZCL_CMD_CONFIG_REPORT_RSP:
-			sampleSwitch_zclCfgReportRspCmd(cluster, pInHdlrMsg->attrCmd);
+			app_zclCfgReportRspCmd(cluster, pInHdlrMsg->attrCmd);
 			break;
 		case ZCL_CMD_REPORT:
-			sampleSwitch_zclReportCmd(cluster, pInHdlrMsg->attrCmd);
+			app_zclReportCmd(cluster, pInHdlrMsg->attrCmd);
 			break;
 #endif
 		case ZCL_CMD_DEFAULT_RSP:
-			sampleSwitch_zclDfltRspCmd(cluster, pInHdlrMsg->attrCmd);
+			app_zclDfltRspCmd(cluster, pInHdlrMsg->attrCmd);
 			break;
 		default:
 			break;
@@ -128,7 +128,7 @@ void sampleSwitch_zclProcessIncomingMsg(zclIncoming_t *pInHdlrMsg)
 
 #ifdef ZCL_READ
 /*********************************************************************
- * @fn      sampleSwitch_zclReadRspCmd
+ * @fn      app_zclReadRspCmd
  *
  * @brief   Handler for ZCL Read Response command.
  *
@@ -136,16 +136,16 @@ void sampleSwitch_zclProcessIncomingMsg(zclIncoming_t *pInHdlrMsg)
  *
  * @return  None
  */
-static void sampleSwitch_zclReadRspCmd(u16 clusterId, zclReadRspCmd_t *pReadRspCmd)
+static void app_zclReadRspCmd(u16 clusterId, zclReadRspCmd_t *pReadRspCmd)
 {
-    //printf("sampleSwitch_zclReadRspCmd\n");
+    //printf("app_zclReadRspCmd\n");
 
 }
 #endif	/* ZCL_READ */
 
 #ifdef ZCL_WRITE
 /*********************************************************************
- * @fn      sampleSwitch_zclWriteRspCmd
+ * @fn      app_zclWriteRspCmd
  *
  * @brief   Handler for ZCL Write Response command.
  *
@@ -153,14 +153,14 @@ static void sampleSwitch_zclReadRspCmd(u16 clusterId, zclReadRspCmd_t *pReadRspC
  *
  * @return  None
  */
-static void sampleSwitch_zclWriteRspCmd(u16 clusterId, zclWriteRspCmd_t *pWriteRspCmd)
+static void app_zclWriteRspCmd(u16 clusterId, zclWriteRspCmd_t *pWriteRspCmd)
 {
-    //printf("sampleSwitch_zclWriteRspCmd\n");
+    //printf("app_zclWriteRspCmd\n");
 
 }
 
 /*********************************************************************
- * @fn      sampleSwitch_zclWriteReqCmd
+ * @fn      app_zclWriteReqCmd
  *
  * @brief   Handler for ZCL Write Request command.
  *
@@ -168,7 +168,7 @@ static void sampleSwitch_zclWriteRspCmd(u16 clusterId, zclWriteRspCmd_t *pWriteR
  *
  * @return  None
  */
-static void sampleSwitch_zclWriteReqCmd(u16 clusterId, zclWriteCmd_t *pWriteReqCmd)
+static void app_zclWriteReqCmd(u16 clusterId, zclWriteCmd_t *pWriteReqCmd)
 {
 #ifdef ZCL_POLL_CTRL
 	u8 numAttr = pWriteReqCmd->numAttr;
@@ -177,7 +177,7 @@ static void sampleSwitch_zclWriteReqCmd(u16 clusterId, zclWriteCmd_t *pWriteReqC
 	if(clusterId == ZCL_CLUSTER_GEN_POLL_CONTROL){
 		for(s32 i = 0; i < numAttr; i++){
 			if(attr[i].attrID == ZCL_ATTRID_CHK_IN_INTERVAL){
-				sampleSwitch_zclCheckInStart();
+				app_zclCheckInStart();
 				return;
 			}
 		}
@@ -188,7 +188,7 @@ static void sampleSwitch_zclWriteReqCmd(u16 clusterId, zclWriteCmd_t *pWriteReqC
 
 
 /*********************************************************************
- * @fn      sampleSwitch_zclDfltRspCmd
+ * @fn      app_zclDfltRspCmd
  *
  * @brief   Handler for ZCL Default Response command.
  *
@@ -196,15 +196,15 @@ static void sampleSwitch_zclWriteReqCmd(u16 clusterId, zclWriteCmd_t *pWriteReqC
  *
  * @return  None
  */
-static void sampleSwitch_zclDfltRspCmd(u16 clusterId, zclDefaultRspCmd_t *pDftRspCmd)
+static void app_zclDfltRspCmd(u16 clusterId, zclDefaultRspCmd_t *pDftRspCmd)
 {
-    //printf("sampleSwitch_zclDfltRspCmd\n");
+    //printf("app_zclDfltRspCmd\n");
 
 }
 
 #ifdef ZCL_REPORT
 /*********************************************************************
- * @fn      sampleSwitch_zclCfgReportCmd
+ * @fn      app_zclCfgReportCmd
  *
  * @brief   Handler for ZCL Configure Report command.
  *
@@ -212,14 +212,14 @@ static void sampleSwitch_zclDfltRspCmd(u16 clusterId, zclDefaultRspCmd_t *pDftRs
  *
  * @return  None
  */
-static void sampleSwitch_zclCfgReportCmd(u16 clusterId, zclCfgReportCmd_t *pCfgReportCmd)
+static void app_zclCfgReportCmd(u16 clusterId, zclCfgReportCmd_t *pCfgReportCmd)
 {
-    //printf("sampleSwitch_zclCfgReportCmd\n");
+    //printf("app_zclCfgReportCmd\n");
 
 }
 
 /*********************************************************************
- * @fn      sampleSwitch_zclCfgReportRspCmd
+ * @fn      app_zclCfgReportRspCmd
  *
  * @brief   Handler for ZCL Configure Report Response command.
  *
@@ -227,14 +227,14 @@ static void sampleSwitch_zclCfgReportCmd(u16 clusterId, zclCfgReportCmd_t *pCfgR
  *
  * @return  None
  */
-static void sampleSwitch_zclCfgReportRspCmd(u16 clusterId, zclCfgReportRspCmd_t *pCfgReportRspCmd)
+static void app_zclCfgReportRspCmd(u16 clusterId, zclCfgReportRspCmd_t *pCfgReportRspCmd)
 {
-    //printf("sampleSwitch_zclCfgReportRspCmd\n");
+    //printf("app_zclCfgReportRspCmd\n");
 
 }
 
 /*********************************************************************
- * @fn      sampleSwitch_zclReportCmd
+ * @fn      app_zclReportCmd
  *
  * @brief   Handler for ZCL Report command.
  *
@@ -242,16 +242,16 @@ static void sampleSwitch_zclCfgReportRspCmd(u16 clusterId, zclCfgReportRspCmd_t 
  *
  * @return  None
  */
-static void sampleSwitch_zclReportCmd(u16 clusterId, zclReportCmd_t *pReportCmd)
+static void app_zclReportCmd(u16 clusterId, zclReportCmd_t *pReportCmd)
 {
-    //printf("sampleSwitch_zclReportCmd\n");
+    //printf("app_zclReportCmd\n");
 
 }
 #endif	/* ZCL_REPORT */
 
 #ifdef ZCL_BASIC
 /*********************************************************************
- * @fn      sampleSwitch_zclBasicResetCmdHandler
+ * @fn      app_zclBasicResetCmdHandler
  *
  * @brief   Handler for ZCL Basic Reset command.
  *
@@ -261,7 +261,7 @@ static void sampleSwitch_zclReportCmd(u16 clusterId, zclReportCmd_t *pReportCmd)
  *
  * @return  status_t
  */
-status_t sampleSwitch_basicCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload)
+status_t app_basicCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload)
 {
 	if(cmdId == ZCL_CMD_BASIC_RESET_FAC_DEFAULT){
 		//Reset all the attributes of all its clusters to factory defaults
@@ -273,7 +273,7 @@ status_t sampleSwitch_basicCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *
 #endif	/* ZCL_BASIC */
 
 #ifdef ZCL_IDENTIFY
-s32 sampleSwitch_zclIdentifyTimerCb(void *arg)
+s32 app_zclIdentifyTimerCb(void *arg)
 {
 	if(g_zcl_identifyAttrs.identifyTime <= 0){
 		identifyTimerEvt = NULL;
@@ -283,7 +283,7 @@ s32 sampleSwitch_zclIdentifyTimerCb(void *arg)
 	return 0;
 }
 
-void sampleSwitch_zclIdentifyTimerStop(void)
+void app_zclIdentifyTimerStop(void)
 {
 	if(identifyTimerEvt){
 		TL_ZB_TIMER_CANCEL(&identifyTimerEvt);
@@ -291,7 +291,7 @@ void sampleSwitch_zclIdentifyTimerStop(void)
 }
 
 /*********************************************************************
- * @fn      sampleSwitch_zclIdentifyCmdHandler
+ * @fn      app_zclIdentifyCmdHandler
  *
  * @brief   Handler for ZCL Identify command. This function will set blink LED.
  *
@@ -301,23 +301,23 @@ void sampleSwitch_zclIdentifyTimerStop(void)
  *
  * @return  None
  */
-void sampleSwitch_zclIdentifyCmdHandler(u8 endpoint, u16 srcAddr, u16 identifyTime)
+void app_zclIdentifyCmdHandler(u8 endpoint, u16 srcAddr, u16 identifyTime)
 {
 	g_zcl_identifyAttrs.identifyTime = identifyTime;
 
 	if(identifyTime == 0){
-		sampleSwitch_zclIdentifyTimerStop();
+		app_zclIdentifyTimerStop();
 		light_blink_stop();
 	}else{
 		if(!identifyTimerEvt){
 			light_blink_start(identifyTime, 500, 500);
-			identifyTimerEvt = TL_ZB_TIMER_SCHEDULE(sampleSwitch_zclIdentifyTimerCb, NULL, 1000);
+			identifyTimerEvt = TL_ZB_TIMER_SCHEDULE(app_zclIdentifyTimerCb, NULL, 1000);
 		}
 	}
 }
 
 /*********************************************************************
- * @fn      sampleSwitch_zcltriggerCmdHandler
+ * @fn      app_zcltriggerCmdHandler
  *
  * @brief   Handler for ZCL trigger command.
  *
@@ -325,7 +325,7 @@ void sampleSwitch_zclIdentifyCmdHandler(u8 endpoint, u16 srcAddr, u16 identifyTi
  *
  * @return  None
  */
-static void sampleSwitch_zcltriggerCmdHandler(zcl_triggerEffect_t *pTriggerEffect)
+static void app_zcltriggerCmdHandler(zcl_triggerEffect_t *pTriggerEffect)
 {
 	u8 effectId = pTriggerEffect->effectId;
 	//u8 effectVariant = pTriggerEffect->effectVariant;
@@ -355,7 +355,7 @@ static void sampleSwitch_zcltriggerCmdHandler(zcl_triggerEffect_t *pTriggerEffec
 }
 
 /*********************************************************************
- * @fn      sampleSwitch_zclIdentifyQueryRspCmdHandler
+ * @fn      app_zclIdentifyQueryRspCmdHandler
  *
  * @brief   Handler for ZCL Identify Query response command.
  *
@@ -365,7 +365,7 @@ static void sampleSwitch_zcltriggerCmdHandler(zcl_triggerEffect_t *pTriggerEffec
  *
  * @return  None
  */
-static void sampleSwitch_zclIdentifyQueryRspCmdHandler(u8 endpoint, u16 srcAddr, zcl_identifyRspCmd_t *identifyRsp)
+static void app_zclIdentifyQueryRspCmdHandler(u8 endpoint, u16 srcAddr, zcl_identifyRspCmd_t *identifyRsp)
 {
 #if FIND_AND_BIND_SUPPORT
 	if(identifyRsp->timeout){
@@ -389,23 +389,23 @@ static void sampleSwitch_zclIdentifyQueryRspCmdHandler(u8 endpoint, u16 srcAddr,
  *
  * @return  status_t
  */
-status_t sampleSwitch_identifyCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload)
+status_t app_identifyCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload)
 {
 	if(pAddrInfo->dstEp == SAMPLE_SWITCH_ENDPOINT){
 		if(pAddrInfo->dirCluster == ZCL_FRAME_CLIENT_SERVER_DIR){
 			switch(cmdId){
 				case ZCL_CMD_IDENTIFY:
-					sampleSwitch_zclIdentifyCmdHandler(pAddrInfo->dstEp, pAddrInfo->srcAddr, ((zcl_identifyCmd_t *)cmdPayload)->identifyTime);
+					app_zclIdentifyCmdHandler(pAddrInfo->dstEp, pAddrInfo->srcAddr, ((zcl_identifyCmd_t *)cmdPayload)->identifyTime);
 					break;
 				case ZCL_CMD_TRIGGER_EFFECT:
-					sampleSwitch_zcltriggerCmdHandler((zcl_triggerEffect_t *)cmdPayload);
+					app_zcltriggerCmdHandler((zcl_triggerEffect_t *)cmdPayload);
 					break;
 				default:
 					break;
 			}
 		}else{
 			if(cmdId == ZCL_CMD_IDENTIFY_QUERY_RSP){
-				sampleSwitch_zclIdentifyQueryRspCmdHandler(pAddrInfo->dstEp, pAddrInfo->srcAddr, (zcl_identifyRspCmd_t *)cmdPayload);
+				app_zclIdentifyQueryRspCmdHandler(pAddrInfo->dstEp, pAddrInfo->srcAddr, (zcl_identifyRspCmd_t *)cmdPayload);
 			}
 		}
 	}
@@ -416,7 +416,7 @@ status_t sampleSwitch_identifyCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, voi
 
 #ifdef ZCL_GROUP
 /*********************************************************************
- * @fn      sampleSwitch_zclAddGroupRspCmdHandler
+ * @fn      app_zclAddGroupRspCmdHandler
  *
  * @brief   Handler for ZCL add group response command.
  *
@@ -424,13 +424,13 @@ status_t sampleSwitch_identifyCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, voi
  *
  * @return  None
  */
-static void sampleSwitch_zclAddGroupRspCmdHandler(zcl_addGroupRsp_t *pAddGroupRsp)
+static void app_zclAddGroupRspCmdHandler(zcl_addGroupRsp_t *pAddGroupRsp)
 {
 
 }
 
 /*********************************************************************
- * @fn      sampleSwitch_zclViewGroupRspCmdHandler
+ * @fn      app_zclViewGroupRspCmdHandler
  *
  * @brief   Handler for ZCL view group response command.
  *
@@ -438,13 +438,13 @@ static void sampleSwitch_zclAddGroupRspCmdHandler(zcl_addGroupRsp_t *pAddGroupRs
  *
  * @return  None
  */
-static void sampleSwitch_zclViewGroupRspCmdHandler(zcl_viewGroupRsp_t *pViewGroupRsp)
+static void app_zclViewGroupRspCmdHandler(zcl_viewGroupRsp_t *pViewGroupRsp)
 {
 
 }
 
 /*********************************************************************
- * @fn      sampleSwitch_zclRemoveGroupRspCmdHandler
+ * @fn      app_zclRemoveGroupRspCmdHandler
  *
  * @brief   Handler for ZCL remove group response command.
  *
@@ -452,13 +452,13 @@ static void sampleSwitch_zclViewGroupRspCmdHandler(zcl_viewGroupRsp_t *pViewGrou
  *
  * @return  None
  */
-static void sampleSwitch_zclRemoveGroupRspCmdHandler(zcl_removeGroupRsp_t *pRemoveGroupRsp)
+static void app_zclRemoveGroupRspCmdHandler(zcl_removeGroupRsp_t *pRemoveGroupRsp)
 {
 
 }
 
 /*********************************************************************
- * @fn      sampleSwitch_zclGetGroupMembershipRspCmdHandler
+ * @fn      app_zclGetGroupMembershipRspCmdHandler
  *
  * @brief   Handler for ZCL get group membership response command.
  *
@@ -466,13 +466,13 @@ static void sampleSwitch_zclRemoveGroupRspCmdHandler(zcl_removeGroupRsp_t *pRemo
  *
  * @return  None
  */
-static void sampleSwitch_zclGetGroupMembershipRspCmdHandler(zcl_getGroupMembershipRsp_t *pGetGroupMembershipRsp)
+static void app_zclGetGroupMembershipRspCmdHandler(zcl_getGroupMembershipRsp_t *pGetGroupMembershipRsp)
 {
 
 }
 
 /*********************************************************************
- * @fn      sampleSwitch_groupCb
+ * @fn      app_groupCb
  *
  * @brief   Handler for ZCL Group command.
  *
@@ -482,22 +482,22 @@ static void sampleSwitch_zclGetGroupMembershipRspCmdHandler(zcl_getGroupMembersh
  *
  * @return  status_t
  */
-status_t sampleSwitch_groupCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload)
+status_t app_groupCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload)
 {
 	if(pAddrInfo->dstEp == SAMPLE_SWITCH_ENDPOINT){
 		if(pAddrInfo->dirCluster == ZCL_FRAME_SERVER_CLIENT_DIR){
 			switch(cmdId){
 				case ZCL_CMD_GROUP_ADD_GROUP_RSP:
-					sampleSwitch_zclAddGroupRspCmdHandler((zcl_addGroupRsp_t *)cmdPayload);
+					app_zclAddGroupRspCmdHandler((zcl_addGroupRsp_t *)cmdPayload);
 					break;
 				case ZCL_CMD_GROUP_VIEW_GROUP_RSP:
-					sampleSwitch_zclViewGroupRspCmdHandler((zcl_viewGroupRsp_t *)cmdPayload);
+					app_zclViewGroupRspCmdHandler((zcl_viewGroupRsp_t *)cmdPayload);
 					break;
 				case ZCL_CMD_GROUP_REMOVE_GROUP_RSP:
-					sampleSwitch_zclRemoveGroupRspCmdHandler((zcl_removeGroupRsp_t *)cmdPayload);
+					app_zclRemoveGroupRspCmdHandler((zcl_removeGroupRsp_t *)cmdPayload);
 					break;
 				case ZCL_CMD_GROUP_GET_MEMBERSHIP_RSP:
-					sampleSwitch_zclGetGroupMembershipRspCmdHandler((zcl_getGroupMembershipRsp_t *)cmdPayload);
+					app_zclGetGroupMembershipRspCmdHandler((zcl_getGroupMembershipRsp_t *)cmdPayload);
 					break;
 				default:
 					break;
@@ -511,7 +511,7 @@ status_t sampleSwitch_groupCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *
 
 #ifdef ZCL_SCENE
 /*********************************************************************
- * @fn      sampleSwitch_zclAddSceneRspCmdHandler
+ * @fn      app_zclAddSceneRspCmdHandler
  *
  * @brief   Handler for ZCL add scene response command.
  *
@@ -520,13 +520,13 @@ status_t sampleSwitch_groupCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *
  *
  * @return  None
  */
-static void sampleSwitch_zclAddSceneRspCmdHandler(u8 cmdId, addSceneRsp_t *pAddSceneRsp)
+static void app_zclAddSceneRspCmdHandler(u8 cmdId, addSceneRsp_t *pAddSceneRsp)
 {
 
 }
 
 /*********************************************************************
- * @fn      sampleSwitch_zclViewSceneRspCmdHandler
+ * @fn      app_zclViewSceneRspCmdHandler
  *
  * @brief   Handler for ZCL view scene response command.
  *
@@ -535,13 +535,13 @@ static void sampleSwitch_zclAddSceneRspCmdHandler(u8 cmdId, addSceneRsp_t *pAddS
  *
  * @return  None
  */
-static void sampleSwitch_zclViewSceneRspCmdHandler(u8 cmdId, viewSceneRsp_t *pViewSceneRsp)
+static void app_zclViewSceneRspCmdHandler(u8 cmdId, viewSceneRsp_t *pViewSceneRsp)
 {
 
 }
 
 /*********************************************************************
- * @fn      sampleSwitch_zclRemoveSceneRspCmdHandler
+ * @fn      app_zclRemoveSceneRspCmdHandler
  *
  * @brief   Handler for ZCL remove scene response command.
  *
@@ -549,13 +549,13 @@ static void sampleSwitch_zclViewSceneRspCmdHandler(u8 cmdId, viewSceneRsp_t *pVi
  *
  * @return  None
  */
-static void sampleSwitch_zclRemoveSceneRspCmdHandler(removeSceneRsp_t *pRemoveSceneRsp)
+static void app_zclRemoveSceneRspCmdHandler(removeSceneRsp_t *pRemoveSceneRsp)
 {
 
 }
 
 /*********************************************************************
- * @fn      sampleSwitch_zclRemoveAllSceneRspCmdHandler
+ * @fn      app_zclRemoveAllSceneRspCmdHandler
  *
  * @brief   Handler for ZCL remove all scene response command.
  *
@@ -563,13 +563,13 @@ static void sampleSwitch_zclRemoveSceneRspCmdHandler(removeSceneRsp_t *pRemoveSc
  *
  * @return  None
  */
-static void sampleSwitch_zclRemoveAllSceneRspCmdHandler(removeAllSceneRsp_t *pRemoveAllSceneRsp)
+static void app_zclRemoveAllSceneRspCmdHandler(removeAllSceneRsp_t *pRemoveAllSceneRsp)
 {
 
 }
 
 /*********************************************************************
- * @fn      sampleSwitch_zclStoreSceneRspCmdHandler
+ * @fn      app_zclStoreSceneRspCmdHandler
  *
  * @brief   Handler for ZCL store scene response command.
  *
@@ -577,13 +577,13 @@ static void sampleSwitch_zclRemoveAllSceneRspCmdHandler(removeAllSceneRsp_t *pRe
  *
  * @return  None
  */
-static void sampleSwitch_zclStoreSceneRspCmdHandler(storeSceneRsp_t *pStoreSceneRsp)
+static void app_zclStoreSceneRspCmdHandler(storeSceneRsp_t *pStoreSceneRsp)
 {
 
 }
 
 /*********************************************************************
- * @fn      sampleSwitch_zclGetSceneMembershipRspCmdHandler
+ * @fn      app_zclGetSceneMembershipRspCmdHandler
  *
  * @brief   Handler for ZCL get scene membership response command.
  *
@@ -591,13 +591,13 @@ static void sampleSwitch_zclStoreSceneRspCmdHandler(storeSceneRsp_t *pStoreScene
  *
  * @return  None
  */
-static void sampleSwitch_zclGetSceneMembershipRspCmdHandler(getSceneMemRsp_t *pGetSceneMembershipRsp)
+static void app_zclGetSceneMembershipRspCmdHandler(getSceneMemRsp_t *pGetSceneMembershipRsp)
 {
 
 }
 
 /*********************************************************************
- * @fn      sampleSwitch_sceneCb
+ * @fn      app_sceneCb
  *
  * @brief   Handler for ZCL Scene command.
  *
@@ -607,30 +607,30 @@ static void sampleSwitch_zclGetSceneMembershipRspCmdHandler(getSceneMemRsp_t *pG
  *
  * @return  status_t
  */
-status_t sampleSwitch_sceneCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload)
+status_t app_sceneCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload)
 {
 	if(pAddrInfo->dstEp == SAMPLE_SWITCH_ENDPOINT){
 		if(pAddrInfo->dirCluster == ZCL_FRAME_SERVER_CLIENT_DIR){
 			switch(cmdId){
 				case ZCL_CMD_SCENE_ADD_SCENE_RSP:
 				case ZCL_CMD_SCENE_ENHANCED_ADD_SCENE_RSP:
-					sampleSwitch_zclAddSceneRspCmdHandler(cmdId, (addSceneRsp_t *)cmdPayload);
+					app_zclAddSceneRspCmdHandler(cmdId, (addSceneRsp_t *)cmdPayload);
 					break;
 				case ZCL_CMD_SCENE_VIEW_SCENE_RSP:
 				case ZCL_CMD_SCENE_ENHANCED_VIEW_SCENE_RSP:
-					sampleSwitch_zclViewSceneRspCmdHandler(cmdId, (viewSceneRsp_t *)cmdPayload);
+					app_zclViewSceneRspCmdHandler(cmdId, (viewSceneRsp_t *)cmdPayload);
 					break;
 				case ZCL_CMD_SCENE_REMOVE_SCENE_RSP:
-					sampleSwitch_zclRemoveSceneRspCmdHandler((removeSceneRsp_t *)cmdPayload);
+					app_zclRemoveSceneRspCmdHandler((removeSceneRsp_t *)cmdPayload);
 					break;
 				case ZCL_CMD_SCENE_REMOVE_ALL_SCENE_RSP:
-					sampleSwitch_zclRemoveAllSceneRspCmdHandler((removeAllSceneRsp_t *)cmdPayload);
+					app_zclRemoveAllSceneRspCmdHandler((removeAllSceneRsp_t *)cmdPayload);
 					break;
 				case ZCL_CMD_SCENE_STORE_SCENE_RSP:
-					sampleSwitch_zclStoreSceneRspCmdHandler((storeSceneRsp_t *)cmdPayload);
+					app_zclStoreSceneRspCmdHandler((storeSceneRsp_t *)cmdPayload);
 					break;
 				case ZCL_CMD_SCENE_GET_SCENE_MEMSHIP_RSP:
-					sampleSwitch_zclGetSceneMembershipRspCmdHandler((getSceneMemRsp_t *)cmdPayload);
+					app_zclGetSceneMembershipRspCmdHandler((getSceneMemRsp_t *)cmdPayload);
 					break;
 				default:
 					break;
@@ -647,7 +647,7 @@ static ev_timer_event_t *zclFastPollTimeoutTimerEvt = NULL;
 static ev_timer_event_t *zclCheckInTimerEvt = NULL;
 static bool isFastPollMode = FALSE;
 
-void sampleSwitch_zclCheckInCmdSend(void)
+void app_zclCheckInCmdSend(void)
 {
 	epInfo_t dstEpInfo;
 	TL_SETSTRUCTCONTENT(dstEpInfo, 0);
@@ -659,7 +659,7 @@ void sampleSwitch_zclCheckInCmdSend(void)
 	zcl_pollCtrl_checkInCmd(SAMPLE_SWITCH_ENDPOINT, &dstEpInfo, TRUE);
 }
 
-s32 sampleSwitch_zclCheckInTimerCb(void *arg)
+s32 app_zclCheckInTimerCb(void *arg)
 {
 	zcl_pollCtrlAttr_t *pPollCtrlAttr = zcl_pollCtrlAttrGet();
 
@@ -668,27 +668,27 @@ s32 sampleSwitch_zclCheckInTimerCb(void *arg)
 		return -1;
 	}
 
-	sampleSwitch_zclCheckInCmdSend();
+	app_zclCheckInCmdSend();
 
 	return 0;
 }
 
-void sampleSwitch_zclCheckInStart(void)
+void app_zclCheckInStart(void)
 {
 	if(zb_bindingTblSearched(ZCL_CLUSTER_GEN_POLL_CONTROL, SAMPLE_SWITCH_ENDPOINT)){
 		zcl_pollCtrlAttr_t *pPollCtrlAttr = zcl_pollCtrlAttrGet();
 
 		if(!zclCheckInTimerEvt){
-			zclCheckInTimerEvt = TL_ZB_TIMER_SCHEDULE(sampleSwitch_zclCheckInTimerCb, NULL, pPollCtrlAttr->chkInInterval * POLL_RATE_QUARTERSECONDS);
+			zclCheckInTimerEvt = TL_ZB_TIMER_SCHEDULE(app_zclCheckInTimerCb, NULL, pPollCtrlAttr->chkInInterval * POLL_RATE_QUARTERSECONDS);
 			
 			if(pPollCtrlAttr->chkInInterval){
-				sampleSwitch_zclCheckInCmdSend();
+				app_zclCheckInCmdSend();
 			}
 		}
 	}
 }
 
-void sampleSwitch_zclSetFastPollMode(bool fastPollMode)
+void app_zclSetFastPollMode(bool fastPollMode)
 {
 	zcl_pollCtrlAttr_t *pPollCtrlAttr = zcl_pollCtrlAttrGet();
 
@@ -698,15 +698,15 @@ void sampleSwitch_zclSetFastPollMode(bool fastPollMode)
 	zb_setPollRate(pollRate  * POLL_RATE_QUARTERSECONDS);
 }
 
-s32 sampleSwitch_zclFastPollTimeoutCb(void *arg)
+s32 app_zclFastPollTimeoutCb(void *arg)
 {
-	sampleSwitch_zclSetFastPollMode(FALSE);
+	app_zclSetFastPollMode(FALSE);
 
 	zclFastPollTimeoutTimerEvt = NULL;
 	return -1;
 }
 
-static status_t sampleSwitch_zclPollCtrlChkInRspCmdHandler(zcl_chkInRsp_t *pCmd)
+static status_t app_zclPollCtrlChkInRspCmdHandler(zcl_chkInRsp_t *pCmd)
 {
 	zcl_pollCtrlAttr_t *pPollCtrlAttr = zcl_pollCtrlAttrGet();
 
@@ -724,12 +724,12 @@ static status_t sampleSwitch_zclPollCtrlChkInRspCmdHandler(zcl_chkInRsp_t *pCmd)
 		}
 
 		if(fastPollTimeoutCnt){
-			sampleSwitch_zclSetFastPollMode(TRUE);
+			app_zclSetFastPollMode(TRUE);
 			
 			if(zclFastPollTimeoutTimerEvt){
 				TL_ZB_TIMER_CANCEL(&zclFastPollTimeoutTimerEvt);
 			}
-			zclFastPollTimeoutTimerEvt = TL_ZB_TIMER_SCHEDULE(sampleSwitch_zclFastPollTimeoutCb, NULL, fastPollTimeoutCnt * POLL_RATE_QUARTERSECONDS);
+			zclFastPollTimeoutTimerEvt = TL_ZB_TIMER_SCHEDULE(app_zclFastPollTimeoutCb, NULL, fastPollTimeoutCnt * POLL_RATE_QUARTERSECONDS);
 		}
 	}else{
 		//continue in normal operation and not required to go into fast poll mode.
@@ -738,7 +738,7 @@ static status_t sampleSwitch_zclPollCtrlChkInRspCmdHandler(zcl_chkInRsp_t *pCmd)
 	return ZCL_STA_SUCCESS;
 }
 
-static status_t sampleSwitch_zclPollCtrlFastPollStopCmdHandler(void)
+static status_t app_zclPollCtrlFastPollStopCmdHandler(void)
 {
 	if(!isFastPollMode){
 		return ZCL_STA_ACTION_DENIED;
@@ -746,13 +746,13 @@ static status_t sampleSwitch_zclPollCtrlFastPollStopCmdHandler(void)
 		if(zclFastPollTimeoutTimerEvt){
 			TL_ZB_TIMER_CANCEL(&zclFastPollTimeoutTimerEvt);
 		}
-		sampleSwitch_zclSetFastPollMode(FALSE);
+		app_zclSetFastPollMode(FALSE);
 	}
 
 	return ZCL_STA_SUCCESS;
 }
 
-static status_t sampleSwitch_zclPollCtrlSetLongPollIntervalCmdHandler(zcl_setLongPollInterval_t *pCmd)
+static status_t app_zclPollCtrlSetLongPollIntervalCmdHandler(zcl_setLongPollInterval_t *pCmd)
 {
 	zcl_pollCtrlAttr_t *pPollCtrlAttr = zcl_pollCtrlAttrGet();
 
@@ -767,7 +767,7 @@ static status_t sampleSwitch_zclPollCtrlSetLongPollIntervalCmdHandler(zcl_setLon
 	return ZCL_STA_SUCCESS;
 }
 
-static status_t sampleSwitch_zclPollCtrlSetShortPollIntervalCmdHandler(zcl_setShortPollInterval_t *pCmd)
+static status_t app_zclPollCtrlSetShortPollIntervalCmdHandler(zcl_setShortPollInterval_t *pCmd)
 {
 	zcl_pollCtrlAttr_t *pPollCtrlAttr = zcl_pollCtrlAttrGet();
 
@@ -783,7 +783,7 @@ static status_t sampleSwitch_zclPollCtrlSetShortPollIntervalCmdHandler(zcl_setSh
 }
 
 /*********************************************************************
- * @fn      sampleSwitch_pollCtrlCb
+ * @fn      app_pollCtrlCb
  *
  * @brief   Handler for ZCL Poll Control command.
  *
@@ -793,7 +793,7 @@ static status_t sampleSwitch_zclPollCtrlSetShortPollIntervalCmdHandler(zcl_setSh
  *
  * @return  status_t
  */
-status_t sampleSwitch_pollCtrlCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload)
+status_t app_pollCtrlCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload)
 {
 	status_t status = ZCL_STA_SUCCESS;
 
@@ -801,16 +801,16 @@ status_t sampleSwitch_pollCtrlCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, voi
 		if(pAddrInfo->dirCluster == ZCL_FRAME_CLIENT_SERVER_DIR){
 			switch(cmdId){
 				case ZCL_CMD_CHK_IN_RSP:
-					status = sampleSwitch_zclPollCtrlChkInRspCmdHandler((zcl_chkInRsp_t *)cmdPayload);
+					status = app_zclPollCtrlChkInRspCmdHandler((zcl_chkInRsp_t *)cmdPayload);
 					break;
 				case ZCL_CMD_FAST_POLL_STOP:
-					status = sampleSwitch_zclPollCtrlFastPollStopCmdHandler();
+					status = app_zclPollCtrlFastPollStopCmdHandler();
 					break;
 				case ZCL_CMD_SET_LONG_POLL_INTERVAL:
-					status = sampleSwitch_zclPollCtrlSetLongPollIntervalCmdHandler((zcl_setLongPollInterval_t *)cmdPayload);
+					status = app_zclPollCtrlSetLongPollIntervalCmdHandler((zcl_setLongPollInterval_t *)cmdPayload);
 					break;
 				case ZCL_CMD_SET_SHORT_POLL_INTERVAL:
-					status = sampleSwitch_zclPollCtrlSetShortPollIntervalCmdHandler((zcl_setShortPollInterval_t *)cmdPayload);
+					status = app_zclPollCtrlSetShortPollIntervalCmdHandler((zcl_setShortPollInterval_t *)cmdPayload);
 					break;
 				default:
 					break;
@@ -821,4 +821,134 @@ status_t sampleSwitch_pollCtrlCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, voi
 	return status;
 }
 #endif	/* ZCL_POLL_CTRL */
+
+#ifdef ZCL_IAS_ZONE
+/*********************************************************************
+ * @fn      leak_zclIasZoneEnrollRspCmdHandler
+ *
+ * @brief   Handler for ZCL IAS ZONE Enroll response command.
+ *
+ * @param   pZoneEnrollRsp
+ *
+ * @return  None
+ */
+static void leak_zclIasZoneEnrollRspCmdHandler(zoneEnrollRsp_t *pZoneEnrollRsp, uint8_t endpoint) {
+
+//    printf("zclIasZoneEnrollRspCmdHandler endpoint: %d, code: %d zone_id: %d\r\n", endpoint, pZoneEnrollRsp->code, pZoneEnrollRsp->zoneId);
+    if (pZoneEnrollRsp->zoneId != ZCL_ZONE_ID_INVALID) {
+        u8 zoneState;
+        zoneState = ZONE_STATE_ENROLLED;
+        zcl_setAttrVal(endpoint, ZCL_CLUSTER_SS_IAS_ZONE, ZCL_ATTRID_ZONE_ID, &(pZoneEnrollRsp->zoneId));
+        zcl_setAttrVal(endpoint, ZCL_CLUSTER_SS_IAS_ZONE, ZCL_ATTRID_ZONE_STATE, &zoneState);
+    }
+
+}
+
+/*********************************************************************
+ * @fn      leak_zclIasZoneInitNormalOperationModeCmdHandler
+ *
+ * @brief   Handler for ZCL IAS ZONE normal operation mode command.
+ *
+ * @param
+ *
+ * @return  status
+ */
+static status_t leak_zclIasZoneInitNormalOperationModeCmdHandler(void) {
+
+    //printf("zclIasZoneInitNormalOperationModeCmdHandler\r\n");
+    u8 status = ZCL_STA_FAILURE;
+
+    return status;
+}
+
+/*********************************************************************
+ * @fn      leak_zclIasZoneInitTestModeCmdHandler
+ *
+ * @brief   Handler for ZCL IAS ZONE test mode command.
+ *
+ * @param   pZoneInitTestMode
+ *
+ * @return  status
+ */
+static status_t leak_zclIasZoneInitTestModeCmdHandler(zoneInitTestMode_t *pZoneInitTestMode) {
+
+    //printf("zclIasZoneInitNormalOperationModeCmdHandler\r\n");
+    u8 status = ZCL_STA_FAILURE;
+
+    return status;
+}
+
+/*********************************************************************
+ * @fn      leak_iasZoneCb
+ *
+ * @brief   Handler for ZCL IAS Zone command.
+ *
+ * @param   pAddrInfo
+ * @param   cmdId
+ * @param   cmdPayload
+ *
+ * @return  status_t
+ */
+status_t leak_iasZoneCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload)
+{
+    status_t status = ZCL_STA_SUCCESS;
+
+    if(pAddrInfo->dstEp == APP_ENDPOINT4 || pAddrInfo->dstEp == APP_ENDPOINT5){
+        if(pAddrInfo->dirCluster == ZCL_FRAME_CLIENT_SERVER_DIR){
+            switch(cmdId){
+                case ZCL_CMD_ZONE_ENROLL_RSP:
+                    leak_zclIasZoneEnrollRspCmdHandler((zoneEnrollRsp_t *)cmdPayload, pAddrInfo->dstEp);
+                    break;
+                case ZCL_CMD_INIT_NORMAL_OPERATION_MODE:
+                    leak_zclIasZoneInitNormalOperationModeCmdHandler();
+                    break;
+                case ZCL_CMD_INIT_TEST_MODE:
+                    leak_zclIasZoneInitTestModeCmdHandler((zoneInitTestMode_t *)cmdPayload);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+    return status;
+}
+#endif  /* ZCL_IAS_ZONE */
+
+
+/*********************************************************************
+ * @fn      app_powerCfgCb
+ *
+ * @brief   Handler for ZCL Identify command.
+ *
+ * @param   pAddrInfo
+ * @param   cmdId
+ * @param   cmdPayload
+ *
+ * @return  status_t
+ */
+status_t app_powerCfgCb(zclIncomingAddrInfo_t *pAddrInfo, uint8_t cmdId, void *cmdPayload)
+{
+
+    return ZCL_STA_SUCCESS;
+}
+
+/*********************************************************************
+ * @fn      app_meteringCb
+ *
+ * @brief   Handler for ZCL Identify command.
+ *
+ * @param   pAddrInfo
+ * @param   cmdId
+ * @param   cmdPayload
+ *
+ * @return  status_t
+ */
+status_t app_meteringCb(zclIncomingAddrInfo_t *pAddrInfo, uint8_t cmdId, void *cmdPayload)
+{
+
+    return ZCL_STA_SUCCESS;
+}
+
+
 

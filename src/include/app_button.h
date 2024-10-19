@@ -1,23 +1,17 @@
 #ifndef SRC_INCLUDE_APP_BUTTON_H_
 #define SRC_INCLUDE_APP_BUTTON_H_
 
-#define MAX_BUTTON_MULTI_PRESSED    5
-
-enum {
-    APP_STATE_NORMAL,
-    APP_STATE_RELEASE,
-    APP_FACTORY_NEW_SET_CHECK,
-    APP_FACTORY_NEW_DOING
-};
-
-typedef struct {
-    uint8_t     ctn;
-    uint32_t    pressed_time;
-    uint32_t    released_time;
-    uint8_t     state;
+typedef struct _button_t {
+    uint8_t  released :1;
+    uint8_t  pressed  :1;
+    uint8_t  counter  :6;
+    uint8_t  debounce;
+    uint32_t pressed_time;
+    uint32_t released_time;
 } button_t;
 
-void button_handler(void);
-u8 button_idle();
+void init_button();
+void button_handler();
+uint8_t button_idle();
 
 #endif /* SRC_INCLUDE_APP_BUTTON_H_ */
