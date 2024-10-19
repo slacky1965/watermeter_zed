@@ -84,8 +84,7 @@ typedef enum{
 /*
  * @brief    This function refer to get timer irq status.
  * @param[in] status - variable of enum to select the timer interrupt source.
- * @retval	  non-zero   -  the interrupt occurred.
- * @retval	  zero  -  the interrupt did not occur.
+ * @return   the status of timer0/timer1.
  */
 static inline unsigned char timer_get_irq_status(time_irq_e status)
 {

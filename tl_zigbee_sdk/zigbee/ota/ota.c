@@ -34,19 +34,18 @@
 /* 4 + 8 + 8N + 69 + 9 + 8 + (20 + 8)N = 4096; N = 110*/
 #define FLASH_WRITE_COUNT_GET(size)		((size / (110 * OTA_IMAGE_MAX_DATA_SIZE)) + 1)
 #define TL_IMAGE_START_FLAG				0x4b
-#define TL_START_UP_FLAG_WHOLE			0x544c4e4b
 
 /**********************************************************************
  * TYPEDEFS
  */
-typedef struct _attribute_packed_{
+typedef struct{
 	addrExt_t extAddr;
 	u16 profileId;
 	u8  endpoint;
 	u8	txOptions;
 }ota_serverAddr_t;
 
-typedef struct _attribute_packed_{
+typedef struct{
 	ota_hdrFields_t		hdrInfo;
 	ota_serverAddr_t  	otaServerAddrInfo;
 }ota_updateInfo_t;
@@ -83,7 +82,7 @@ zcl_ota_AppCallbacks_t zcl_otaCb =
  */
 
 //boot address flag
-u32 mcuBootAddr = 0;
+u8 mcuBootAddr = 0;
 const u8 otaHdrMagic[] = {0x1e, 0xf1, 0xee, 0x0b};
 
 const u8 otaAesKey[16] = {0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77,
@@ -119,30 +118,19 @@ void ota_upgradeWait(u32 seconds);
 void ota_upgradeComplete(u8 status);
 
 /**********************************************************************
- * @brief		get mcu boot address
+ * @brief		get mcu reboot address
  *
- * return 		boot form 0x0 or FLASH_ADDR_OF_OTA_IMAGE
- * 				all 0xFF means invalid
+ * return 		0 - reboot form address 0x0
+ * 				1 - reboot from address 0x40000
  */
-u32 mcuBootAddrGet(void)
+u8 mcuBootAddrGet(void)
 {
 #if (BOOT_LOADER_MODE)
 	return 0;
 #else
-	u32 bootAddr = 0xFFFFFFFF;
-	u32 flashInfo = 0;
-
-	flash_read(0 + FLASH_TLNK_FLAG_OFFSET, 4, (u8 *)&flashInfo);
-	if(flashInfo == TL_START_UP_FLAG_WHOLE){
-		bootAddr = 0;
-	}else{
-		flash_read(FLASH_ADDR_OF_OTA_IMAGE + FLASH_TLNK_FLAG_OFFSET, 4, (u8 *)&flashInfo);
-		if(flashInfo == TL_START_UP_FLAG_WHOLE){
-			bootAddr = FLASH_ADDR_OF_OTA_IMAGE;
-		}
-	}
-
-	return bootAddr;
+	u8 flashInfo = 0;
+	flash_read(0 + FLASH_TLNK_FLAG_OFFSET, 1, &flashInfo);
+	return ((flashInfo == TL_IMAGE_START_FLAG) ? 0 : 1);
 #endif
 }
 
@@ -195,19 +183,13 @@ void ota_mcuReboot(void)
 {
 	u8 flashInfo = TL_IMAGE_START_FLAG;
 	u32 newAddr = FLASH_ADDR_OF_OTA_IMAGE;
-	bool reboot = 0;
 
 #if (BOOT_LOADER_MODE)
 	if(!ota_newImageValid(newAddr)){
 		return;
 	}
-
-#if FLASH_PROTECT_ENABLE
-	flash_unlock();
-#endif
-
-	if(flash_writeWithCheck((newAddr + FLASH_TLNK_FLAG_OFFSET), 1, &flashInfo) == TRUE){
-		reboot = 1;
+	if(flash_writeWithCheck((newAddr + FLASH_TLNK_FLAG_OFFSET), 1, &flashInfo) != TRUE){
+		return;
 	}
 #else
 	u32 baseAddr = 0;
@@ -220,25 +202,14 @@ void ota_mcuReboot(void)
 		return;
 	}
 
-#if FLASH_PROTECT_ENABLE
-	flash_unlock();
-#endif
-
-	if(flash_writeWithCheck((newAddr + FLASH_TLNK_FLAG_OFFSET), 1, &flashInfo) == TRUE){
-		flashInfo = 0;
-		flash_write((baseAddr + FLASH_TLNK_FLAG_OFFSET), 1, &flashInfo);//disable boot-up flag
-
-		reboot = 1;
+	if(flash_writeWithCheck((newAddr + FLASH_TLNK_FLAG_OFFSET), 1, &flashInfo) != TRUE){
+		return;
 	}
-#endif
 
-#if FLASH_PROTECT_ENABLE
-	flash_lock();
+	flashInfo = 0;
+	flash_write((baseAddr + FLASH_TLNK_FLAG_OFFSET), 1, &flashInfo);//disable boot-up flag
 #endif
-
-	if(reboot){
-		SYSTEM_RESET();
-	}
+	SYSTEM_RESET();
 }
 
 /**********************************************************************
@@ -313,13 +284,8 @@ void ota_init(ota_type_e type, af_simple_descriptor_t *simpleDesc, ota_preamble_
 {
 	otaCb = cb;
 
-	//get current boot-up address
+	//get current reboot address
 	mcuBootAddr = mcuBootAddrGet();
-	if(mcuBootAddr == 0xFFFFFFFF){
-		//should not happen
-		ZB_EXCEPTION_POST(SYS_EXCEPTTION_COMMON_BOOT_ADDR_ERROR);
-		//while(1);
-	}
 
 	memset((u8 *)&g_otaCtx, 0, sizeof(g_otaCtx));
 	memset((u8 *)&otaClientInfo, 0, sizeof(otaClientInfo));
@@ -591,10 +557,6 @@ void ota_upgradeComplete(u8 status)
 	}
 
 	zcl_attr_imageUpgradeStatus = IMAGE_UPGRADE_STATUS_NORMAL;
-
-#if FLASH_PROTECT_ENABLE
-	flash_lock();
-#endif
 
 	if(status == ZCL_STA_SUCCESS){
 		nv_resetModule(NV_MODULE_OTA);
@@ -975,6 +937,7 @@ u8 ota_imageDataProcess(u8 len, u8 *pData)
 					pOtaUpdateInfo->otaServerAddrInfo.profileId = g_otaCtx.otaServerEpInfo.profileId;
 					pOtaUpdateInfo->otaServerAddrInfo.endpoint = g_otaCtx.otaServerEpInfo.dstEp;
 					pOtaUpdateInfo->otaServerAddrInfo.txOptions = g_otaCtx.otaServerEpInfo.txOptions;
+					//memcpy((u8 *)&(pOtaUpdateInfo->otaServerEpInfo), (u8 *)&g_otaCtx.otaServerEpInfo, sizeof(g_otaCtx.otaServerEpInfo));
 
 					if(nv_flashWriteNew(1, NV_MODULE_OTA, NV_ITEM_OTA_HDR_SERVERINFO, sizeof(ota_updateInfo_t), (u8 *)pOtaUpdateInfo) != NV_SUCC){
 						return ZCL_STA_INVALID_IMAGE;
@@ -1051,7 +1014,7 @@ u8 ota_imageDataProcess(u8 len, u8 *pData)
 						for(u8 j = 0; j < copyLen; j += 16){
 							memset(tmpBuf, 0xff, 16);
 							memcpy(tmpBuf, &pData[i + j], 16);
-							drv_aes_decrypt((u8 *)otaAesKey, tmpBuf, &pData[i + j]);
+							aes_decrypt((u8 *)otaAesKey, tmpBuf, &pData[i + j]);
 						}
 					}
 
@@ -1419,10 +1382,6 @@ static status_t ota_queryNextImageRspHandler(zclIncomingAddrInfo_t *pAddrInfo, o
 		//stop server query start timer
 		ev_unon_timer(&otaTimer);
 
-#if FLASH_PROTECT_ENABLE
-		flash_unlock();
-#endif
-
 		if( g_otaCtx.downloadImageSize == pQueryNextImageRsp->imageSize &&
 			zcl_attr_imageTypeID == pQueryNextImageRsp->imageType &&
 			zcl_attr_downloadFileVer == pQueryNextImageRsp->fileVer &&
@@ -1467,15 +1426,6 @@ static status_t ota_queryNextImageRspHandler(zclIncomingAddrInfo_t *pAddrInfo, o
 		zcl_attr_downloadFileVer = pQueryNextImageRsp->fileVer;
 		g_otaCtx.downloadImageSize = pQueryNextImageRsp->imageSize;
 
-		//double check the boot-up address to prevent unexpected
-		if(mcuBootAddr != mcuBootAddrGet()){
-#if FLASH_PROTECT_ENABLE
-			flash_lock();
-#endif
-			ZB_EXCEPTION_POST(SYS_EXCEPTTION_COMMON_BOOT_ADDR_ERROR);
-			//while(1);
-		}
-
 		u16 sectorNumUsed = g_otaCtx.downloadImageSize / FLASH_SECTOR_SIZE + 1;
 		u32 baseAddr = (mcuBootAddr) ? 0 : FLASH_ADDR_OF_OTA_IMAGE;
 
@@ -1485,9 +1435,6 @@ static status_t ota_queryNextImageRspHandler(zclIncomingAddrInfo_t *pAddrInfo, o
 
 		pOtaUpdateInfo = (ota_updateInfo_t *)ev_buf_allocate(sizeof(ota_updateInfo_t));
 		if(!pOtaUpdateInfo){
-#if FLASH_PROTECT_ENABLE
-			flash_lock();
-#endif
 			return ZCL_STA_INSUFFICIENT_SPACE;
 		}
 

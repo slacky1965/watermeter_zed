@@ -225,15 +225,6 @@ static void app_zclWriteReqCmd(uint8_t endPoint, uint16_t clusterId, zclWriteCmd
             }
         }
     }
-
-    if (clusterId == ZCL_CLUSTER_GEN_ON_OFF_SWITCH_CONFIG) {
-        for (u8 i = 0; i < numAttr; i++) {
-            if (attr[i].attrID == ZCL_ATTRID_SWITCH_ACTION) {
-                zcl_onOffCfgAttr_save();
-            }
-        }
-    }
-
     //printf("app_zclWriteReqCmd\r\n");
 #ifdef ZCL_POLL_CTRL
 	if(clusterId == ZCL_CLUSTER_GEN_POLL_CONTROL){

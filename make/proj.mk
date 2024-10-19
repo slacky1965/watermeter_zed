@@ -3,7 +3,6 @@ OUT_DIR += \
 /proj/common \
 /proj/drivers \
 /proj/drivers/usb \
-/proj/drivers/usb/app \
 /proj/os
  
 OBJS += \
@@ -23,22 +22,15 @@ $(OUT_PATH)/proj/drivers/drv_nv.o \
 $(OUT_PATH)/proj/drivers/drv_pm.o \
 $(OUT_PATH)/proj/drivers/drv_putchar.o \
 $(OUT_PATH)/proj/drivers/drv_pwm.o \
-$(OUT_PATH)/proj/drivers/drv_security.o \
 $(OUT_PATH)/proj/drivers/drv_spi.o \
 $(OUT_PATH)/proj/drivers/drv_timer.o \
 $(OUT_PATH)/proj/drivers/drv_uart.o \
-$(OUT_PATH)/proj/drivers/usb/usb.o \
-$(OUT_PATH)/proj/drivers/usb/usbdesc.o \
-$(OUT_PATH)/proj/drivers/usb/app/usbcdc.o \
-$(OUT_PATH)/proj/drivers/usb/app/usbkb.o \
-$(OUT_PATH)/proj/drivers/usb/app/usbmouse.o \
-$(OUT_PATH)/proj/drivers/usb/app/usbvendor.o \
 $(OUT_PATH)/proj/os/ev.o \
 $(OUT_PATH)/proj/os/ev_buffer.o \
 $(OUT_PATH)/proj/os/ev_poll.o \
 $(OUT_PATH)/proj/os/ev_queue.o \
-$(OUT_PATH)/proj/os/ev_rtc.o \
 $(OUT_PATH)/proj/os/ev_timer.o 
+
 
 
 # Each subdirectory must supply rules for building sources it contributes

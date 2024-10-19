@@ -28,13 +28,9 @@
 
 #if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
 	#define UART_CLOCK_SOURCE			CLOCK_SYS_CLOCK_HZ
-#elif defined(MCU_CORE_B91) || defined(MCU_CORE_B92) || defined(MCU_CORE_TL721X) || defined(MCU_CORE_TL321X)
+#elif defined(MCU_CORE_B91)
 	/* PCLK provides clock source for UART module. */
 	#define UART_CLOCK_SOURCE			(sys_clk.pclk * 1000 * 1000)
-
-	#define UART_IDX					UART0
-	#define UART_DMA_CHANNEL_RX			DMA2
-	#define UART_DMA_CHANNEL_TX			DMA3
 #endif
 
 enum{
@@ -72,9 +68,9 @@ void drv_uart_pin_set(u32 txPin, u32 rxPin);
  *	@param  rxBufLen		the length of the uart RX buffer, must be a multiple of 4
  *	@param	uart_recvCb		UART receive callback function.
  *
- *	@return	0: success
+ *	@return	none
  */
-u8 drv_uart_init(u32 baudRate, u8 *rxBuf, u16 rxBufLen, uart_irq_callback uartRecvCb);
+void drv_uart_init(u32 baudRate, u8 *rxBuf, u16 rxBufLen, uart_irq_callback uartRecvCb);
 
 /****************************************************************************************
  *	@brief	uart Rx ISR

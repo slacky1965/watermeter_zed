@@ -126,7 +126,7 @@ void zb_bdbInitCb(uint8_t status, uint8_t joinedNetwork) {
             if (g_watermeterCtx.timerPollRateEvt) {
                 TL_ZB_TIMER_CANCEL(&g_watermeterCtx.timerPollRateEvt);
             }
-            g_watermeterCtx.timerPollRateEvt = TL_ZB_TIMER_SCHEDULE(poll_rateAppCb, NULL, TIMEOUT_1MIN);
+            g_watermeterCtx.timerPollRateEvt = TL_ZB_TIMER_SCHEDULE(poll_rateAppCb, NULL, TIMEOUT_30SEC);
 
             if (g_watermeterCtx.timerStopReportEvt) {
                 TL_ZB_TIMER_CANCEL(&g_watermeterCtx.timerStopReportEvt);
@@ -216,7 +216,7 @@ void zb_bdbCommissioningCb(uint8_t status, void *arg) {
             if (g_watermeterCtx.timerPollRateEvt) {
                 TL_ZB_TIMER_CANCEL(&g_watermeterCtx.timerPollRateEvt);
             }
-            g_watermeterCtx.timerPollRateEvt = TL_ZB_TIMER_SCHEDULE(poll_rateAppCb, NULL, TIMEOUT_1MIN);
+            g_watermeterCtx.timerPollRateEvt = TL_ZB_TIMER_SCHEDULE(poll_rateAppCb, NULL, TIMEOUT_30SEC);
 
             if (g_watermeterCtx.timerNoJoinedEvt) {
                 TL_ZB_TIMER_CANCEL(&g_watermeterCtx.timerNoJoinedEvt);
