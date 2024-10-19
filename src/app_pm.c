@@ -26,7 +26,7 @@ static drv_pm_pinCfg_t pin_PmCfg[] = {
         PM_WAKEUP_LEVEL
     },
     {
-        BUTTON1,
+        BUTTON,
         PM_WAKEUP_LEVEL
     },
 };

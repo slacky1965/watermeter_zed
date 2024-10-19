@@ -44,7 +44,6 @@
 #include "os/ev_poll.h"
 #include "os/ev_buffer.h"
 #include "os/ev_queue.h"
-#include "os/ev_rtc.h"
 #include "os/ev_timer.h"
 #include "os/ev.h"
 
@@ -64,5 +63,3 @@
 #include "drivers/drv_putchar.h"
 #include "drivers/drv_usb.h"
 #include "drivers/drv_calibration.h"
-#include "drivers/drv_security.h"
-

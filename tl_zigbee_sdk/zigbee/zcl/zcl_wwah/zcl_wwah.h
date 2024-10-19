@@ -130,7 +130,7 @@ typedef enum{
 }enrollmentMode_t;
 
 typedef struct{
-	u8 enrollmentMode;//enrollmentMode_t
+	enrollmentMode_t enrollmentMode;
 }zcl_wwah_setIasZoneEnrollmentMethodCmd_t;
 
 typedef struct{
@@ -182,7 +182,7 @@ typedef enum{
 typedef struct{
 	u8	*pManuPowerNotiReason;
 	u16 manuID;
-	u8  powerNotiReason;//powerNotiReason_t
+	powerNotiReason_t powerNotiReason;
 	u8	manuPowerNotiReasonLen;
 }zcl_wwah_poweringNotificationCmd_t;
 
@@ -233,18 +233,18 @@ typedef enum{
 	APS_LINK_KEY_AUTH_ENABLE,
 }apsLinkKeyAuthStatus_t;
 
-typedef struct _attribute_packed_{
-	u16	clusterID[CLUSTER_ID_MAX_NUM];
-	u8 num;
-	u8 status;//apsLinkKeyAuthStatus_t
+typedef struct{
+	u16	 clusterID[CLUSTER_ID_MAX_NUM];
+	u8	 num;
+	apsLinkKeyAuthStatus_t status;
 }wwah_apsLinkKeyAuthInfo_t;
 
-typedef struct _attribute_packed_{
+typedef struct{
 	u16 clusterID[CLUSTER_ID_MAX_NUM];
 	u8  num;
 }wwah_apsAcksRequireInfo_t;
 
-typedef struct _attribute_packed_{
+typedef struct{
 	u16 clusterID[CLUSTER_ID_MAX_NUM];
 	u8  num;
 }wwah_useTCForClusterInfo_t;

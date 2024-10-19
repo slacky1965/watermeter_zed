@@ -49,6 +49,5 @@
 #include "rf_drv.h"
 #include "emi.h"
 #include "pm.h"
-#include "pke_algorithm.h"
-#include "flash/flash_type.h"
-#include "flash/flash_common.h"
+#include "pke.h"
+

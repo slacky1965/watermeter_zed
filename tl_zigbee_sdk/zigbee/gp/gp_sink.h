@@ -57,7 +57,8 @@ typedef union
 /**
  *  @brief	Sink table entry
  */
-typedef struct _attribute_packed_{
+typedef struct
+{
 	gpdId_t					gpdId;							//8-bytes
 	u32						gpdSecFrameCnt;
 	gpSinkEntryOpt_t		options;
@@ -108,7 +109,8 @@ typedef struct
 }gp_gpdZigCommand_t;
 
 //global value
-typedef struct _attribute_packed_{
+typedef struct
+{
 	gpSinkTabEntry_t gpSinkTab[GPS_MAX_SINK_TABLE_ENTRIES];
 	u8 gpSinkTabNum;
 }gp_sinkTab_t;

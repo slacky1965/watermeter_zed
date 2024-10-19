@@ -109,7 +109,7 @@ typedef enum
 
 typedef struct
 {
-	u8 mode;//setpointMode_t
+	setpointMode_t mode;
 	s8 amount;
 }zcl_thermostat_setpointRaiseLowerCmd_t;
 

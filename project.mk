@@ -1,12 +1,10 @@
 # Add inputs and outputs from these tool invocations to the build variables
 OUT_DIR += \
 /$(SRC_PATH) \
-/$(SRC_PATH)/zcl \
 /$(SRC_PATH)/common
  
 OBJS += \
 $(OUT_PATH)/$(SRC_PATH)/common/main.o \
-$(OUT_PATH)/$(SRC_PATH)/zcl/zcl_onoffSwitchCfg.o \
 $(OUT_PATH)/$(SRC_PATH)/app_pm.o \
 $(OUT_PATH)/$(SRC_PATH)/app_button.o \
 $(OUT_PATH)/$(SRC_PATH)/app_led.o \

@@ -52,10 +52,6 @@ int main(void){
 		}
 #endif
 
-#if defined(MCU_CORE_B92)
-		drv_vbusWatchdogClose();
-#endif
-
 		ev_main();
 
 		bootloader_loop();

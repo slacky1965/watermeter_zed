@@ -427,7 +427,8 @@ typedef struct
  *  		if maxInterval is 0xffff, then the configuration info for that attribute need not be maintained;
  *  		if minInterval is 0xffff and maxInterval is 0, than back to default reporting configuration, reportable change field set to 0.
  */
-typedef struct _attribute_packed_{
+typedef struct
+{
 	u16	profileID;
 	u16 clusterID;
 	u16 attrID;
@@ -442,12 +443,12 @@ typedef struct _attribute_packed_{
 	u8	reportableChange[REPORTABLE_CHANGE_MAX_ANALOG_SIZE];
 	u8	prevData[REPORTABLE_CHANGE_MAX_ANALOG_SIZE];
 	u8	used;
-} reportCfgInfo_t; //37-bytes
+} reportCfgInfo_t;
 
 /**
  *  @brief  Definition for ZCL reporting table
  */
-typedef struct _attribute_packed_{
+typedef struct {
 	u8 reportNum;
 	reportCfgInfo_t	reportCfgInfo[ZCL_REPORTING_TABLE_NUM];
 } zcl_reportingTab_t;

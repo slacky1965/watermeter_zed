@@ -83,8 +83,6 @@ extern "C" {
 
 #define	PM_WAKEUP_LEVEL		  		PM_WAKEUP_LEVEL_HIGH
 
-#define VOLTAGE_DETECT_PIN			ADC_GPIO_PB0
-
 // UART
 #if ZBHCI_UART
 	#error please configurate uart PIN!!!!!!
