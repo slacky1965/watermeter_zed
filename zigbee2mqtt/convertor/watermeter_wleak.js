@@ -14,6 +14,20 @@ const definition = {
              "voltageReporting": true,
              "percentageReportingConfig": {"min": 3600, "max": 0, "change": 0}, 
              "voltageReportingConfig": {"min": 3600, "max": 0, "change": 0}}),
+        enumLookup({
+            "name": 'switch_actions',
+            "endpointName": '4',
+            "lookup": {"on_off": 0, "off_on": 1, "toggle": 2},
+            "cluster": 'genOnOffSwitchCfg',
+            "attribute": 'switchActions',
+            "description": 'Actions switch 1'}),
+        enumLookup({
+            "name": 'switch_actions',
+            "endpointName": '5',
+            "lookup": {"on_off": 0, "off_on": 1, "toggle": 2},
+            "cluster": 'genOnOffSwitchCfg',
+            "attribute": 'switchActions',
+            "description": 'Actions switch 2'}),
         numeric({
             "name": 'volume',
             "endpointNames": ["1"],

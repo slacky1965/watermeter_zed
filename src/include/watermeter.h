@@ -11,6 +11,7 @@
 #include "app_reporting.h"
 #include "app_endpoint_cfg.h"
 #include "app_utility.h"
+#include "zcl_onoffSwitchCfg.h"
 
 
 typedef struct {
@@ -57,6 +58,7 @@ extern const zcl_specClusterInfo_t g_watermeterEp1ClusterList[];
 extern const zcl_specClusterInfo_t g_watermeterEp2ClusterList[];
 extern const zcl_specClusterInfo_t g_watermeterEp3ClusterList[];
 extern const zcl_specClusterInfo_t g_watermeterEp4ClusterList[];
+extern const zcl_specClusterInfo_t g_watermeterEp5ClusterList[];
 extern const af_simple_descriptor_t watermeter_ep1Desc;
 extern const af_simple_descriptor_t watermeter_ep2Desc;
 extern const af_simple_descriptor_t watermeter_ep3Desc;
