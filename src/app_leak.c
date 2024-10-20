@@ -28,12 +28,21 @@ static void cmdOnOff(uint8_t endpoint, uint8_t command) {
 
     switch(command) {
         case ZCL_CMD_ONOFF_OFF:
+#if UART_PRINTF_MODE && DEBUG_ONOFF
+            printf("OnOff command: off\r\n");
+#endif /* UART_PRINTF_MODE */
             zcl_onOff_offCmd(endpoint, &dstEpInfo, FALSE);
             break;
         case ZCL_CMD_ONOFF_ON:
+#if UART_PRINTF_MODE && DEBUG_ONOFF
+            printf("OnOff command: on\r\n");
+#endif /* UART_PRINTF_MODE */
             zcl_onOff_onCmd(endpoint, &dstEpInfo, FALSE);
             break;
         case ZCL_CMD_ONOFF_TOGGLE:
+#if UART_PRINTF_MODE && DEBUG_ONOFF
+            printf("OnOff command: toggle\r\n");
+#endif /* UART_PRINTF_MODE */
             zcl_onOff_toggleCmd(endpoint, &dstEpInfo, FALSE);
             break;
         default:
@@ -80,6 +89,10 @@ void waterleak_handler() {
 #endif /* UART_PRINTF_MODE */
                 if(zb_isDeviceJoinedNwk()) {
 
+#if UART_PRINTF_MODE && DEBUG_ONOFF
+                    printf("Switch action on EP4: 0x0%x\r\n", onoffCfgAttrs->ep4_attrs.switchActions);
+#endif /* UART_PRINTF_MODE */
+
                     switch(onoffCfgAttrs->ep4_attrs.switchActions) {
                         case ZCL_SWITCH_ACTION_ON_OFF:
                             cmdOnOff(WATERMETER_ENDPOINT4, ZCL_CMD_ONOFF_OFF);
@@ -93,6 +106,10 @@ void waterleak_handler() {
                         default:
                             break;
                     }
+
+#if UART_PRINTF_MODE && DEBUG_ONOFF
+                    printf("Switch action on EP5: 0x0%x\r\n", onoffCfgAttrs->ep5_attrs.switchActions);
+#endif /* UART_PRINTF_MODE */
 
                     switch(onoffCfgAttrs->ep5_attrs.switchActions) {
                         case ZCL_SWITCH_ACTION_ON_OFF:
@@ -133,6 +150,11 @@ void waterleak_handler() {
 #endif /* UART_PRINTF_MODE */
                 if(zb_isDeviceJoinedNwk()){
 #if UART_PRINTF_MODE && DEBUG_WATERLEAK
+
+#if UART_PRINTF_MODE && DEBUG_ONOFF
+                    printf("Switch action on EP4: 0x0%x\r\n", onoffCfgAttrs->ep4_attrs.switchActions);
+#endif /* UART_PRINTF_MODE */
+
                     switch(onoffCfgAttrs->ep4_attrs.switchActions) {
                         case ZCL_SWITCH_ACTION_ON_OFF:
                             cmdOnOff(WATERMETER_ENDPOINT4, ZCL_CMD_ONOFF_ON);
@@ -146,6 +168,10 @@ void waterleak_handler() {
                         default:
                             break;
                     }
+
+#if UART_PRINTF_MODE && DEBUG_ONOFF
+                    printf("Switch action on EP5: 0x0%x\r\n", onoffCfgAttrs->ep5_attrs.switchActions);
+#endif /* UART_PRINTF_MODE */
 
                     switch(onoffCfgAttrs->ep5_attrs.switchActions) {
                         case ZCL_SWITCH_ACTION_ON_OFF:
@@ -187,6 +213,10 @@ void waterleak_handler() {
 #endif /* UART_PRINTF_MODE */
                 if(zb_isDeviceJoinedNwk()) {
 
+#if UART_PRINTF_MODE && DEBUG_ONOFF
+                    printf("Switch action on EP4: 0x0%x\r\n", onoffCfgAttrs->ep4_attrs.switchActions);
+#endif /* UART_PRINTF_MODE */
+
                     switch(onoffCfgAttrs->ep4_attrs.switchActions) {
                         case ZCL_SWITCH_ACTION_ON_OFF:
                             cmdOnOff(WATERMETER_ENDPOINT4, ZCL_CMD_ONOFF_OFF);
@@ -200,6 +230,10 @@ void waterleak_handler() {
                         default:
                             break;
                     }
+
+#if UART_PRINTF_MODE && DEBUG_ONOFF
+                    printf("Switch action on EP5: 0x0%x\r\n", onoffCfgAttrs->ep5_attrs.switchActions);
+#endif /* UART_PRINTF_MODE */
 
                     switch(onoffCfgAttrs->ep5_attrs.switchActions) {
                         case ZCL_SWITCH_ACTION_ON_OFF:
