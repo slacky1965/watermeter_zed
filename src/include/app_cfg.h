@@ -66,6 +66,7 @@ extern "C" {
 
 #define DEBUG_CONFIG                    OFF
 #define DEBUG_WATERLEAK                 OFF
+#define DEBUG_ONOFF                     OFF
 #define DEBUG_REPORTING                 OFF
 #define DEBUG_COUNTER                   OFF
 #define DEBUG_BATTERY                   OFF
@@ -204,6 +205,7 @@ extern "C" {
  */
 #define ZCL_IAS_ZONE_SUPPORT            ON
 #define ZCL_ON_OFF_SUPPORT              ON
+#define ZCL_ON_OFF_SWITCH_CFG_SUPPORT   ON
 #define ZCL_LEVEL_CTRL_SUPPORT			ON
 #define ZCL_GROUP_SUPPORT               ON
 #define ZCL_POWER_CFG_SUPPORT           ON

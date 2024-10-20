@@ -55,6 +55,13 @@ typedef struct {
     uint16_t water_step_preset;
 } zcl_watermeterCfgAttr_t;
 
+typedef struct {
+    uint8_t     status;
+    uint8_t     unit;                   // 0x07 - Litres
+    uint8_t     summationFormatting;    // 0b0100000 - 7bit - 0, 3-6bit - 8, 0-2bit - 0 = 0x40
+    uint8_t     deviceType;             // 2 - Water Metering
+} zcl_se_meteringAttr_t;
+
 /**
  *  @brief Defined for ias zone cluster attributes
  */
@@ -66,6 +73,18 @@ typedef struct {
     uint8_t     zoneId;
 } zcl_iasZoneAttr_t;
 
+/**
+ *  @brief Defined for onoffconfig cluster attributes
+ */
+typedef struct {
+    u8 switchType;
+    u8 switchActions;
+} onOffSwitchCfgAttr_t;
+
+typedef struct {
+    onOffSwitchCfgAttr_t ep4_attrs;
+    onOffSwitchCfgAttr_t ep5_attrs;
+} zcl_onOffSwitchCfgAttr_t;
 
 /**
  *  @brief  Defined for poll control cluster attributes
@@ -84,18 +103,20 @@ extern uint8_t WATERMETER_EP1_CB_CLUSTER_NUM;
 extern uint8_t WATERMETER_EP2_CB_CLUSTER_NUM;
 extern uint8_t WATERMETER_EP3_CB_CLUSTER_NUM;
 extern uint8_t WATERMETER_EP4_CB_CLUSTER_NUM;
+extern uint8_t WATERMETER_EP5_CB_CLUSTER_NUM;
 
 /* Attributes */
-extern zcl_basicAttr_t g_zcl_basicAttrs;
-extern zcl_identifyAttr_t g_zcl_identifyAttrs;
-extern zcl_pollCtrlAttr_t g_zcl_pollCtrlAttrs;
-extern zcl_watermeterAttr_t g_zcl_watermeterAttrs;
-extern zcl_watermeterCfgAttr_t g_zcl_watermeterCfgAttrs;
-extern zcl_iasZoneAttr_t g_zcl_iasZoneAttrs;
-
+extern zcl_basicAttr_t          g_zcl_basicAttrs;
+extern zcl_identifyAttr_t       g_zcl_identifyAttrs;
+extern zcl_pollCtrlAttr_t       g_zcl_pollCtrlAttrs;
+extern zcl_watermeterAttr_t     g_zcl_watermeterAttrs;
+extern zcl_watermeterCfgAttr_t  g_zcl_watermeterCfgAttrs;
+extern zcl_iasZoneAttr_t        g_zcl_iasZoneAttrs;
+extern zcl_onOffSwitchCfgAttr_t g_zcl_onOffSwitchCfgAttrs;
 
 #define zcl_iasZoneAttrGet()    &g_zcl_iasZoneAttrs
 #define zcl_pollCtrlAttrGet()   &g_zcl_pollCtrlAttrs
+#define zcl_onOffSwitchCfgAttrGet() &g_zcl_onOffSwitchCfgAttrs
 
 
 #endif /* SRC_INCLUDE_APP_ENDPOINT_CFG_H_ */

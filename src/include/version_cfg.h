@@ -42,7 +42,7 @@
 #endif
 
 #define APP_RELEASE                         0x20        //app release 1.3
-#define APP_BUILD                           0x02        //app build 01, full version - v1.3.01
+#define APP_BUILD                           0x03        //app build 01, full version - v1.3.01
 #define STACK_RELEASE						0x30        //stack release 3.0
 #define STACK_BUILD							0x01        //stack build 01
 #define HW_VERSION                          0x01
