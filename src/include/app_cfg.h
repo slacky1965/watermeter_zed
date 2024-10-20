@@ -61,11 +61,11 @@ extern "C" {
 #include "version_cfg.h"
 
 /* Debug mode config */
-#define	UART_PRINTF_MODE                OFF
+#define	UART_PRINTF_MODE                ON
 #define USB_PRINTF_MODE         		OFF
 
 #define DEBUG_CONFIG                    OFF
-#define DEBUG_WATERLEAK                 OFF
+#define DEBUG_WATERLEAK                 ON
 #define DEBUG_REPORTING                 OFF
 #define DEBUG_COUNTER                   OFF
 #define DEBUG_BATTERY                   OFF
@@ -204,6 +204,7 @@ extern "C" {
  */
 #define ZCL_IAS_ZONE_SUPPORT            ON
 #define ZCL_ON_OFF_SUPPORT              ON
+#define ZCL_ON_OFF_SWITCH_CFG_SUPPORT   ON
 #define ZCL_LEVEL_CTRL_SUPPORT			ON
 #define ZCL_GROUP_SUPPORT               ON
 #define ZCL_POWER_CFG_SUPPORT           ON

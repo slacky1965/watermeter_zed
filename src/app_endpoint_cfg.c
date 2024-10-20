@@ -25,6 +25,7 @@
 #define ZCL_UINT48      ZCL_DATA_TYPE_UINT48
 #define ZCL_ENUM8       ZCL_DATA_TYPE_ENUM8
 #define ZCL_ENUM16      ZCL_DATA_TYPE_ENUM16
+#define ZCL_BITMAP8     ZCL_DATA_TYPE_BITMAP8
 #define ZCL_BITMAP16    ZCL_DATA_TYPE_BITMAP16
 #define ZCL_BOOLEAN     ZCL_DATA_TYPE_BOOLEAN
 #define ZCL_CHAR_STR    ZCL_DATA_TYPE_CHAR_STR
@@ -99,6 +100,9 @@ const uint16_t watermeter_ep4_inClusterList[] = {
 #ifdef ZCL_IAS_ZONE
     ZCL_CLUSTER_SS_IAS_ZONE,
 #endif
+#ifdef ZCL_ON_OFF_SWITCH_CFG
+    ZCL_CLUSTER_GEN_ON_OFF_SWITCH_CONFIG,
+#endif
 };
 
 const uint16_t watermeter_ep4_outClusterList[] = {
@@ -114,6 +118,9 @@ const uint16_t watermeter_ep5_inClusterList[] = {
 //#ifdef ZCL_IAS_ZONE
 //    ZCL_CLUSTER_SS_IAS_ZONE,
 //#endif
+#ifdef ZCL_ON_OFF_SWITCH_CFG
+    ZCL_CLUSTER_GEN_ON_OFF_SWITCH_CONFIG,
+#endif
 };
 
 const uint16_t watermeter_ep5_outClusterList[] = {
@@ -313,6 +320,39 @@ const zclAttrInfo_t iasZone_attrTbl[] =
 
 #endif
 
+#ifdef ZCL_ON_OFF_SWITCH_CFG
+/* On/Off Config */
+
+zcl_onOffSwitchCfgAttr_t g_zcl_onOffSwitchCfgAttrs = {
+    .ep4_attrs.switchType       = ZCL_SWITCH_TYPE_TOGGLE,
+    .ep4_attrs.switchActions    = ZCL_SWITCH_ACTION_ON_OFF,
+    .ep5_attrs.switchType       = ZCL_SWITCH_TYPE_TOGGLE,
+    .ep5_attrs.switchActions    = ZCL_SWITCH_ACTION_ON_OFF,
+};
+
+const zclAttrInfo_t on_off_switch_config_1attrTbl[] =
+{
+    { ZCL_ATTRID_SWITCH_TYPE,               ZCL_ENUM8,  R,  (u8*)&g_zcl_onOffSwitchCfgAttrs.ep4_attrs.switchType },
+    { ZCL_ATTRID_SWITCH_ACTION,             ZCL_ENUM8,  RW, (u8*)&g_zcl_onOffSwitchCfgAttrs.ep4_attrs.switchActions },
+
+    { ZCL_ATTRID_GLOBAL_CLUSTER_REVISION,   ZCL_UINT16, R,  (u8*)&zcl_attr_global_clusterRevision},
+};
+
+#define ZCL_ON_OFF_SWITCH_CFG_1ATTR_NUM       sizeof(on_off_switch_config_1attrTbl) / sizeof(zclAttrInfo_t)
+
+const zclAttrInfo_t on_off_switch_config_2attrTbl[] =
+{
+    { ZCL_ATTRID_SWITCH_TYPE,               ZCL_ENUM8,  R,  (u8*)&g_zcl_onOffSwitchCfgAttrs.ep5_attrs.switchType },
+    { ZCL_ATTRID_SWITCH_ACTION,             ZCL_ENUM8,  RW, (u8*)&g_zcl_onOffSwitchCfgAttrs.ep5_attrs.switchActions },
+
+    { ZCL_ATTRID_GLOBAL_CLUSTER_REVISION,   ZCL_UINT16, R,  (u8*)&zcl_attr_global_clusterRevision},
+};
+
+#define ZCL_ON_OFF_SWITCH_CFG_2ATTR_NUM       sizeof(on_off_switch_config_2attrTbl) / sizeof(zclAttrInfo_t)
+
+
+
+#endif //ZCL_ON_OFF_SWITCH_CFG
 
 zcl_watermeterAttr_t g_zcl_watermeterAttrs = {
     .hot_water_counter = 1,
@@ -325,9 +365,27 @@ zcl_watermeterCfgAttr_t g_zcl_watermeterCfgAttrs = {
     .water_step_preset = LITERS_PER_PULSE,
 };
 
+zcl_se_meteringAttr_t g_zcl_se_metering1Attrs = {
+    .status = 0,
+    .unit = 0x07,                   // 0x07 - Litres
+    .summationFormatting = 0x40,    // 0b0100000 - 7bit - 0, 3-6bit - 8, 0-2bit - 0 = 0x40
+    .deviceType = 2,                // 2 - Water Metering
+};
+
+zcl_se_meteringAttr_t g_zcl_se_metering2Attrs = {
+    .status = 0,
+    .unit = 0x07,                   // 0x07 - Litres
+    .summationFormatting = 0x40,    // 0b0100000 - 7bit - 0, 3-6bit - 8, 0-2bit - 0 = 0x40
+    .deviceType = 2,                // 2 - Water Metering
+};
+
 /* Attribute record list */
 const zclAttrInfo_t zcl_hotWater_attrTbl[] = {
     { ZCL_ATTRID_CURRENT_SUMMATION_DELIVERD,    ZCL_UINT48, RR, (uint8_t*)&g_zcl_watermeterAttrs.hot_water_counter},
+    { ZCL_ATTRID_STATUS,                        ZCL_BITMAP8,    R, (uint8_t*)&g_zcl_se_metering1Attrs.status                },
+    { ZCL_ATTRID_UNIT_OF_MEASURE,               ZCL_ENUM8,      R, (uint8_t*)&g_zcl_se_metering1Attrs.unit                  },
+    { ZCL_ATTRID_SUMMATION_FORMATTING,          ZCL_BITMAP8,    R, (uint8_t*)&g_zcl_se_metering1Attrs.summationFormatting   },
+    { ZCL_ATTRID_METERING_DEVICE_TYPE,          ZCL_BITMAP8,    R, (uint8_t*)&g_zcl_se_metering1Attrs.deviceType            },
     { ZCL_ATTRID_GLOBAL_CLUSTER_REVISION,       ZCL_UINT16, R,  (uint8_t*)&zcl_attr_global_clusterRevision},
 };
 
@@ -335,6 +393,10 @@ const zclAttrInfo_t zcl_hotWater_attrTbl[] = {
 
 const zclAttrInfo_t zcl_coldWater_attrTbl[] = {
     { ZCL_ATTRID_CURRENT_SUMMATION_DELIVERD,    ZCL_UINT48, RR, (uint8_t*)&g_zcl_watermeterAttrs.cold_water_counter},
+    { ZCL_ATTRID_STATUS,                        ZCL_BITMAP8,    R, (uint8_t*)&g_zcl_se_metering2Attrs.status                },
+    { ZCL_ATTRID_UNIT_OF_MEASURE,               ZCL_ENUM8,      R, (uint8_t*)&g_zcl_se_metering2Attrs.unit                  },
+    { ZCL_ATTRID_SUMMATION_FORMATTING,          ZCL_BITMAP8,    R, (uint8_t*)&g_zcl_se_metering2Attrs.summationFormatting   },
+    { ZCL_ATTRID_METERING_DEVICE_TYPE,          ZCL_BITMAP8,    R, (uint8_t*)&g_zcl_se_metering2Attrs.deviceType            },
     { ZCL_ATTRID_GLOBAL_CLUSTER_REVISION,       ZCL_UINT16, R,  (uint8_t*)&zcl_attr_global_clusterRevision},
 };
 
@@ -391,8 +453,21 @@ const zcl_specClusterInfo_t g_watermeterEp4ClusterList[] =
 #ifdef ZCL_IAS_ZONE
     {ZCL_CLUSTER_SS_IAS_ZONE,   MANUFACTURER_CODE_NONE, ZCL_IASZONE_ATTR_NUM,   iasZone_attrTbl,    zcl_iasZone_register,   leak_iasZoneCb},
 #endif
+#ifdef ZCL_ON_OFF_SWITCH_CFG
+    {ZCL_CLUSTER_GEN_ON_OFF_SWITCH_CONFIG, MANUFACTURER_CODE_NONE, ZCL_ON_OFF_SWITCH_CFG_2ATTR_NUM, on_off_switch_config_1attrTbl, zcl_onOffSwitchCfg_register, NULL},
+#endif
 };
 
 uint8_t WATERMETER_EP4_CB_CLUSTER_NUM = (sizeof(g_watermeterEp4ClusterList)/sizeof(g_watermeterEp4ClusterList[0]));
+
+const zcl_specClusterInfo_t g_watermeterEp5ClusterList[] =
+{
+#ifdef ZCL_ON_OFF_SWITCH_CFG
+    {ZCL_CLUSTER_GEN_ON_OFF_SWITCH_CONFIG, MANUFACTURER_CODE_NONE, ZCL_ON_OFF_SWITCH_CFG_2ATTR_NUM, on_off_switch_config_2attrTbl, zcl_onOffSwitchCfg_register, NULL},
+#endif
+};
+
+uint8_t WATERMETER_EP5_CB_CLUSTER_NUM = (sizeof(g_watermeterEp5ClusterList)/sizeof(g_watermeterEp5ClusterList[0]));
+
 
 

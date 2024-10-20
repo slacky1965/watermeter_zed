@@ -5,6 +5,7 @@ OUT_DIR += \
  
 OBJS += \
 $(OUT_PATH)/$(SRC_PATH)/common/main.o \
+$(OUT_PATH)/$(SRC_PATH)/zcl/zcl_onoffSwitchCfg.o \
 $(OUT_PATH)/$(SRC_PATH)/app_pm.o \
 $(OUT_PATH)/$(SRC_PATH)/app_button.o \
 $(OUT_PATH)/$(SRC_PATH)/app_led.o \
