@@ -60,8 +60,8 @@
 #else
     #define ZCL_BASIC_DATE_CODE    {8,'2','0','2','3','1','1','1','7'}
 #endif
-
 #endif
+
 #ifndef ZCL_BASIC_LOC_DESC
     #define ZCL_BASIC_LOC_DESC     {7,'U','N','K','N','O','W','N'}
 #endif
