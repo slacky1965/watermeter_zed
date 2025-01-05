@@ -121,7 +121,7 @@ const definition = {
               exposes.numeric('cold_water_preset', ea.STATE_SET).withUnit('L').withDescription('Preset cold water'),
               exposes.numeric('step_water_preset', ea.STATE_SET).withUnit('L').withDescription('Preset step water')],
               
-    ota: ota.zigbeeOTA,
+    ota: true,
 };
 
 module.exports = definition;
