@@ -255,7 +255,10 @@ _CODE_ZCL_ void	zcl_zllTouchLinkFinish(u8 status){
 	g_zllTouchLink.state = ZCL_ZLL_COMMISSION_STATE_IDLE;
 	g_zllTouchLink.status = status;
 
-	ZB_TRANSCEIVER_SET_CHANNEL(g_zllTouchLink.workingChannelBackUp);
+	if((g_zllTouchLink.workingChannelBackUp >= TL_ZB_MAC_CHANNEL_START) && \
+	   (g_zllTouchLink.workingChannelBackUp <= TL_ZB_MAC_CHANNEL_STOP)){
+		ZB_TRANSCEIVER_SET_CHANNEL(g_zllTouchLink.workingChannelBackUp);
+	}
 	MAC_IB().rxOnWhenIdle = g_zllTouchLink.zbInfo.bf.rxOnWihleIdle;  //must restore the rxOnWhenIdle for ED
 
 	rf_setTxPower(g_zb_txPowerSet);
@@ -618,7 +621,7 @@ _CODE_ZCL_ static u8 zcl_zllCommissionServerCmdHandler(zclIncoming_t *pInMsg){
 				status =  ZCL_STA_INVALID_VALUE;
 				break;
 			}
-			zcl_zllTouchLinkScanResponseHandler(&resp, &dstEp);
+			zcl_zllTouchLinkScanResponseHandler(&resp, &dstEp, pApsdeInd->indInfo.lqi);
 			break;
 		}
 
@@ -899,6 +902,12 @@ _CODE_ZCL_ u8 zcl_touchLinkCmdHandler(zclIncoming_t *pInMsg){
 }
 
 
+const zclAttrInfo_t touchLink_attrTbl[] = {
+	{ZCL_ATTRID_GLOBAL_CLUSTER_REVISION, ZCL_DATA_TYPE_UINT16, ACCESS_CONTROL_READ, (u8*)&zcl_attr_global_clusterRevision},
+};
+
+#define ZCL_TOUCH_LINK_ATTR_NUM	 (sizeof(touchLink_attrTbl)/sizeof(zclAttrInfo_t))
+
 /*
  *  zcl_touchlink_register
  *
@@ -907,7 +916,7 @@ _CODE_ZCL_ status_t zcl_touchlink_register(u8 endpoint, const zcl_touchlinkAppCa
 	g_zllCommission.appCb = cb;
 	zcl_touchLinkInit();
 
-	return zcl_registerCluster(endpoint, ZCL_CLUSTER_TOUCHLINK_COMMISSIONING, 0, 0, NULL, zcl_touchLinkCmdHandler, NULL);
+	return zcl_registerCluster(endpoint, ZCL_CLUSTER_TOUCHLINK_COMMISSIONING, 0, ZCL_TOUCH_LINK_ATTR_NUM, touchLink_attrTbl, zcl_touchLinkCmdHandler, NULL);
 }
 
 

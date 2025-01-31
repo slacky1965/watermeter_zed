@@ -30,10 +30,6 @@
 extern "C" {
 #endif
 
-
-/*******************************************************************************************************
-*********************8278Dongle with 48 Pins: Start*****************************************************
-*******************************************************************************************************/
 //KEY
 #define	BUTTON1 					GPIO_PD6
 #define PD6_FUNC					AS_GPIO
@@ -67,15 +63,19 @@ extern "C" {
 
 #define	PM_WAKEUP_LEVEL		  		PM_WAKEUP_LEVEL_LOW
 
+// ADC
+#if VOLTAGE_DETECT_ENABLE
+#define VOLTAGE_DETECT_ADC_PIN		GPIO_PC5
+#endif
 
 // UART
 #if ZBHCI_UART
-	#error please configurate uart PIN!!!!!!
+#error please configurate uart PIN!!!!!!
 #endif
 
 // DEBUG
 #if UART_PRINTF_MODE
-	#define	DEBUG_INFO_TX_PIN	    GPIO_PC6//print
+#define	DEBUG_INFO_TX_PIN	    	GPIO_PC6//print
 #endif
 
 
@@ -91,8 +91,8 @@ enum{
 #define	KB_MAP_NUM		KB_MAP_NORMAL
 #define	KB_MAP_FN		KB_MAP_NORMAL
 
-#define KB_DRIVE_PINS  {NULL }
-#define KB_SCAN_PINS   {BUTTON1,  BUTTON2}
+#define KB_DRIVE_PINS	{0}
+#define KB_SCAN_PINS	{BUTTON1, BUTTON2}
 
 
 /* Disable C linkage for C++ Compilers: */

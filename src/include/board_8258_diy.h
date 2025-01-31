@@ -63,7 +63,7 @@
 
 #if UART_PRINTF_MODE
 #define DEBUG_INFO_TX_PIN       UART_TX_PD7//print
-#define BAUDRATE                115200
+#define DEBUG_BAUDRATE          115200
 #endif /* UART_PRINTF_MODE */
 
 /**************************** Configure LED ******************************************/

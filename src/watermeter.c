@@ -191,7 +191,7 @@ void app_task(void) {
             }
             last_light = clock_time();
         }
-        report_handler();
+        app_report_handler();
 #if PM_ENABLE
         if(!button_idle() && !counters_idle() && !waterleak_idle()) {
             app_lowPowerEnter();

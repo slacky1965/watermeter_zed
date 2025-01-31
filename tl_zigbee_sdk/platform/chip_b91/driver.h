@@ -37,7 +37,7 @@
 
 #include "lib/include/pke/pke_algorithm.h"
 
-#include "emi.h"
+#include "lib/include/emi.h"
 #include "audio.h"
 #include "analog.h"
 #include "dma.h"
@@ -50,7 +50,7 @@
 #include "usbhw.h"
 #include "watchdog.h"
 #include "s7816.h"
-#include "nds_intrinsic.h"
+#include "core.h"
 #include "mdec.h"
 
 #include "npe.h"
@@ -63,4 +63,7 @@
 #include "mspi.h"
 #include "adc.h"
 #include "flash/flash_type.h"
+#include "flash/flash_common.h"
 #include "charger.h"
+#include "plic_sw.h"
+#include "plmt.h"

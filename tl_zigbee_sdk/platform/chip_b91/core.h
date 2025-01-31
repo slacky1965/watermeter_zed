@@ -24,7 +24,16 @@
 #ifndef CORE_H
 #define CORE_H
 #include "lib/include/sys.h"
-#include "nds_intrinsic.h"
+#include "reg_include/core_reg.h"
+
+#ifdef STD_GCC
+#define DISABLE_BTB __asm__("csrci %0,8" :: "i" (mmisc_ctl))
+#define ENABLE_BTB  __asm__("csrsi %0,8" :: "i" (mmisc_ctl))
+#else
+#define DISABLE_BTB __asm__("csrci mmisc_ctl,8")
+#define ENABLE_BTB  __asm__("csrsi mmisc_ctl,8")
+#endif
+
 	/* Machine mode MHSP_CTL */
 typedef enum{
 
@@ -48,13 +57,45 @@ typedef enum
 	FLD_MIE_MEIE     = BIT(11),//M-mode external interrupt enable bit
 }mie_e;
 
+/**
+ * @brief MEI, MSI, and MTI interrupt nesting priorities.
+ * @note
+ *        - By default, interrupt nesting is disabled.
+ *        - When interrupt nesting is enabled
+ *          - MEI, MSI and MTI occur simultaneously, they are handled under the following order:MEI > MSI > MTI.
+ *          - Other cases as described in core_preempt_pri_e below.
+ */
+typedef enum {
+    CORE_PREEMPT_PRI_MODE0 = FLD_MIE_MSIE | FLD_MIE_MTIE, /**< MTI and MSI cannot interrupt MEI, MSI and MTI can be nested within each other. */
+    CORE_PREEMPT_PRI_MODE1 = FLD_MIE_MTIE,                /**< MTI cannot interrupt MEI, MSI and MTI can be nested within each other, MSI and MEI can be nested within each other. */
+    CORE_PREEMPT_PRI_MODE2 = FLD_MIE_MSIE,                /**< MSI cannot interrupt MEI, MSI and MTI can be nested within each other, MTI and MEI can be nested within each other. */
+    CORE_PREEMPT_PRI_MODE3 = BIT(1),                      /**< MEI, MSI and MTI can be nested within each other(MIE register bit1 is an invalid bit). */
+}core_preempt_pri_e;
 
+#define read_csr(reg) ({ unsigned long __tmp; \
+  __asm__ volatile ("csrr %0, %1" : "=r"(__tmp) : "i" (reg)); \
+  __tmp; })
 
-#define  read_csr(reg)		         __nds__csrr(reg)
-#define  write_csr(reg, val)	      __nds__csrw(val, reg)
-#define  swap_csr(reg, val)	          __nds__csrrw(val, reg)
-#define set_csr(reg, bit)	         __nds__csrrs(bit, reg)
-#define clear_csr(reg, bit)	         __nds__csrrc(bit, reg)
+#define write_csr(reg, val) ({ \
+  __asm__ volatile ("csrw %0, %1" :: "i" (reg), "rK"(val)); })
+
+#define swap_csr(reg, val) ({ unsigned long __tmp; \
+  __asm__ volatile ("csrrw %0, %1, %2" : "=r"(__tmp) : "i" (reg), "rK"(val)); \
+  __tmp; })
+
+#define set_csr(reg, bit) ({ unsigned long __tmp; \
+  __asm__ volatile ("csrrs %0, %1, %2" : "=r"(__tmp) : "i" (reg), "rK"(bit)); \
+  __tmp; })
+
+#define clear_csr(reg, bit) ({ unsigned long __tmp; \
+  __asm__ volatile ("csrrc %0, %1, %2" : "=r"(__tmp) : "i" (reg), "rK"(bit)); \
+  __tmp; })
+
+#define fence_iorw               __asm__ volatile ("fence" : : : "memory")
+
+#define core_get_current_sp() ({ unsigned long __tmp; \
+  __asm__ volatile ("mv %0, sp" : "=r"(__tmp)); \
+  __tmp; })
 
 /*
  * Inline nested interrupt entry/exit macros
@@ -82,8 +123,6 @@ typedef enum
 	 restore_csr(NDS_MEPC)                           \
 	 restore_mxstatus()
 
-#define fence_iorw	      	__nds__fence(FENCE_IORW,FENCE_IORW)
-
 typedef enum{
 	FLD_FEATURE_PREEMPT_PRIORITY_INT_EN = BIT(0),
 	FLD_FEATURE_VECTOR_MODE_EN 			= BIT(1),
@@ -102,6 +141,7 @@ static inline unsigned int core_interrupt_disable(void){
 	if(r)
 	{
 		clear_csr(NDS_MSTATUS,FLD_MSTATUS_MIE);//global interrupts disable
+        fence_iorw; /* Hardware may change this value, fence IO ensures that software changes are valid. */
 	}
 	return r;
 }
@@ -117,18 +157,54 @@ static inline unsigned int core_restore_interrupt(unsigned int en){
 	if(en)
 	{
 		set_csr(NDS_MSTATUS,en);//global interrupts enable
+        fence_iorw; /* Hardware may change this value, fence IO ensures that software changes are valid. */
 	}
 	return 0;
 }
 
 /**
- * @brief enable interrupts globally in the system.
+ * @brief This function serves to enable MEI(Machine External Interrupt),MTI(Machine timer Interrupt),or MSI(Machine Software Interrupt).
+ * @param[in] mie_mask - MIE(Machine Interrupt Enable) register mask.
+ * @return  none
+ */
+static inline void core_mie_enable(mie_e mie_mask)
+{
+    set_csr(NDS_MIE, mie_mask);
+}
+
+/**
+ * @brief      This function serves to disable MEI(Machine External Interrupt),MTI(Machine timer Interrupt),or MSI(Machine Software Interrupt).
+ * @param[in]  mie_mask - MIE(Machine Interrupt Enable) register mask.
+ * @return     mie register value before disable.
+ * @note       core_mie_disable and core_mie_restore must be used in pairs.
+ */
+static inline unsigned int core_mie_disable(mie_e mie_mask)
+{
+    unsigned int r = read_csr(NDS_MIE);
+    clear_csr(NDS_MIE, mie_mask);
+    return r;
+}
+
+/**
+ * @brief      This function serves to restore MIE register value.
+ * @param[in]  mie_value - mie register value returned by core_mie_disable().
+ * @return     none.
+ * @note       core_mie_disable and core_mie_restore must be used in pairs.
+ */
+static inline void core_mie_restore(unsigned int mie_value)
+{
+    write_csr(NDS_MIE, mie_value);
+}
+
+/**
+ * @brief This function serves to enable interrupts globally in the system, MEI(machine external interrupt) will also enable.
  * @return  none
  */
 static inline void core_interrupt_enable(void)
 {
-	set_csr(NDS_MSTATUS,FLD_MSTATUS_MIE);//global interrupts enable
-	set_csr(NDS_MIE,FLD_MIE_MSIE |FLD_MIE_MTIE|FLD_MIE_MEIE);//machine Interrupt enable selectively
+    set_csr(NDS_MSTATUS, FLD_MSTATUS_MIE);//global interrupts enable
+    fence_iorw; /* Hardware may change this value, fence IO ensures that software changes are valid. */
+    core_mie_enable(FLD_MIE_MEIE);//machine interrupt enable selectively
 }
 
 /**
@@ -198,15 +274,6 @@ static inline unsigned int core_get_msp_base(void)
 }
 
 /**
- * @brief This function serves to get current sp(Stack pointer).
- * @return     none
- */
-static inline unsigned int core_get_current_sp(void)
-{
-	return __nds__get_current_sp();
-}
-
-/**
  * @brief This function serves to get mcause(Machine Cause) value.
  * This register indicates the cause of trap, reset, NMI or the interrupt source ID of a vector interrupt.
    This register is updated when a trap, reset, NMI or vector interrupt occurs
@@ -227,14 +294,32 @@ static inline unsigned int core_get_mepc(void)
 {
 	return read_csr(NDS_MEPC);
 }
+
 /**
- * @brief 	 This function serves to mcu entry wfi(Wait-For-Interrupt) mode similar to stall mcu.
- * @return	 none
- * @Note:	 there are two awoke modes by interrupt:
- *           1).When the processor is awoken by a pending interrupt and global interrupts enable(mstatus.MIE is enabled),it will resume and start to execute from the corresponding interrupt service routine.
- *           2).When the core is awoken by a pending interrupt and global interrupts enable (mstatus.MIE is disabled),it will resume and start to execute from the instruction after the WFI instruction.
+ * @brief    This function serves to enable mcu entry WFI(Wait-For-Interrupt) mode similar to stall mcu.
+ * @return   none
+ * @note:    there are two awoke modes by interrupt:
+ *             - When global interrupts are enabled using the interface core_interrupt_enable() (mstatus.MIE is enabled)
+ *               - Before entering WFI, make sure the following conditions are met:
+ *                 -# Enable MEI, MSI or MTI using interface core_mie_enable(), so that can wake up mcu after core enters WFI.
+ *                 -# If there is an interrupt that has already been triggered, the corresponding interrupt flag bit has been cleared.
+ *                 -# Interrupt enable for wakeup source using interface plic_interrupt_enable(), interrupt disable for non-wakeup sources using interface plic_interrupt_disable().
+ *               - After exiting WFI, the processor is awoken by a taken interrupt, it will resume and start to execute from the corresponding interrupt service routine, the processing steps in ISR as follows:
+*                  -# Clear the corresponding interrupt flag bit in the corresponding interrupt service routine.
+ *                 -# Your application code.
+ *             - When global interrupts are disabled using the interface core_interrupt_disable() (mstatus.MIE is disabled)
+ *               - Before entering WFI, make sure the following conditions are met:
+ *                 -# Enable MEI, MSI or MTI using interface core_mie_enable(), so that can wake up mcu after core enters WFI.
+ *                 -# If there is an interrupt that has already been triggered, the corresponding interrupt flag bit has been cleared.
+ *                 -# Interrupt enable for wakeup source using interface plic_interrupt_enable(), interrupt disable for non-wakeup sources using interface plic_interrupt_disable().
+ *                 -# Clear all current requests from the PLIC using the plic_clr_all_request() interface.
+ *               - After exiting WFI, the processor is awoken by a pending interrupt, it will resume and start to execute from the instruction after the WFI instruction, the processing steps after WFI instruction as follows:
+ *                 -# Getting the wakeup source using interface plic_interrupt_claim().
+ *                 -# Take stimer for example, using the interfaces stimer_get_irq_status() and stimer_clr_irq_status() to get and clear the corresponding interrupt flag bit according to the interrupt source.
+ *                 -# Your application code.
+ *                 -# Using interface plic_interrupt_complete() to notify PLIC that the corresponding interrupt processing is complete.
  */
-static inline void  core_entry_wfi_mode(void)
+static inline void core_entry_wfi_mode(void)
 {
  /* Interrupts disabled by the mie CSR will not be able to wake up the processor.
    However,the processor can be awoken by these interrupts regardless the value of the global interrupt enable bit (mstatus.MIE)*/
@@ -252,4 +337,31 @@ static inline  unsigned int core_get_current_pc(void)
 	__asm__ ("auipc %0, 0":"=r"(current_pc)::"a0");
 	return current_pc;
 }
+
+/**
+ * @brief     This function performs to get cclk tick.
+ * @return    cclk timer tick value.
+ */
+__attribute__((always_inline)) static inline unsigned long long rdmcycle(void)
+{
+#if __riscv_xlen == 32
+	do {
+		unsigned long hi = read_csr(NDS_MCYCLEH);
+		unsigned long lo = read_csr(NDS_MCYCLE);
+
+		if (hi == read_csr(NDS_MCYCLEH))
+			return ((unsigned long long)hi << 32) | lo;
+	} while(1);
+#else
+	return read_csr(NDS_MCYCLE);
+#endif
+}
+
+/**
+ * @brief       This function performs to set delay time by cclk tick.
+ * @param[in]   core_cclk_tick - Number of ticks in cclk
+ * @return      none
+ */
+_attribute_ram_code_sec_optimize_o2_noinline_ void core_cclk_delay_tick(unsigned long long core_cclk_tick);
+
 #endif

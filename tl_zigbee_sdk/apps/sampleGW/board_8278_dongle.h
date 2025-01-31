@@ -30,10 +30,6 @@
 extern "C" {
 #endif
 
-
-/*******************************************************************************************************
-*********************8278Dongle with 48 Pins: Start*****************************************************
-*******************************************************************************************************/
 //KEY
 #define	BUTTON1 					GPIO_PD6
 #define PD6_FUNC					AS_GPIO
@@ -61,22 +57,27 @@ extern "C" {
 #define LED_POWER					LED_R
 #define LED_PERMIT					LED_G
 
+// ADC
+#if VOLTAGE_DETECT_ENABLE
+#define VOLTAGE_DETECT_ADC_PIN		GPIO_PC5
+#endif
+
 // UART
 #if ZBHCI_UART
-	#define UART_TX_PIN         	UART_TX_PD7
-	#define UART_RX_PIN         	UART_RX_PA0
+#define UART_TX_PIN         		UART_TX_PD7
+#define UART_RX_PIN         		UART_RX_PA0
 
-	#define UART_PIN_CFG()			uart_gpio_set(UART_TX_PIN, UART_RX_PIN);// uart tx/rx pin set
+#define UART_PIN_CFG()				uart_gpio_set(UART_TX_PIN, UART_RX_PIN);// uart tx/rx pin set
 #endif
 
 // DEBUG
 #if UART_PRINTF_MODE
-	#define	DEBUG_INFO_TX_PIN	    GPIO_PC6//print
+#define	DEBUG_INFO_TX_PIN	    	GPIO_PC6//print
 #endif
 
 // USB
 #if ZBHCI_USB_PRINT || ZBHCI_USB_CDC || ZBHCI_USB_HID
-	#define HW_USB_CFG()			do{ \
+#define HW_USB_CFG()				do{ \
 										usb_set_pin_en();	\
 									}while(0)
 #endif
@@ -94,8 +95,8 @@ enum{
 #define	KB_MAP_NUM		KB_MAP_NORMAL
 #define	KB_MAP_FN		KB_MAP_NORMAL
 
-#define KB_DRIVE_PINS  {NULL }
-#define KB_SCAN_PINS   {BUTTON1,  BUTTON2}
+#define KB_DRIVE_PINS	{0}
+#define KB_SCAN_PINS	{BUTTON1, BUTTON2}
 
 
 /* Disable C linkage for C++ Compilers: */

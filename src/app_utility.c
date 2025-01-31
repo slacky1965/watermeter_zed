@@ -31,6 +31,7 @@ int32_t delayedFactoryResetCb(void *arg) {
     //printf("factory reset\r\n");
     set_regDeepSleep();
     zb_resetDevice2FN();
+//    TL_ZB_TIMER_SCHEDULE(delayedMcuResetCb, NULL, TIMEOUT_3SEC);
 //    zb_factoryReset();
 //    //sleep_ms(500);
 //    zb_resetDevice();

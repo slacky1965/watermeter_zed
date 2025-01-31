@@ -70,15 +70,19 @@ extern "C" {
 
 #define	PM_WAKEUP_LEVEL		  		PM_WAKEUP_LEVEL_HIGH
 
+// ADC
+#if VOLTAGE_DETECT_ENABLE
+#define VOLTAGE_DETECT_ADC_PIN		GPIO_PC5
+#endif
 
 // UART
 #if ZBHCI_UART
-	#error please configurate uart PIN!!!!!!
+#error please configurate uart PIN!!!!!!
 #endif
 
-//DEBUG
+// DEBUG
 #if UART_PRINTF_MODE
-	#define	DEBUG_INFO_TX_PIN	    GPIO_PA2//print
+#define	DEBUG_INFO_TX_PIN	    	GPIO_PA2//print
 #endif
 
 
@@ -96,8 +100,8 @@ enum{
 #define	KB_MAP_NUM		KB_MAP_NORMAL
 #define	KB_MAP_FN		KB_MAP_NORMAL
 
-#define KB_DRIVE_PINS  {GPIO_PB2,  GPIO_PB3}
-#define KB_SCAN_PINS   {GPIO_PB4,  GPIO_PB5}
+#define KB_DRIVE_PINS	{GPIO_PB2, GPIO_PB3}
+#define KB_SCAN_PINS	{GPIO_PB4, GPIO_PB5}
 
 #define	KB_LINE_MODE		0
 #define	KB_LINE_HIGH_VALID	0
