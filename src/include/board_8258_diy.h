@@ -21,7 +21,7 @@
 #define PB7_DATA_OUT            OFF
 #define PB7_OUTPUT_ENABLE       OFF
 #define PB7_FUNC                AS_GPIO
-#define PULL_WAKEUP_SRC_PB7     PM_PIN_PULLUP_1M
+#define PULL_WAKEUP_SRC_PB7     PM_PIN_PULLUP_10K //PM_PIN_PULLUP_1M
 
 /************************* Configure COLD GPIO **************************************/
 #define COLD_GPIO               GPIO_PB4
@@ -29,7 +29,7 @@
 #define PB4_DATA_OUT            OFF
 #define PB4_OUTPUT_ENABLE       OFF
 #define PB4_FUNC                AS_GPIO
-#define PULL_WAKEUP_SRC_PB4     PM_PIN_PULLUP_1M
+#define PULL_WAKEUP_SRC_PB4     PM_PIN_PULLUP_10K //PM_PIN_PULLUP_1M
 
 /************************* Configure LEAK GPIO **************************************/
 #define WLEAK1_GPIO             GPIO_PB5
