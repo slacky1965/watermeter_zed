@@ -387,6 +387,7 @@ Cost of major parts as of February 2024 in Russia.
 - 2.0.01 - Added two leak sensors. Changed the board and housing.
 - 2.0.02 - Fixed a bug with reporting when maxInterval is 0.
 - 2.0.03 - Added configuration of OnOff commands. The device can now send on, off or toggle when a leak is detected. Updated converter for zigbee2mqtt.
+- 2.0.04 - SDK updated to version V3.7.1.2(PR).
 
 
 [Top](#Top)
