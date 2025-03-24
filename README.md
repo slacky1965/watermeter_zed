@@ -166,7 +166,7 @@ According to the TLSR8258F512ET32 chip specification, the memory is distributed 
 0x7A000 NV_2
 0x80000 End Flash
 
-It turns out that the firmware can't be bigger than 0x34000 (which is actually confirmed by checking the SDK to determine the size of the uploaded file when updating OTA), but when using the firmware from address 0x40000, you can see that 0x36000, not 0x34000, is allocated for it. ~~It appears that 0x2000 is never used. This is what we will use to store the intermediate config. ~~ The intermediate config is written to NV_2 (somewhere in the area from 0x7a000 to 0x7c000). The NV_MODULE_APP module with the number NV_ITEM_APP_USER_CFG is used (for understanding see app_cfg.h and sdk/proj/drivers/drv_nv.h).
+It turns out that the firmware can't be bigger than 0x34000 (which is actually confirmed by checking the SDK to determine the size of the uploaded file when updating OTA), but when using the firmware from address 0x40000, you can see that 0x36000, not 0x34000, is allocated for it. ~~It appears that 0x2000 is never used. This is what we will use to store the intermediate config.~~ The intermediate config is written to NV_2 (somewhere in the area from 0x7a000 to 0x7c000). The NV_MODULE_APP module with the number NV_ITEM_APP_USER_CFG is used (for understanding see app_cfg.h and sdk/proj/drivers/drv_nv.h).
 
 After the hardware firmware is injected into the module, it always starts from address 0x00000. After OTA update, the start address changes. If before the update it was 0x00000, after the update it becomes 0x40000. If before the update it was 0x40000, after it becomes 0x00000. And so on in a circle after each OTA update.
 
