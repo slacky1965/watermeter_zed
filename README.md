@@ -17,7 +17,7 @@
 
 * [Description](#description)
 * [Hardware](#hardware)
-* [Software](#software
+* [Software](#software)
 * [Operating Principle](#firmware)
 * [#settings](#settings)
 * [Home Assistant](#home_assistant)
