@@ -69,6 +69,9 @@
 #define TLSR_8258_1M						0x03
 #define TLSR_8278							0x04
 #define TLSR_B91							0x05
+#define TLSR_B92							0x06
+#define TLSR_TL721X							0x07
+#define TLSR_TL321X							0x08
 
 /* Image types */
 #if (BOOT_LOADER_MODE)

@@ -26,7 +26,9 @@
 #ifndef ZBHCI_H
 #define	ZBHCI_H
 
-
+#ifndef UART_BAUDRATE
+#define UART_BAUDRATE						115200
+#endif
 
 /** Macro to send a log message to the host machine
  *  First byte of the message is the level (0-7).
@@ -223,6 +225,9 @@ typedef enum{
     ZBHCI_OTA_IN_PROGRESS,
     ZBHCI_OTA_INCORRECT_OFFSET,
     ZBHCI_OTA_FILE_OVERSIZE,
+    ZBHCI_OTA_INCORRECT_DATA,
+    ZBHCI_OTA_MATCH_BOOT_FLAG,
+	ZBHCI_OTA_BOOT_ADDR_ERROR,
 }zbhci_ota_status_e;
 
 typedef enum{
@@ -243,6 +248,11 @@ typedef enum{
 	ZBHCI_ADDRMODE_SHORTNOACK,
 	ZBHCI_ADDRMODE_IEEENOACK
 }zbhciTxMode_e;
+
+typedef enum{
+	ZBHCI_OTA_REMOTE_OTA_BIN,
+	ZBHCI_OTA_LOCAL_BIN
+}zbhciOtaType_e;
 
 #define ZB_LEBESWAP(ptr,len)								\
 	for(int i=0; i<(len>>1);i++){							\
@@ -282,7 +292,7 @@ typedef struct{
 
 typedef struct{
 	u16 cmdId;
-	u16 resv;
+	u16 payloadLen;
 	u8  payload[1];
 }zbhci_cmdHandler_t;
 
@@ -300,19 +310,19 @@ typedef struct{
  * @brief  the hci response command carryin  the MAC address of the nodes which have joined the network
  *
  * */
-typedef struct{
+typedef struct _attribute_packed_{
 	u16 totalCnt;				/*!	the total count of the joined nodes */
 	u16 startIndex;				/*!	the start index */
 	u8  listCnt;				/*!	the count of the mac address list */
 	u8  status;					/*!	the status */
 }zbhci_mgmt_nodesJoined_rsp_hdr_t;
 
-typedef struct{
+typedef struct _attribute_packed_{
 	addrExt_t macAddr;		// /*!	the mac address list */
 	u16 nwkAddr;
 }zbhci_mgmt_nodesJoined_info_t;
 
-typedef struct{
+typedef struct _attribute_packed_{
 	zbhci_mgmt_nodesJoined_rsp_hdr_t hdr;
 	zbhci_mgmt_nodesJoined_info_t addrList[5];		//[5];	/*!	the mac address list */
 }zbhci_mgmt_nodesJoined_rsp_t;
@@ -365,7 +375,7 @@ typedef struct{
 	addrExt_t	macAddr;
 }zbhci_nodeLeaveInd_t;
 
-typedef struct{
+typedef struct _attribute_packed_{
 	u8 dstMode;
 	tl_zb_addr_t dstAddr; //addrMode = APS_DSTADDR_EP_NOTPRESETNT
 	u8 srcEp;			//
@@ -387,11 +397,15 @@ typedef struct{
 }zbhci_afTestReq_t;
 
 typedef struct{
-	u32 ota_flash_addr_start;
-	u32 ota_file_total_size;
-	u32 ota_file_offset;
-	u8  ota_process_start;
-	u8  block_send_cnt;
+	u32 otaFlashAddrStart;
+	u32 otaFileTotalSize;
+	u32 otaFileOffset;
+	u32 otaCrcValue;
+	u8  otaBootFlag[4];
+	u8  otaFindBootFlag;
+	u8  otaProcessStart;
+	u8  blockRequestCnt;
+	u8  binType;//zbhciOtaType_e, 1--local bin, 0--remote OTA bin
 }hci_ota_info_t;
 
 typedef struct{

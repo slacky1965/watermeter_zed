@@ -21,15 +21,41 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
+/**@page RF
+ *
+ *    Header File: rf.h
+ *
+ *    Attention
+ *    ==============
+     -# Precautions when using RF and pm functions in combination:
+        -suspend mode        :In this mode RF related digital registers are lost and need to re-call the RF related function interfaces after waking up.
+        -deep retention mode :In this mode RF related digital registers are lost and need to re-call the RF related function interfaces after waking up.
+        -deep mode           :In this mode RF related digital registers are lost and need to re-call the RF related function interfaces after waking up.
+
+ */
 #ifndef     RF_H
 #define     RF_H
 
 #include "lib/include/sys.h"
 #include "gpio.h"
 
+#define rf_set_power_level_index_singletone(power_level)    rf_set_power_level_singletone(power_level)
 /**********************************************************************************************************************
  *                                         RF  global macro                                                           *
  *********************************************************************************************************************/
+/**
+ *  @brief This define serve to restore the enabled state of the Rx secondary filter in different RF modes
+ *  @note  Attention:
+ *          1.This macro is for test use only.
+ *          Set to 0 :(1)BLE 125K and 250K mode have turned on the secondary filter, which is used to improve the chip's Out-of-Band Interference Immunity (interference including DC- offset).
+ *                        After turning it on, the sensitivity performance of chips with poor interference immunity can be restored to the normal range.
+ *                        However, turning it on will tighten the chip's anti-frequency offset range to within +/-150kHz.
+ *                    (2)Secondary filter off for all modes except BLE 125K and 250K modes
+ *          Set to 1: Restore the settings of the previous version's secondary filtering, only as a reserved configuration for testing, and cannot be used in actual scenarios
+ *
+ */
+#define  RF_RX_SEC_FLT_CONFIG                  0
+
 /**
  *  @brief This define serve to calculate the DMA length of packet.
  */
@@ -291,6 +317,76 @@ typedef enum {
 } rf_status_e;
 
 /**
+ *  @brief  RX fast settle time
+ *  @note 
+ *  1:Call rf_fast_settle_config to configure timing during initialization.
+ *  2:Call the enable function rf_rx_fast_settle_en when using the configured timing sequence.
+ *    To close it, call rf_rx_fast_settle_dis.
+ *  3:The deleted hardware calibration values are influenced by environmental temperature and require periodic recalibration.
+ *	  Calibration method: Call rf_rx_fast_settle_dis, then set any frequency point (calibration value is independent of the frequency point):
+ *	  stop RF-related states, enable RX, wait for packet transmission to end -> rf_rx_fast_settle_update_cal_val.
+ */
+typedef enum{
+	RX_SETTLE_TIME_45US		 = 0, /**<  reduce 44.5us of rx settle time.
+	                                    Receive for a period of time and then do a normal calibration. */
+	RX_SETTLE_TIME_80US		 = 1, /**<  reduce 4.5us of rx settle time.
+	                                    Do a normal calibration at the beginning.*/
+	RX_FAST_SETTLE_NONE		 = 2
+}rf_rx_fast_settle_time_e;
+
+/**
+ *  @brief  TX fast settle time
+ *  @note
+ *  1:Call rf_fast_settle_config to configure timing during initialization.
+ *  2:Call the enable function rf_tx_fast_settle_en when using the configured timing sequence.
+ *    To close it, call rf_tx_fast_settle_dis.
+ *  3:The deleted hardware calibration values are influenced by environmental temperature and require periodic recalibration.
+ *	  Calibration method: Call rf_tx_fast_settle_dis->stop RF-related states, enable TX, wait for packet transmission to end ->
+ *	  rf_tx_fast_settle_update_cal_val.
+ */
+typedef enum{
+	TX_SETTLE_TIME_50US	 	= 0, /**<  reduce 58us of tx settle time.
+	                                   note: Related to frequency points, requires setting the calibration values for the used frequency points.*/
+	TX_SETTLE_TIME_104US    = 1, /**<  reduce 4.5us of tx settle time.
+	                                   Do a normal calibration at the beginning.
+	                                   note: Independent of frequency points, calibration values can be obtained by setting any frequency point.*/
+	TX_FAST_SETTLE_NONE		= 2,
+
+}rf_tx_fast_settle_time_e;
+/**
+ *  @brief  LDO trim calibration value
+ */
+typedef struct
+{
+	unsigned char LDO_CAL_TRIM;
+	unsigned char LDO_RXTXHF_TRIM;
+	unsigned char LDO_RXTXLF_TRIM;
+	unsigned char LDO_PLL_TRIM;
+	unsigned char LDO_VCO_TRIM;
+}rf_ldo_trim_t;
+
+#if 0
+/**
+ *  @brief  DCOC calibration value
+ */
+typedef struct
+{
+    unsigned char DCOC_IDAC;
+    unsigned char DCOC_QDAC;
+    unsigned char DCOC_IADC_OFFSET;
+    unsigned char DCOC_QADC_OFFSET;
+}rf_dcoc_cal_t;
+#endif
+
+typedef struct
+{
+	unsigned short cal_tbl[81];
+	rf_ldo_trim_t	  ldo_trim;
+
+}rf_fast_settle_t ;
+
+
+/**
  *  @brief  select RX_CYC2LNA and TX_CYC2PA pin;
  */
 
@@ -434,8 +530,7 @@ typedef enum {
 /**********************************************************************************************************************
  *                                         RF global constants                                                        *
  *********************************************************************************************************************/
-extern rf_power_level_e rf_power_Level_list[30];
-
+extern const rf_power_level_e rf_power_Level_list[30];
 
 /**********************************************************************************************************************
  *                                         RF function declaration                                                    *
@@ -534,9 +629,10 @@ static inline void rf_clr_irq_mask(rf_irq_e mask)
 
 
 /**
- *	@brief	  	This function serves to judge whether it is in a certain state.
- *	@param[in]	mask 	- RX/TX irq status.
- *	@return	 	Yes: 1, NO: 0.
+ * @brief	  	This function serves to judge whether it is in a certain state.
+ * @param[in]	mask 	- RX/TX irq status.
+ * @retval	  non-zero   -  the interrupt occurred.
+ * @retval	  zero  -  the interrupt did not occur.
  */
 static inline unsigned short rf_get_irq_status(rf_irq_e status)
 {
@@ -729,7 +825,7 @@ static inline void rf_set_tx_dma_fifo_size(unsigned short fifo_byte_size)
 }
 /**
  * @brief   This function serves to set RF tx settle time.
- * @tx_stl_us  tx settle time,the unit is us.The max value of this param is 0xfff;The default settling time value is 150us.
+ * @param[in]  tx_stl_us  tx settle time,the unit is us.The max value of this param is 0xfff;The default settling time value is 150us.
  * 			   The typical value is 113us (tx_settle time should not be less than this value).
  * @return  none.
  * @note		Attention:It is not necessary to call this function to adjust the settling time in the normal sending state.
@@ -741,7 +837,7 @@ static inline void rf_set_tx_settle_time(unsigned short tx_stl_us )
 }
 /**
  * @brief   This function serves to set RF tx settle time and rx settle time.
- * @rx_stl_us  rx settle time,the unit is us.The max value of this param is 0xfff;The default settling time value is 150us.
+ * @param[in]  rx_stl_us  rx settle time,the unit is us.The max value of this param is 0xfff;The default settling time value is 150us.
  * 			   The typical value is 85us (rx_settle time should not be less than this value).
  * @return  none.
  * @note	   Attention:It is not necessary to call this function to adjust the settling time in the normal packet receiving state.
@@ -856,8 +952,40 @@ static inline void rf_set_ptx_pid(unsigned char pipe_pid)
 
 
 /**
+ * @brief        This function is used to set whether or not to use the rx DCOC software calibration in rf_mode_init();
+ * @param[in]     en:This value is used to set whether or not rx DCOC software calibration is performed.
+ *                -#1:enable the DCOC software calibration;
+ *                -#0:disable the DCOC software calibration;
+ * @return         none.
+ * @note        Attention:
+ *                 1.Driver default enable to solve the problem of poor receiver sensitivity performance of some chips with large DC offset
+ *                 2.The following conditions should be noted when using this function:
+ *                   If you use the RX function, it must be enabled, otherwise it will result in a decrease in RX sensitivity.
+ *                   If you only use tx and not rx, and want to save code execution time for rf_mode_init(), you can disable it
+ */
+void rf_set_rx_dcoc_cali_by_sw(unsigned char en);
+
+/**
+ * @brief        This function is used to update the rx DCOC calibration value.
+ * @param[in]   calib_code - Value of iq_code after calibration.(The code is a combination value,you need to fill in the combined iq value)
+ *                 <0> is used to control the switch of bypass dcoc calibration iq code, the value should be 1;
+ *                 <6-1>:the value of I code, the range of value is 1~62;
+ *                 <12-7>:the value of Q code, the range of value is 1~62.
+ * @return         none.
+ */
+void rf_update_rx_dcoc_calib_code(unsigned short calib_code);
+
+/**
  * @brief      This function serves to initiate information of RF.
- * @return	   none.
+ * @return       none.
+ * @note          Attention:
+ *                 In order to solve the problem of poor receiver sensitivity performance of some chips with large DC offset:
+ *                 1.Added DCOC software calibration scheme to the rf_mode_init() interface to get the smallest DC-offset for the chip.
+ *                 2.Turn on the RX secondary filter in BLE S2 S8 modes to filter out DC offset and noise as much as possible,
+ *                   in order to improve the chip's out of band anti-interference ability (including DC offset).
+ *                But there are two things to note:
+ *                (1)Using DCOC software calibration will increase the software execution time of rf_mode_init().
+ *                (2)After turning on the RX secondary filter, the anti frequency offset range of the chip will be reduced to within +/-150kHz.
  */
 void rf_mode_init(void);
 
@@ -1109,8 +1237,14 @@ void rf_set_power_level (rf_power_level_e level);
  * @param[in]   idx 	 - The index of power level which you want to set.
  * @return  	none.
  */
-_attribute_ram_code_sec_ void rf_set_power_level_index(rf_power_level_index_e idx);
+void rf_set_power_level_index(rf_power_level_index_e idx);
 
+/**
+ * @brief          This function is mainly used to set the energy when sending a single carrier.
+ * @param[in]    level        - The slice corresponding to the energy value.
+ * @return         none.
+ */
+void rf_set_power_level_singletone(rf_power_level_e level);
 
 /**
  * @brief	  	This function serves to close internal cap.
@@ -1235,9 +1369,9 @@ _attribute_ram_code_sec_noinline_ void rf_start_stx(void* addr, unsigned int tic
 
 
 /**
- * @brief     	This function serves to RF trigger stx2rx
- * @param[in] 	addr  	- DMA tx buffer.
- * @param[in] 	tick  	- Send after tick delay.
+ * @brief     	This function serves to RF trigger stx2rx.
+ * @param[in] 	addr  - DMA tx buffer.
+ * @param[in] 	tick  - Trigger tx send packet after tick delay.
  * @return	    none.
  * @note		addr:must be aligned by word (4 bytes), otherwise the program will enter an exception.
  */
@@ -1266,7 +1400,7 @@ _attribute_ram_code_sec_noinline_ void rf_set_rxmode(void);
  *				Timeout duration is set by the parameter "tick".
  *				The address to store received data is set by the function "addr".
  * @param[in]	addr   - The address to store received data.
- * @param[in]	tick   - It indicates timeout duration in Rx status.Max value: 0xffffff (16777215)
+ * @param[in]	tick   - It indicates timeout duration in Rx status.Max value: 0xffffff (16777215).
  * @return	 	none
  * @note		addr:must be aligned by word (4 bytes), otherwise the program will enter an exception.
  */
@@ -1274,12 +1408,12 @@ _attribute_ram_code_sec_noinline_ void rf_start_brx  (void* addr, unsigned int t
 
 
 /**
- * @brief	  	This function serves to start tx of auto mode. In this mode,
- *				RF module stays in tx status until a packet is sent or it fails to sent packet when timeout expires.
+ * @brief	  	This function serves to start Rx of auto mode. In this mode,
+ *				RF module stays in Rx status until a packet is received or it fails to receive packet when timeout expires.
  *				Timeout duration is set by the parameter "tick".
- *				The address to store send data is set by the function "addr".
- * @param[in]	addr   - The address to store send data.
- * @param[in]	tick   - It indicates timeout duration in Rx status.Max value: 0xffffff (16777215)
+ *				The address to store received data is set by the function "addr".
+ * @param[in]	addr   - The address to store received data.
+ * @param[in]	tick   - It indicates timeout duration in Rx status.Max value: 0xffffff (16777215).
  * @return	 	none
  * @note		addr:must be aligned by word (4 bytes), otherwise the program will enter an exception.
  */
@@ -1311,6 +1445,59 @@ void rf_set_rx_modulation_index(rf_mi_value_e mi_value);
  * @return	 	none.
  */
 void rf_set_tx_modulation_index(rf_mi_value_e mi_value);
+
+/**
+ *	@brief	  	This function serve to adjust tx/rx settle timing sequence.
+ *	@param[in]	tx_settle_us  	After adjusting the timing sequence, the time required for tx to settle.
+ *	@param[in]	rx_settle_us  	After adjusting the timing sequence, the time required for rx to settle.
+ *	@return	 	none
+ */
+void rf_fast_settle_config(rf_tx_fast_settle_time_e tx_settle_us, rf_rx_fast_settle_time_e rx_settle_us);
+
+/**
+ *	@brief	  	This function serve to enable the tx timing sequence adjusted.
+ *	@param[in]	none
+ *	@return	 	none
+*/
+void rf_tx_fast_settle_en(void);
+
+/**
+ *	@brief	  	This function serve to disable the tx timing sequence adjusted.
+ *	@param[in]	none
+ *	@return	 	none
+*/
+void rf_tx_fast_settle_dis(void);
+
+/**
+ *	@brief	  	This function serve to enable the rx timing sequence adjusted.
+ *	@param[in]	none
+ *	@return	 	none
+*/
+void rf_rx_fast_settle_en(void);
+
+/**
+ *	@brief	  	This function serve to disable the rx timing sequence adjusted.
+ *	@param[in]	none
+ *	@return	 	none
+*/
+void rf_rx_fast_settle_dis(void);
+
+/**
+ *  @brief		This function is used to set the tx fast_settle calibration value.
+ *	@param[in]	tx_settle_us  	After adjusting the timing sequence, the time required for tx to settle.
+ *	@param[in]	chn             Calibrates the frequency (2400 + chn). Range: 0 to 80. Only applicable to TX_SETTLE_TIME_50US, other parameters are invalid.
+ *								(When tx_settle_us is 50us, the modules to be calibrated are frequency-dependent, so all used frequency points need to be calibrated.)
+*/
+void rf_tx_fast_settle_update_cal_val(rf_tx_fast_settle_time_e tx_settle_time,unsigned char chn);
+
+/**
+ *  @brief		This function is used to set the rx fast_settle calibration value.
+ *	@param[in]	rx_settle_us  	After adjusting the timing sequence, the time required for rx to settle.
+ *	@param[in]	chn             Calibrates the frequency (2400 + chn). Range: 0 to 80.
+								Reserved for future functionality. Currently, this parameter has no effect.
+ *	@return	 	none
+*/
+void rf_rx_fast_settle_update_cal_val(rf_rx_fast_settle_time_e rx_settle_time,unsigned char chn);
 
 /**
  * @brief      This function serves to init the 2-wire-PTA.
@@ -1430,12 +1617,16 @@ static inline void rf_aoa_aod_sample_point_adjust(char sample_point_offset)
 }
 
 /**
- * @brief		This function is mainly used to set the sampling interval time in the AOA/AOD function.After
- * 				configuring RF, you can call this function to configure sample interval time.
- * @param[in]	sample_time		- AOA or AOD sampling interval time.
+ * @brief		This function is mainly used to set the IQ data sample interval time. In normal mode, the sampling interval of AOA is 4us, and AOD will judge whether
+ * 				the sampling interval is 4us or 2us according to CTE info.The 4us/2us sampling interval corresponds to the 2us/1us slot mode stipulated in the protocol.
+ * 				Due to the current antenna hardware switching only supporting 4us/2us intervals, setting the sampling interval to 1us or less will result in sampling at
+ * 				one antenna switching interval. Therefore, the sampling data needs to be processed by the upper layer as needed. At present, it is mainly used for
+ * 				debugging processes.After configuring RF, you can call this function to configure slot time.
+ * @param[in]	time_us	- AOA or AOD slot time mode.
  * @return		none.
- * @note	 	When the time is 0.25us, it cannot be used with the 20bit iq data type, which will cause the sampling
- * 				data to overflow.
+ * @note	    Attention:(1)When the time is 0.25us, it cannot be used with the 20bit iq data type, which will cause the sampling data to overflow.
+ * 						  (2)Since only the antenna switching interval of 4us/2us is supported, the sampling interval of 1us and shorter time intervals
+ * 						      will be sampled multiple times in one antenna switching interval. Suggestions can be used according to specific needs.
  */
 void rf_aoa_aod_sample_interval_time(rf_aoa_aod_sample_interval_time_e sample_time);
 

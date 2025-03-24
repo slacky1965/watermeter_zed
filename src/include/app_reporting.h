@@ -11,7 +11,7 @@ typedef struct {
 extern app_reporting_t app_reporting[ZCL_REPORTING_TABLE_NUM];
 
 void app_reporting_init();
-void report_handler(void);
+void app_report_handler(void);
 int32_t stopReportCb(void *arg);
 int32_t forcedReportCb(void *arg);
 

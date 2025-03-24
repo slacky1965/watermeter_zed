@@ -32,14 +32,9 @@ extern "C" {
 
 
 /**********************************************************************
- * Version configuration
+ * App configuration
  */
-#include "version_cfg.h"
-
-/**********************************************************************
- * Product Information
- */
-/* Debug mode config */
+/* Debug mode */
 #define	UART_PRINTF_MODE				0
 #define USB_PRINTF_MODE         		0
 
@@ -48,66 +43,19 @@ extern "C" {
 
 /* RGB or CCT */
 #define COLOR_RGB_SUPPORT				0
-#define COLOR_CCT_SUPPORT				1
+#define COLOR_CCT_SUPPORT				1//0
+
+#if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
+#if COLOR_RGB_SUPPORT && COLOR_CCT_SUPPORT
+#error	"NOT SUPPORT"
+#elif COLOR_RGB_SUPPORT
+#define COLOR_X_Y_DISABLE				1
+#endif
+#endif
 
 /* BDB */
 #define TOUCHLINK_SUPPORT				1
 #define FIND_AND_BIND_SUPPORT			0
-
-/* Board ID */
-#define BOARD_826x_EVK					0
-#define BOARD_826x_DONGLE				1
-#define BOARD_8258_EVK					2
-#define BOARD_8258_EVK_V1P2				3//C1T139A30_V1.2
-#define BOARD_8258_DONGLE				4
-#define BOARD_8278_EVK					5
-#define BOARD_8278_DONGLE				6
-#define BOARD_B91_EVK					7
-#define BOARD_B91_DONGLE				8
-
-/* Board define */
-#if defined(MCU_CORE_826x)
-	#define BOARD						BOARD_826x_DONGLE
-	#define CLOCK_SYS_CLOCK_HZ  		32000000
-#elif defined(MCU_CORE_8258)
-#if (CHIP_TYPE == TLSR_8258_1M)
-	#define FLASH_CAP_SIZE_1M			1
-#endif
-	#define BOARD						BOARD_8258_DONGLE//BOARD_8258_EVK
-	#define CLOCK_SYS_CLOCK_HZ  		48000000
-#elif defined(MCU_CORE_8278)
-	#define FLASH_CAP_SIZE_1M			1
-	#define BOARD						BOARD_8278_DONGLE//BOARD_8278_EVK
-	#define CLOCK_SYS_CLOCK_HZ  		48000000
-#elif defined(MCU_CORE_B91)
-	#define FLASH_CAP_SIZE_1M			1
-	#define BOARD						BOARD_B91_DONGLE//BOARD_B91_EVK
-	#define CLOCK_SYS_CLOCK_HZ  		48000000
-#else
-	#error "MCU is undefined!"
-#endif
-
-/* Board include */
-#if (BOARD == BOARD_826x_EVK)
-	#include "board_826x_evk.h"
-#elif(BOARD == BOARD_826x_DONGLE)
-	#include "board_826x_dongle.h"
-#elif(BOARD == BOARD_8258_DONGLE)
-	#include "board_8258_dongle.h"
-#elif(BOARD == BOARD_8258_EVK)
-	#include "board_8258_evk.h"
-#elif (BOARD == BOARD_8258_EVK_V1P2)
-	#include "board_8258_evk_v1p2.h"
-#elif(BOARD == BOARD_8278_EVK)
-	#include "board_8278_evk.h"
-#elif(BOARD == BOARD_8278_DONGLE)
-	#include "board_8278_dongle.h"
-#elif (BOARD == BOARD_B91_EVK)
-	#include "board_b91_evk.h"
-#elif (BOARD == BOARD_B91_DONGLE)
-	#include "board_b91_dongle.h"
-#endif
-
 
 /* Voltage detect module */
 /* If VOLTAGE_DETECT_ENABLE is set,
@@ -119,54 +67,135 @@ extern "C" {
  * we need to configure the detection IO port, and the IO must be connected to the target under test,
  * such as VCC.
  */
-#define VOLTAGE_DETECT_ENABLE						0
+#define VOLTAGE_DETECT_ENABLE			0
 
-#if defined(MCU_CORE_826x)
-	#define VOLTAGE_DETECT_ADC_PIN					0
-#elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
-	#define VOLTAGE_DETECT_ADC_PIN					GPIO_PC5
-#elif defined(MCU_CORE_B91)
-	#define VOLTAGE_DETECT_ADC_PIN					ADC_GPIO_PB0
-#endif
+/* Flash protect module */
+/* Only the firmware area will be locked, the NV data area will not be locked.
+ * For details, please refer to drv_flash.c file.
+ */
+#define FLASH_PROTECT_ENABLE			1
 
 /* Watch dog module */
-#define MODULE_WATCHDOG_ENABLE						0
+#define MODULE_WATCHDOG_ENABLE			0
 
 /* UART module */
 #if ZBHCI_UART
-#define	MODULE_UART_ENABLE							1
+#define	MODULE_UART_ENABLE				1
 #endif
 
 #if (ZBHCI_USB_PRINT || ZBHCI_USB_CDC || ZBHCI_USB_HID || ZBHCI_UART)
-	#define ZBHCI_EN								1
+	#define ZBHCI_EN					1
 #endif
-
 
 /**********************************************************************
- * ZCL cluster support setting
+ * ZCL cluster configuration
  */
-#define ZCL_ON_OFF_SUPPORT							1
-#define ZCL_LEVEL_CTRL_SUPPORT						1
+#define ZCL_ON_OFF_SUPPORT				1
+#define ZCL_LEVEL_CTRL_SUPPORT			1
 #if (COLOR_RGB_SUPPORT || COLOR_CCT_SUPPORT)
-#define ZCL_LIGHT_COLOR_CONTROL_SUPPORT				1
+#define ZCL_LIGHT_COLOR_CONTROL_SUPPORT	1
 #endif
-#define ZCL_GROUP_SUPPORT							1
-#define ZCL_SCENE_SUPPORT							1
-#define ZCL_OTA_SUPPORT								1
-#define ZCL_GP_SUPPORT								1
-#define ZCL_WWAH_SUPPORT							0
+#define ZCL_GROUP_SUPPORT				1
+#define ZCL_SCENE_SUPPORT				1
+#define ZCL_OTA_SUPPORT					1
+#define ZCL_GP_SUPPORT					1
+#define ZCL_WWAH_SUPPORT				0
 #if TOUCHLINK_SUPPORT
-#define ZCL_ZLL_COMMISSIONING_SUPPORT				1
+#define ZCL_ZLL_COMMISSIONING_SUPPORT	1
+#endif
+//test
+#define AF_TEST_ENABLE					0
+
+/**********************************************************************
+ * Board definitions
+ */
+/* Board ID */
+#define BOARD_826x_EVK					0
+#define BOARD_826x_DONGLE				1
+#define BOARD_8258_EVK					2//DEPRECATED
+#define BOARD_8258_EVK_V1P2				3//C1T139A30_V1.2
+#define BOARD_8258_DONGLE				4
+#define BOARD_8278_EVK					5
+#define BOARD_8278_DONGLE				6
+#define BOARD_B91_EVK					7
+#define BOARD_B91_DONGLE				8
+#define BOARD_B92_EVK					9
+#define BOARD_B92_DONGLE				10
+#define BOARD_TL721X_EVK				11
+#define BOARD_TL721X_DONGLE				12
+#define BOARD_TL321X_EVK				13
+#define BOARD_TL321X_DONGLE				14
+
+/* Board define */
+#if defined(MCU_CORE_826x)
+	#define BOARD						BOARD_826x_DONGLE//BOARD_826x_EVK
+	#define CLOCK_SYS_CLOCK_HZ  		32000000
+#elif defined(MCU_CORE_8258)
+	#define BOARD						BOARD_8258_DONGLE//BOARD_8258_EVK_V1P2
+	#define CLOCK_SYS_CLOCK_HZ  		48000000
+#elif defined(MCU_CORE_8278)
+	#define BOARD						BOARD_8278_DONGLE//BOARD_8278_EVK
+	#define CLOCK_SYS_CLOCK_HZ  		48000000
+#elif defined(MCU_CORE_B91)
+	#define BOARD						BOARD_B91_DONGLE//BOARD_B91_EVK
+	#define CLOCK_SYS_CLOCK_HZ  		48000000
+#elif defined(MCU_CORE_B92)
+	#define BOARD						BOARD_B92_DONGLE//BOARD_B92_EVK
+	#define CLOCK_SYS_CLOCK_HZ  		48000000
+#elif defined(MCU_CORE_TL721X)
+	#define BOARD						BOARD_TL721X_DONGLE//BOARD_TL721X_EVK
+	#define CLOCK_SYS_CLOCK_HZ  		120000000
+#elif defined(MCU_CORE_TL321X)
+	#define BOARD						BOARD_TL321X_DONGLE//BOARD_TL321X_EVK
+	#define CLOCK_SYS_CLOCK_HZ  		96000000
+#else
+	#error "MCU is undefined!"
 #endif
 
-#define AF_TEST_ENABLE								0
+/**********************************************************************
+ * Version configuration
+ */
+#include "version_cfg.h"
 
+/**********************************************************************
+ * Board configuration
+ */
+#if (BOARD == BOARD_826x_EVK)
+	#include "board_826x_evk.h"
+#elif (BOARD == BOARD_826x_DONGLE)
+	#include "board_826x_dongle.h"
+#elif (BOARD == BOARD_8258_DONGLE)
+	#include "board_8258_dongle.h"
+#elif (BOARD == BOARD_8258_EVK)
+	#include "board_8258_evk.h"//DEPRECATED
+#elif (BOARD == BOARD_8258_EVK_V1P2)
+	#include "board_8258_evk_v1p2.h"
+#elif (BOARD == BOARD_8278_EVK)
+	#include "board_8278_evk.h"
+#elif (BOARD == BOARD_8278_DONGLE)
+	#include "board_8278_dongle.h"
+#elif (BOARD == BOARD_B91_EVK)
+	#include "board_b91_evk.h"
+#elif (BOARD == BOARD_B91_DONGLE)
+	#include "board_b91_dongle.h"
+#elif (BOARD == BOARD_B92_EVK)
+	#include "board_b92_evk.h"
+#elif (BOARD == BOARD_B92_DONGLE)
+	#include "board_b92_dongle.h"
+#elif (BOARD == BOARD_TL721X_EVK)
+	#include "board_tl721x_evk.h"
+#elif (BOARD == BOARD_TL721X_DONGLE)
+	#include "board_tl721x_dongle.h"
+#elif (BOARD == BOARD_TL321X_EVK)
+	#include "board_tl321x_evk.h"
+#elif (BOARD == BOARD_TL321X_DONGLE)
+	#include "board_tl321x_dongle.h"
+#endif
 
 /**********************************************************************
  * Stack configuration
  */
 #include "stack_cfg.h"
-
 
 /**********************************************************************
  * EV configuration

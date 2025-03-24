@@ -12,7 +12,7 @@ static uint8_t  default_config = false;
 static uint32_t config_addr_start = 0;
 static uint32_t config_addr_end = 0;
 
-uint8_t mcuBootAddrGet(void);
+uint32_t mcuBootAddrGet(void);
 
 static uint16_t checksum(const uint8_t *src_buffer, uint8_t len) {
 
@@ -60,6 +60,12 @@ static void get_user_data_addr(uint8_t print) {
 #endif /* UART_PRINTF_MODE */
 
 #endif
+
+#if UART_PRINTF_MODE
+    const uint8_t version[] = ZCL_BASIC_SW_BUILD_ID;
+    printf("Firmware version: %s\r\n", version+1);
+#endif
+
 }
 
 static void clear_user_data(uint32_t flash_addr) {

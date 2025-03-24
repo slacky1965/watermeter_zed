@@ -3,7 +3,9 @@ OUT_DIR += \
 /zigbee/common
  
 OBJS += \
-$(OUT_PATH)/zigbee/common/zb_config.o 
+$(OUT_PATH)/zigbee/common/zb_config.o \
+$(OUT_PATH)/zigbee/common/zb_version.o
+
 
 
 # Each subdirectory must supply rules for building sources it contributes

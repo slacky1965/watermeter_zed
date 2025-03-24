@@ -1,73 +1,76 @@
-# Watermeter Zigbee Telink TLSR8258 (E-BYTE E180-Z5812SP)
+
+# <a id="Top">Watermeter Zigbee Telink TLSR8258 (E-BYTE E180-Z5812SP)</a>
+
+### [Описание на русском](README_rus.md)
 
 [Repository watermeter_zed](https://github.com/slacky1965/watermeter_zed)
 
 ---
 
-## На данный момент существует два варианта устройства.
+## There are currently two variants of the device.
 
-* V1 - только счетчик на два канала. Вынесена в [отдельную ветку](https://github.com/slacky1965/watermeter_zed/tree/version1) и больше не поддерживается.
-* V2 - счетчик на два канала + два датчика протечки.
-* В обоих вариантах прошивка одинаковая.
+* V1 - only counter for two channels. Moved to [separate thread](https://github.com/slacky1965/watermeter_zed/tree/version1) and is no longer supported.
+* V2 - meter for two channels + two leak sensors.
+* The firmware is the same in both versions.
 
 ---
 
-* [Описание](#description)
-* [Железо](#hardware)
-* [Софт](#software)  
-* [Принцип работы](#firmware)
-* [Настройка](#settings)
+* [Description](#description)
+* [Hardware](#hardware)
+* [Software](#software
+* [Operating Principle](#firmware)
+* [#settings](#settings)
 * [Home Assistant](#home_assistant)
 
 ---
 
-## <a id="description">Описание</a>
+## <a id="description">Description</a>
 
-* Рассчитано на два счетчика воды и на два датчика протечки.
-* Не работает с системой namur и счетчиками, где применен датчик "холла". Только замыкание-размыкание, например геркон.
-* Ведет подсчет замыканий-размыканий, увеличивая каждый раз количество литров на заданное значение от 1 до 10 литров (по умолчанию 10 литров на один импульс).
-* Посылает команду On при обнаружении протечки на любом датчике сразу на два привода.
-* Сохраняет показания в энергонезависимой памяти модуля.
-* Передает показания по сети Zigbee.
-* EndPoint'ы с кластерами On_Off имеют возможность напрямую подключаться к исполнительному устройству минуя координатор.
-* Взаимодейстивие с "умными домами" через zigbee2mqtt.
-* Первоначальная настройка происходит через web-интерфейс zigbee2mqtt.
-* Подключиться к сети zigbee - нажать кнопку 5 раз.
-* Покинуть сеть zigbee - нажать кнопку 5 раз.
-* Сделать restart модуля - зажать кнопку более чем на 5 секунд (это всего-лишь reset, без изменения каких-либо настроек).
-* При одиночном нажатии кнопки модуль просыпается и высылает отчет.
+* Designed for two water meters and two leak detectors.
+* Does not work with namur system and meters with hall sensor. Only short-circuit/open-circuit, e.g. reed switch.
+* Keeps count of closures-openings, increasing the number of liters each time by the set value from 1 to 10 liters (default is 10 liters per pulse).
+* Sends an On command when a leak is detected on any sensor to two actuators at once.
+* Saves readings in the module's non-volatile memory.
+* Transmits readings via Zigbee network.
+* EndPoints with On_Off clusters have the ability to connect directly to the actuator without the coordinator.
+* Interfacing with smart homes via zigbee2mqtt.
+* Initial configuration is done via the zigbee2mqtt web interface.
+* Connect to zigbee network - press the button 5 times.
+* Leave the zigbee network - press the button 5 times.
+* Restart the module - press the button for more than 5 seconds (this is just a reset, without changing any settings).
+* If the button is pressed once, the module wakes up and sends a report.
 
 ---
 
-## <a id="hardware">Железо</a>
+## <a id="hardware">Hardware</a>
 
-В проекте используется модуль от компании E-BYTE на чипе TLSR8258F512ET32 - E180-Z5812SP.
+The project uses a module from E-BYTE on the TLSR8258F512ET32 chip, the E180-Z5812SP.
 
 <img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/E180-Z5812SP.jpg" alt="E-BYTE E180-Z5812SP"/>
 
-Испытывалось все на вот таком dongle от Telink
+Everything was tested on this dongle from Telink
 
 <img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/telink_tlsr8258_dongle.jpg" alt="Telink TLSR8258 dongle"/>
 
 ---
 
-### Корпус
+### Casing
 
-Корпус изготовлен на 3D принтере.
+The case is made on a 3D printer.
 
 <img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/box/box_v2.jpg" alt="Watermeter box v2"/>
 
 ---
 
-### Схема
+### Schematic
 
-Схема модуля.
+Module Schematic.
 
 <img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/schematic_watermeter_zed_v2.jpg" alt="schematic_v2"/>
 
 ---
 
-### Плата
+### Board
 
 <img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/board_top_v2.jpg" alt="Board top v2"/>
 
@@ -75,271 +78,267 @@
 
 <img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/board_v2.jpg" alt="Board v2"/>
 
-[Ссылка на проект в easyeda](https://oshwlab.com/slacky/watermeterv2_zed)
+[Link to project in easyeda](https://oshwlab.com/slacky/watermeterv2_zed)
 
 ---
 
-### Датчики протечки
+### Leak sensors
 
-Непосредственно сам датчик протечки представляет из себя два контакта. При погружении контактов в воду меняется сопротивление между ними. Это и фиксирует устройство. 
+The leakage sensor itself consists of two contacts. When the contacts are immersed in water, the resistance between them changes. This is what the device detects. 
 
-Можно приобрести готовые, например у фирмы Гидролок - Gidrolock WSP.
+It is possible to buy ready-made ones, for example from the company Gidrolock - Gidrolock WSP.
 
 <img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/gidrolock_wsp1.jpg" alt="Gidrolock WSP"/>
 
 <img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/gidrolock_wsp2.jpg" alt="Gidrolock WSP"/>
 
-Или на Aliexpress вот такие
+Or on Aliexpress these
 
 <img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/wl_sensor.jpg" alt="Water Leak Sensor"/>
 
-Или припаять два провода к двум контактам, например, разъема pin header. Результат будет одинаковый :)
+Or solder two wires to two pins of, for example, a pin header connector. The result will be the same :)
 
 <img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/pin_header.jpg" alt="Pin Header"/>
 
 ---
 
-### Готовое устройство
+### Finished device
 
 <img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/device_v2_big.png" alt="Watermeter device v2"/>
 
 ---
 
-## <a id="software">Софт</a>
+## <a id="software">Soft</a>
 
-[Последнюю прошивку](https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/watermeter_zed_V1.3.04.bin) нужно залить в модуль с помощью [github.com/pvvx/TLSRPGM](https://github.com/pvvx/TLSRPGM) или оригинального программатора от Telink.
+The [latest firmware](https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/bin) must be injected into the module using [github.com/pvvx/TLSRPGM](https://github.com/pvvx/TLSRPGM) or the original Telink programmer.
 
 <img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/telink_pgm.jpg" alt="Telink PGM"/>
 
-Как сделать недорогой программатор на базе модулей TB-03 или TB-04 можно почитать [тут](https://slacky1965.github.io/electricity_meter_zrd/#%D0%B7%D0%B0%D0%B3%D1%80%D1%83%D0%B7%D0%BA%D0%B0-%D0%BF%D1%80%D0%BE%D1%88%D0%B8%D0%B2%D0%BA%D0%B8)
+You can read [here](https://slacky1965.github.io/electricity_meter_zrd/#%D0%B7%D0%B0%D0%B3%D1%80%D1%83%D0%B7%D0%BA%D0%B0-%D0%BF%D1%80%D0%BE%D1%88%D0%B8%D0%B2%D0%BA%D0%B8) how to make an inexpensive programmer based on TB-03 or TB-04 modules.
 
-Используется последнее [SDK zigbee](http://wiki.telink-semi.cn/tools_and_sdk/Zigbee/Zigbee_SDK.zip) от Telink'а. Проект сформирован таким образом, что его можно собрать обычным make'ом как под Windows, в оболочке [Git Bash](https://git-scm.com/download/win), а также под Linux'ом (я проверял на Debian 11).
+The project is shaped in such a way that it can be built with regular make on Windows, in the [Git Bash](https://git-scm.com/download/win) shell, as well as on Linux (I tested on Debian 11).
 
-Как добавить проект в Eclipse можно почитать [тут](https://slacky1965.github.io/electricity_meter_zrd/#%D0%BA%D0%BE%D0%BC%D0%BF%D0%B8%D0%BB%D1%8F%D1%86%D0%B8%D1%8F). Все точно так же, только для другого проекта.
+You can read how to add a project to Eclipse [here](https://slacky1965.github.io/electricity_meter_zrd/#%D0%BA%D0%BE%D0%BC%D0%BF%D0%B8%D0%BB%D1%8F%D1%86%D0%B8%D1%8F). Everything is exactly the same, but for a different project.
 
-Прошивка собрана по схеме, т.е. подключается файл платы `board_8258_diy.h`. Еще адаптирована плата dongle, т.е. `board_8258_dongle.h`. Для других вариантов придется самостоятельно редактировать файл нужной платы.
+The firmware is built according to the schematic, i.e. the board file `board_8258_diy.h` is connected. The dongle board is also adapted, i.e. `board_8258_dongle.h`. For other variants you will have to edit the file of the required board yourself.
 
 ---
 
-## <a id="firmware">Описание работы модуля</a>
+## <a id="firmware">Module operation description</a>
 
-В первый старт происходит попытка подключения к сети Zigbee. Если попытка удалась, модуль переходит в штатный режим работы. 
+At the first startup, an attempt is made to connect to the Zigbee network. If the attempt is successful, the module enters the normal operating mode. 
 
 **Polling**
-	
-Первые 30 секунд модуль просыпается раз в 3 секунды. По истечению 30 секунд модуль засыпает на 5 минут. Через 5 минут опять просыпается раз в 3 секунды последующие 30 секунд. И опять засыпает на 5 минут. И так по кругу. Можно было сделать просыпание модуля раз в 5 минут, но zigbee2mqtt по умолчанию проверяет устройства на наличие в сети примерно раз в 10 минут. И начинает ругаться в логе, что устройство не найдено и выставляет статус offline. При такой неровной схеме эта проблема устраняется. Это конечно можно настроить в zigbee2mqtt, но я предпочел такой вариант. Сделать же период просыпания всегда раз в 3 секунды - необоснованное расходование ресурса батарейки.
+For the first 30 seconds, the module wakes up every 3 seconds. After 30 seconds, the module goes to sleep for 5 minutes. After 5 minutes, it wakes up again once every 3 seconds for the next 30 seconds. Then it goes back to sleep for 5 minutes. And so on in a circle. You could make the module wake up once every 5 minutes, but zigbee2mqtt by default checks for devices on the network about once every 10 minutes. And it starts swearing in the log that the device is not found and sets the status offline. With such an uneven scheme this problem is eliminated. This of course can be configured in zigbee2mqtt, but I preferred this option. Making the wake-up period always once every 3 seconds is an unreasonable waste of battery life.
 
 **Reporting**
 
-Модуль высылает четыре разных отчета. Два для батарейки и еще два для счетчика холодной и горячей воды. Период отправки у них разный.
+The module sends four different reports. Two for the battery and two more for the cold and hot water meter. They have different sending periods.
 
-Напряжение на батарейке модуль проверяет один раз в 15 минут. Отчеты о состоянии батарейки (напряжение в мВ и остаточный ресурс в %) высылаются не ранее, чем через 5 минут от предыдущего (если были изменения), но и не позднее 1 часа (даже если не было изменений).
+The module checks the battery voltage once every 15 minutes. Reports on battery status (voltage in mV and remaining life in %) are sent not earlier than 5 minutes from the previous one (if there were changes), but not later than 1 hour (even if there were no changes).
 
-Отчет о значении счетчика воды высылается сразу при увеличении этого значения. И не позднее 5 минут от предыдущего отчета. Если 5 минут кому-то покажется слишком частым, это всегда можно исправить через web-интерфейс zigbee2mqtt в разделе Reporting.
+The report of the water meter value is sent immediately when the value increases. And no later than 5 minutes from the previous report. If 5 minutes seems too frequent to someone, this can always be corrected via the zigbee2mqtt web interface in the Reporting section.
 
 <img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/z2m_reporting.jpg" alt="Reporting"/>
 
-Также принудительно отчеты высылаются в течение 5 секунд, если нажать на кнопку прибора.
+Reports are also forcibly sent within 5 seconds by pressing the instrument button.
 
-Код, примененный в примерах от Telink для работы reporting'а, немного (я бы даже сказал много!) кривой. Он не дает засыпать модулю более, чем на 1 секунду. И если для устройств, которые питаются от стационарных источников, это не критично, то для батареечных устройств это уже катастрофа. Поэтому оригинальный аглоритм reporting'а был заменен на кастомный, который основан на запуске таймеров по MinInterval и MaxInterval, что позволило засыпать модулю ровно на эти интервалы, а не на 1 секунду, как было ранее.
+The code used in Telink's examples for reporting is a bit (I would even say a lot!) crooked. It prevents the module from falling asleep for more than 1 second. And if it is not critical for devices that are powered from stationary sources, it is already a disaster for battery-powered devices. That's why the original reporting aglorithm was replaced by a custom one, which is based on starting timers by MinInterval and MaxInterval, which allowed the module to fall asleep exactly for these intervals, and not for 1 second, as it was before.
 
-**Сетодиодная индикация режимов модуля**
+**LED indication of module modes**
 
-Если модуль продолжительное время не моргает светодиодом (период более 5 минут), то он находится в режиме глубокого сна. Выйти из этого режима модуль может в двух случаях. Первый - если пользователь нажмет на кнопку. Второй - если сработает (замкнется или разомкнется) геркон в любом счетчике воды.
+If the module does not blink the LED for a long time (more than 5 minutes), it is in the deep sleep mode. The module can exit this mode in two cases. First - if the user presses the button. The second - if the reed switch in any water meter is triggered (closed or open).
 
-1. Светодиод с периодичностью от 5 секунд до 5 минут мограет одной вспышкой - модуль находится в сети, работает в штатном режиме.
-1. Светодиод с периодичностью 5 секунд моргает двумя вспышками - происходит OTA обновление прошивки.
-1. Светодиод с периодичностью от 5 секунд до 5 минут моргает тремя вспышками - модуль не в сети - не был поключен, например вставили батарейки в устройство, но zigbee сети нет или активирован запрет на подключение; или был поключен, но в данный момент какие-то проблемы с сетью. В любом случае в таком режиме модуль проработает примерно 30 минут. Если за это время он не подключится к сети или не восстановит связь, то уйдет в глубокий сон. В этом режиме, чтобы связаться с модулем, нужно его разбудить, нажав на кнопку прибора.
+1. The LED flashes at intervals of 5 seconds to 5 minutes - the module is online and operating in normal mode.
+1. LED blinks with two flashes at intervals of 5 seconds - OTA firmware update is in progress.
+1. LED blinks with three flashes at intervals of 5 seconds to 5 minutes - the module is not online - it has not been plugged in, e.g. the batteries have been inserted into the device, but there is no zigbee network or the connection ban is activated; or it has been plugged in, but there are some network problems at the moment. In any case, the module will work in this mode for about 30 minutes. If it fails to connect to the network or restore communication during this time, it will go into a deep sleep. In this mode, in order to contact the module, you must wake it up by pressing the device button.
 
-**Память модуля и где хранится конфиг**
+**Module memory and where the config is stored**
 
-Согласно спецификации на чип TLSR8258F512ET32 память распределена следующим образом
+According to the TLSR8258F512ET32 chip specification, the memory is distributed as follows
 
-		0x00000 Old Firmware bin
-		0x34000 NV_1
-		0x40000 OTA New bin storage Area
-		0x76000 MAC address
-		0x77000 C_Cfg_Info
-		0x78000 U_Cfg_Info
-		0x7A000 NV_2
-		0x80000 End Flash
+0x00000 Old Firmware bin
+0x34000 NV_1
+0x40000 OTA New bin storage Area
+0x76000 MAC address
+0x77000 C_Cfg_Info
+0x78000 U_Cfg_Info
+0x7A000 NV_2
+0x80000 End Flash
 
-Получается, что прошивка не может быть больше, чем 0x34000 (что собственно и подтверждается, если проверить SDK на предмет определения размера заливаемого файла при обновлении OTA), но при использовании прошивки с адреса 0x40000 видно, что под нее отведено не 0x34000, а 0x36000. ~~Выходит, что 0x2000 никогда не используются. Этим мы и воспользуемся для хранения промежуточного конфига.~~ Промежуточный конфиг записывается в NV_2 (куда-то в область с 0x7a000 по 0x7c000). Используется модуль NV_MODULE_APP с номером NV_ITEM_APP_USER_CFG (для понимания смотрите app_cfg.h и sdk/proj/drivers/drv_nv.h)
+It turns out that the firmware can't be bigger than 0x34000 (which is actually confirmed by checking the SDK to determine the size of the uploaded file when updating OTA), but when using the firmware from address 0x40000, you can see that 0x36000, not 0x34000, is allocated for it. ~~It appears that 0x2000 is never used. This is what we will use to store the intermediate config.~~ The intermediate config is written to NV_2 (somewhere in the area from 0x7a000 to 0x7c000). The NV_MODULE_APP module with the number NV_ITEM_APP_USER_CFG is used (for understanding see app_cfg.h and sdk/proj/drivers/drv_nv.h).
 
-После аппаратной заливки прошивки в модуль, он всегда стартует с адреса 0x00000. После обновления OTA, адрес старта меняется. Если до обновления он был 0x00000, то после он становится 0x40000. Если до обновления он был 0x40000, то после - 0x00000. И так по кругу после каждого обновления OTA.
+After the hardware firmware is injected into the module, it always starts from address 0x00000. After OTA update, the start address changes. If before the update it was 0x00000, after the update it becomes 0x40000. If before the update it was 0x40000, after it becomes 0x00000. And so on in a circle after each OTA update.
 
-В момент старта модуля происходит проверка, с какого адреса загружается прошивка - с 0x00000 или с 0x40000. Если она грузится с адреса 0x00000, то область с 0x40000 до 0x74000 мы используем для хранения конфига. Если прошивка грузится с адреса 0x40000, то для хранения конфига мы используем уже область с 0x00000 до 0x34000.
+At the moment of module startup we check whether the firmware is loaded from address 0x00000 or 0x40000. If it is loaded from address 0x00000, we use the area from 0x40000 to 0x74000 to store the config. If the firmware is loaded from address 0x40000, we use the area from 0x00000 to 0x34000 to store the config.
 
-Примеры вывода лога устройства после обновления OTA
+Examples of device log output after OTA update
 
-* Обновили первый раз
+* Updated for the first time
 
-		OTA update successful.
-		OTA mode enabled. MCU boot from address: 0x40000
-		Save restored config to nv_ram in module NV_MODULE_APP (6) item NV_ITEM_APP_USER_CFG (45)
-	
-* Обновили второй раз
+OTA update successful.
+OTA mode enabled. MCU boot from address: 0x40000
+Save restored config to nv_ram in module NV_MODULE_APP (6) item NV_ITEM_APP_USER_CFG (45)
+* Updated a second time
 
-		OTA update successful.
-		OTA mode enabled. MCU boot from address: 0x0
-		Save restored config to nv_ram in module NV_MODULE_APP (6) item NV_ITEM_APP_USER_CFG (45)
+OTA update successful.
+OTA mode enabled. MCU boot from address: 0x0
+Save restored config to nv_ram in module NV_MODULE_APP (6) item NV_ITEM_APP_USER_CFG (45)
 
-Конфиг пишется в выбранную область каждый раз при срабатывании счетчика воды с шагом 0x100. Т.е. первый раз конфиг запишется по адресу 0x40000 (0x00000), во второй раз 0x40100 (0x00100), в третий - 0x40200 (0x00200) и т.д. пока не достигнет границы 0x74000 (0x34000). И далее начинает опять записываться с начального адреса 0x40000 (0x00000).
+The config is written to the selected area each time the water meter is triggered in 0x100 increments. I.e. the first time the config is written to address 0x40000 (0x00000), the second time 0x40100 (0x00100), the third time - 0x40200 (0x00200) and so on until it reaches the boundary 0x74000 (0x34000). And then it starts writing again from the initial address 0x40000 (0x00000).
 
-* Вывод лога устройства при записи конфига с адреса 0x0
+* Output device log when writing config from address 0x0
 
-		Save config to flash address - 0x0
-		cold counter - 2010
-		Save config to flash address - 0x100
-		cold counter - 2020
-		Save config to flash address - 0x200
-		cold counter - 2030
-		Save config to flash address - 0x300
-		cold counter - 2040
-		Save config to flash address - 0x400
+Save config to flash address - 0x0
+cold counter - 2010
+Save config to flash address - 0x100
+cold counter - 2020
+Save config to flash address - 0x200
+cold counter - 2030
+Save config to flash address - 0x300
+cold counter - 2040
+Save config to flash address - 0x400
 
-* Вывод лога устройства при записи конфига с адреса 0x40000
+* Output device log when writing config from address 0x40000
 
-		Save config to flash address - 0x40000
-		cold counter - 2090
-		Save config to flash address - 0x40100
-		cold counter - 2100
-		Save config to flash address - 0x40200
-		cold counter - 2110
-		Save config to flash address - 0x40300
-		cold counter - 2120
-		Save config to flash address - 0x40400
-		
-В момент обновления OTA конфиг сохраняется в nv_ram. И будет там сохраняться, пока обновление OTA удачно не завершится.
+Save config to flash address - 0x40000
+cold counter - 2090
+Save config to flash address - 0x40100
+cold counter - 2100
+Save config to flash address - 0x40200
+cold counter - 2110
+Save config to flash address - 0x40300
+cold counter - 2120
+Save config to flash address - 0x40400
+At the moment of OTA update the config is saved in nv_ram. It will remain there until the OTA update is successfully completed.
 
-После удачного завершения обновления OTA модуль перезагружается, считывает конфиг из nv_ram, проверяет по какому адресу нужно записывать конфиг в штатном режиме и сохраняет его уже по адресу 0x00000 или 0x40000. И так до следующего обновления.
+After successful completion of the OTA update, the module reboots, reads the config from nv_ram, checks at which address the config should be written in normal mode and saves it at address 0x00000 or 0x40000. And so on until the next update.
 
 ---
 
-**Датчики протечки**
+**Leak detectors**
 
-При обнаружении протечки (т.е. контакты любого датчика протечки погружены в воду) меняется состояние кластера IAS и отправляются сразу две команды On в кластеры On_Off в 4 и 5 эндпоинтах. При высыхании воды меняется состояние кластера IAS, никакие команды в кластер On_Off не отсылаются.
+When a leak is detected (i.e. the contacts of any leak sensor are immersed in water), the state of the IAS cluster changes and two On commands are sent immediately to the On_Off clusters at Endpoints 4 and 5. When the water dries, the state of the IAS cluster changes and no commands are sent to the On_Off cluster.
 
-Оба кластера On_Off должны напрямую "биндиться" к исполнительному устройству (принудительно настраивается в web-интерфейсе zigbee2mqtt в разделе bind устройсва). Что это дает. Даже при падении сети, когда например координатор не работает, Watermeter все равно пошлет выбранную команду On (off или toggle) напрямую в исполнительное устройство и все сработает (мы же понимаем, что исполнительное устройство в виде привода на кран должно иметь дублирующее автономное питание!). Биндить оба канала на одно устройство не рекомендуется.
+Both On_Off clusters should directly "bind" to the executable (enforced in the zigbee2mqtt web-interface in the bind device section). What it gives. Even if the network goes down, when for example the coordinator is not working, Watermeter will still send the selected On (off or toggle) command directly to the actuator and everything will work (we understand that the actuator must have a duplicate autonomous power supply!). Binding both channels to the same device is not recommended.
 
 ---
 
 **Zigbee Claster and Attribute**
 
-В прошивке используется 5 endpoint'ов, это как бы 5 разных логических устройства на одном физическом. Для чего. Стандарт Zigbee не позволяет использовать одинаковые кластеры с одинаковыми атрибутами на одном endpoint'е. А у нас два одинаковых счетчика с одинаковыми атрибутами CurrentSummationDelivered в кластере SeMetering. И два одинаковых кластера On_Off. Поэтому в первом enpoint'е счетчик горячей воды, во втором - счетчик холодной, в третьем - настройки, в четвертом - IAS и первый On_Off, в пятом - второй On_Off.
+The firmware uses 5 endpoints, that's like 5 different logical devices on one physical device. What for. The Zigbee standard does not allow using the same clusters with the same attributes on the same endpoint. And we have two identical counters with the same CurrentSummationDelivered attributes in the SeMetering cluster. And two identical On_Off clusters. So the first enpoint has the hot water meter, the second has the cold water meter, the third has the settings, the fourth has the IAS and the first On_Off, and the fifth has the second On_Off.
 
-* WATERMETER_ENDPOINT1 содержит все необходимые для работы zigbee базовые кластеры, а также кластер SeMetering (первый счетчик)
-* WATERMETER_ENDPOINT2 содержит второй кластер SeMetering (второй счетчик)
-* WATERMETER_ENDPOINT3 содержит третий кластер SeMetering - здесь используются кастомные (которых нет в спецификации zcl) атрибуты для первоначальной настройки счетчика.
-* WATERMETER_ENDPOINT4 содержит кластер IAS для информирования о протечке и кластер ON_OFF для отправки команды на первый привод крана воды (например горячей).
-* WATERMETER_ENDPOINT5 содержит еще один кластер ON_OFF для отправки команды на второй привод крана воды (например холодной).
+* WATERMETER_ENDPOINT1 contains all the base clusters required for zigbee operation, as well as the SeMetering cluster (the first counter)
+* WATERMETER_ENDPOINT2 contains the second SeMetering cluster (second counter)
+* WATERMETER_ENDPOINT3 contains the third SeMetering cluster - custom attributes (which are not in the zcl specification) are used here for initial meter configuration.
+* WATERMETER_ENDPOINT4 contains an IAS cluster for reporting a leak and an ON_OFF cluster for sending a command to the first water tap actuator (e.g. hot water).
+* WATERMETER_ENDPOINT5 contains another ON_OFF cluster for sending a command to a second water tap actuator (e.g. cold water).
 
-В принципе WATERMETER_ENDPOINT3 можно было не применять, а все поместить в WATERMETER_ENDPOINT2, но сделано так.
+In principle WATERMETER_ENDPOINT3 could have been left out and everything put into WATERMETER_ENDPOINT2, but it was done this way.
 
 ---
 
-## <a id="settings">Настройка</a>
+## <a id="settings">Setup</a>
 
-Открываем на редактирование файл `configuration.yaml` от zigbee2mqtt. И добавляем в конец файла
+Open the file` configuration.yaml` from zigbee2mqtt for editing. And add to the end of the file
 
-		external_converters:
-			- watermeter_wleak.js
-		ota:
-			zigbee_ota_override_index_location: local_ota_index.json
-		  
-Файлы `watermeter_wleak.js` и `local_ota_index.json` копируем из [папки проекта](https://github.com/slacky1965/watermeter_zed/tree/main/zigbee2mqtt) туда же, где лежит `configuration.yaml` от zigbee2mqtt. Не забываем разрешить подключение новых устройств - `permit_join: true`. Перегружаем zigbee2mqtt. Проверяем его лог, что он запустился и нормально работает.
+external_converters:
+- watermeter_wleak.js
+ota:
+zigbee_ota_override_index_location: local_ota_index.json
+Copy the files `watermeter_wleak.js` and `local_ota_index.json` from [project folder](https://github.com/slacky1965/watermeter_zed/tree/main/zigbee2mqtt) to the same place where `configuration.yaml` from zigbee2mqtt is located. Don't forget to allow connection of new devices -` permit_join: true` . Reboot zigbee2mqtt. Check its log that it has started and is working normally.
 
-Далее, вставляем батарейки в устройство. Если питание было уже подано, то нажимаем 5 раз подряд кнопку. Устройство должно подключиться к сети zigbee. Если подключение прошло удачно, то мы обнаружим наше устройство в zigbee2mqtt.
+Next, insert the batteries into the device. If the power has already been supplied, press the button 5 times in a row. The device should connect to the zigbee network. If the connection was successful, we will find our device in zigbee2mqtt.
 
 <img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/z2m_device.jpg" alt="Watermeter Device"/>
 
-После того, как устройство подключилось к сети и zigbee2mqtt его обнаружил, можно приступить к заданию начальных значений счетчиков. Для конфигурирования начальных значений были созданы три кастомных атрибута в кластере Smart Energy. Это задание первоначальных значений для горячей воды, холодной и сколько прибавлять литров на один импульс (разные счетчики могут на один импульс прибавлять от 1 литра до 10, смотрите спецификацию на ваш счетчик). 
+Once the device is connected to the network and zigbee2mqtt has detected it, you can start setting the initial values of the meters. Three custom attributes have been created in the Smart Energy cluster to configure the initial values. These are setting initial values for hot water, cold water and how many liters to add per pulse (different meters can add from 1 liter to 10 liters per pulse, see the specification of your meter). 
 
-Нужно перейти в web-интерфейс zigbee2mqtt и зайти в раздел exposes. Задать первоначальные значения.
+Go to the zigbee2mqtt web-interface and go to the exposes section. Set the initial values.
 
 <img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/exposes.jpg" alt="z2m exposes"/>
 
-Затем нажать кнопку на устройстве, чтобы оно проснулось и приняло данные. После этого в этот раздел лучше больше не заходить, потому что если вы щелкните мышью по какому-то полю настройки, то zigbee2mqtt сразу отправит то значение, которое там отмечено. К сожалению я не нашел, как можно сделать через кнопку подтверждения в web-интерфейсе.
+Then press the button on the device so that it wakes up and accepts the data. After that it is better not to go into this section anymore, because if you click on some setting field, zigbee2mqtt will immediately send the value that is marked there. Unfortunately I haven't found how to do it via the confirmation button in the web-interface.
 
-**Датчики протечки**
+**Leak detectors**
 
-Заходим в раздел exposes устройства watermeter.
+Go to the exposes section of the watermeter device.
 
-Выбираем, какие команды отправлять при обнаружении протечки.
+Select which commands to send when a leak is detected.
 
 <img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/z2m_onoffSwitchCfg.jpg" alt="Watermeter Switch Action"/>
 
-* Если выбрать on_off, то, при обнаружении протечки, устройство пошлет команду off.
-* Если выбрать off_on, то, при обнаружении протечки, устройство пошлет команду on.
-* Если выбрать toggle, то, при обнаружении протечки, устройство пошлет команду toggle.
+* If on_off is selected, the unit will send an off command when a leak is detected.
+* If off_on is selected, the unit will send an on command when a leak is detected.
+* If toggle is selected, the unit will send a toggle command when a leak is detected.
 
-Далее заходим в раздел bind.
+Next, go to the bind section.
 
 <img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/z2m_bind1.jpg" alt="Watermeter bind1"/>
 
-И добавляем новые "биндинги" для endpoint 4 и endpoint 5.
+And add new "bindings" for endpoint 4 and endpoint 5.
 
 <img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/z2m_bind2.jpg" alt="Watermeter bind2"/>
 
-Перед тем, как использовать в реальном режиме, нужно пару раз дать "ложную" протечку, т.е. закоротить поочередно датчики протечки и убедиться, что все работает!!!
+Before using in real mode, you need to give a couple of "false" leaks, i.e. short the leak sensors one by one and make sure everything works!!!!
 
-И еще, 100% гарантию может дать только Бог, помните это :))
+Also, only God can give a 100% guarantee, remember that :)))
 
 ---
 
 ## OTA
 
-Автоматического обновления в zigbee2mqtt для устройств, добавленных через конвертор, нет. Поэтому, если вышла новая версия, скачиваем обновленный файл прошивки для обновления OTA, например `6565-0204-13043001-watermeter_zed.zigbee`. Переименовываем его в просто `watermeter_zed.zigbee` и кладем его по относительному пути `zigbee2mgtt/images`. Перегружаем zigbee2mqtt. Идем во вкладку OTA. И кликаем на `Check for new updates`
+There is no automatic update in zigbee2mqtt for devices added through the converter. So if a new version is out, download the updated firmware file for OTA update, for example `656565-0204-13043001-watermeter_zed.zigbee` . Rename it to simply` watermeter_zed.zigbee` and put it in the relative path `zigbee2mgtt/images` . Reboot zigbee2mqtt. Go to the OTA tab. And click on `Check for new updates`
 
 <img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/ota_check_update.jpg" alt="Check for new updates"/>
 
-Если обновление принимается, то кнопка `Check for new updates` станет красной с надписью `Update device firmware`. 
+If the update is accepted, the `Check for new updates` button will turn red with `Update device firmware`. 
 
 <img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/ota_update.jpg" alt="Update device firmware"/>
 
-Ее нужно кликнуть и обновление начнет загружаться (zigbee обновляется долго, что-то в районе 20 минут). 
+Click it and the update will start downloading (zigbee updates take a long time, something in the neighborhood of 20 minutes). 
 
 <img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/ota_progress.jpg" alt="Check for new updates"/>
 
-Если обновление завершится с ошибкой, то кнопка обновления опять станет красной и ее нужно опять нажать и разбудить модуль нажатием кнопки. Процесс обновления обнулится и пойдет с самого начала.
+If the update fails, the update button will become red again and must be pressed again to wake up the module by pressing the button. The update process will be reset and will start from the beginning.
 
-В SDK нет проверки на разряд батарейки перед загрузкой образа. Поэтому пришлось писать свою реализацию. Устройство вернет координатору ошибку - `Aborted by device`, если заряд батарейки меньше 50%, и файл образа загружаться не будет. 
+SDK doesn't have a check for low battery before loading the image. So I had to write my own implementation. The device will return an error to the coordinator -` Aborted by device` , if the battery charge is less than 50%, and the image file will not be loaded. 
 
 <img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/ota_update_abort.jpg" alt="Aborted by device"/>
 
-Ну и последнее, чтобы устройство не обновилось какой-нибудь прошивкой с MANUFACTURER_CODE от Telink (например, совпадет номер устройства), MANUFACTURER_CODE заменен на кастомный.
+And lastly, so that the device will not be updated with some firmware with MANUFACTURER_CODE from Telink (for example, the device number will match), MANUFACTURER_CODE is replaced with custom one.
 
 ---
 
-## Потребление
+## Consumption
 
-Долгих испытаний в реальной работе пока не проводилось. С помощью ppk2 произведены замеры потребления в различных режимах.
+Long tests in real work have not been carried out yet. With ppk2 we measured consumption in different modes.
 
-**Устройтсво не в сети, без питания. Подаем питание, оно стратует и подключается к сети.**
+**The device is off-line, without power. When power is applied, it struts and connects to the mains.
 
 <img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/ppk2-start_device.jpg" alt="Start new device"/>
 
-**Устройство работает в штатном режиме с POLL RATE 3 секунды.**
+**The device operates in normal mode with a POLL RATE of 3 seconds.**
 
 <img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/ppk2-poll_rate_3_sec.jpg" alt="Poll rate 3 sec."/>
 
-**Замкнулся геркон на счетчике воды.**
+**The reed switch on the water meter is shorted out.
 
 <img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/ppk2-close_counter.jpg" alt="Counter close"/>
 
-**Разомкнулся геркон на счетчике воды.**
+**The reed switch on the water meter is broken.
 
 <img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/ppk2-open_counter.jpg" alt="Counter open"/>
 
-**Старт модуля, который уже подключен к сети и работа его в течение 6 минут без срабатывания счетчиков.**
+**Start the module, which is already connected to the network and run it for 6 minutes without triggering the counters.**
 
 <img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/ppk2-start_and_work_6min.jpg" alt="Work 6 min."/>
 
-**Модуль спит.**
+**Module's sleeping.**
 
 <img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/ppk2-sleep_device.jpg" alt="Sleep device"/>
 
-**Обновление OTA.**
+**OTA update.**
 
 <img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/ppk2-ota_update.jpg" alt="OTA Update."/>
 
@@ -347,45 +346,49 @@
 
 ## Home Assistant
 
-В Home Assistant счетчик будет выглядеть так.
+In Home Assistant, the meter will look like this.
 
 <img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/HA_device.jpg" alt="HA begin"/>
 
-Далее кастомизируем счетчики, если нужно. 
+Next, customize the counters if needed. 
 
 ---
 
-## Стоимость
+## Cost
 
-Стоимость основных деталей на февраль 2024 года в России.
+Cost of major parts as of February 2024 in Russia.
 
-* Плата 10 шт. - 1500 р. (Aliexpress)
-* Модуль E-BYTE E180-Z5812SP - 300 р. (Aliexpress)
-* Battery Holder AA - 42 р. x 2 (Aliexpress)
-* Клемник - 49 р. (Aliexpress)
-* Кнопка - 3 р. (Aliexpress)
-* Светодиод - 12 р. (Chipdip)
-* Пара конденсаторов и сопротивление - 200 р.
+* Board 10 pcs. - 1500 p. (Aliexpress)
+* Module E-BYTE E180-Z5812SP - 300 p. (Aliexpress)
+* Battery Holder AA - 42 p. x 2 (Aliexpress)
+* Terminal block - 49 p. (Aliexpress)
+* Button - 3 p. (Aliexpress)
+* LED - 12 p. (Chipdip)
+* A pair of capacitors and resistance - 200 p.
 
 ## TODO
-- ~~Сделать светодиодную индикацию режимов работы модуля.~~ Сделано.
-- ~~Сделать DEEP SLEEP, если модуль не в сети более 30 минут.~~ Сделано.
-- ~~Сделать сброс OTA, если обновление завершилось ошибкой, чтобы не зависеть от действий пользователя.~~ Сделано.
-- ~~Добавить два канала для 2-х датчиков протечки.~~ Сделано.
+- ~~Make LED indication of module operation modes.~~ Done.
+- ~~Do DEEP SLEEP if the module is offline for more than 30 minutes.~~ Done.
+- ~~Do an OTA reset if the update ended in an error so that it doesn't depend on user actions.~~ Done.
+- ~~Add two channels for 2 leak sensors.~~ Done.
 
-## История версий
+## Version History
 
-- 1.0    - Начало.
-- 1.1    - Прошивка без ОТА. 
-- 1.2    - Добавлена возможность обновления OTA.
-- 1.3.01 - Изменена нумерация версий. Добавлены светодиодная индикация режимов модуля; глубокий сон, если не в сети более 30 минут; сброс OTA, если обновление прошло с ошибкой, обновление начнется с начала, сделано чтобы не потерять основной конфиг.
-- 1.3.02 - Изменен адрес записи промежуточного конфига при OTA. Раньше он записывался по адресу 0x74000, теперь он пишется в nv_ram в модуль NV_MODULE_APP с номером NV_ITEM_APP_USER_CFG (см. app_cfg.h).
-- 1.3.03 - Устранен небольшой глюк с репортингом.
-- 1.3.04 - Изменен MANUFACTURER_CODE на кастомный. Добавлена проверка разряда батарейки при обновлении OTA.
-- 1.3.05 - Устранена проблема с factory reset.
-- 1.3.06 - Добавлена возможность чтения кастомных атрибутов (нужно для HOMEd).
-- 1.3.07 - Устранен баг со считыванием кастомного атрибута ZCL_ATTRID_CUSTOM_WATER_STEP_PRESET.
-- 2.0.01 - Добавлены два датчика протечки. Изменена плата и корпус.
-- 2.0.02 - Устранен баг с репортингом, когда maxInterval равен 0.
-- 2.0.03 - Добавлена конфигурация команд OnOff. Теперь при обнаружениии протечки устройство может послать on, off или toggle. Обновлен конвертор для zigbee2mqtt.
+- 1.0 - Beginning.
+- 1.1 - Firmware without OTA. 
+- 1.2 - Added OTA update option.
+- 1.3.01 - Changed version numbering. Added LED indication of module modes; deep sleep if not online for more than 30 minutes; OTA reset, if the update failed, the update will start from the beginning, done not to lose the main config.
+- 1.3.02 - Changed the address for writing intermediate config during OTA. Previously it was written at address 0x74000, now it is written in nv_ram in NV_MODULE_APP module with number NV_ITEM_APP_USER_CFG (see app_cfg.h).
+- 1.3.03 - Fixed a small glitch with reporting.
+- 1.3.04 - Changed MANUFACTURER_CODE to custom. Added low battery check during OTA update.
+- 1.3.05 - Fixed factory reset issue.
+- 1.3.06 - Added ability to read custom attributes (needed for HOMEd).
+- 1.3.07 - Fixed a bug with reading the custom attribute ZCL_ATTRID_CUSTOM_WATER_STEP_PRESET.
+- 2.0.01 - Added two leak sensors. Changed the board and housing.
+- 2.0.02 - Fixed a bug with reporting when maxInterval is 0.
+- 2.0.03 - Added configuration of OnOff commands. The device can now send on, off or toggle when a leak is detected. Updated converter for zigbee2mqtt.
+- 2.0.04 - SDK updated to version V3.7.1.2(PR).
+
+
+[Top](#Top)
 

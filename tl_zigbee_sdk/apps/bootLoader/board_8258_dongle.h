@@ -30,60 +30,6 @@
 extern "C" {
 #endif
 
-
-#define DONGLE_8258_32				0
-#define	DONGLE_8258_48				1
-
-#if defined DONGLE_8258_32 && (DONGLE_8258_32 == 1)
-/*******************************************************************************************************
-*********************8258Dongle with 32 Pins: Start*****************************************************
-*******************************************************************************************************/
-//KEY
-#define	BUTTON1 					GPIO_PD7
-#define PD7_FUNC					AS_GPIO
-#define PD7_OUTPUT_ENABLE			0
-#define PD7_INPUT_ENABLE			1
-#define	PULL_WAKEUP_SRC_PD7			PM_PIN_PULLUP_10K
-
-#define	BUTTON2 					GPIO_PA1
-#define PA1_FUNC					AS_GPIO
-#define PA1_OUTPUT_ENABLE			0
-#define PA1_INPUT_ENABLE			1
-#define	PULL_WAKEUP_SRC_PA1			PM_PIN_PULLUP_10K
-
-//LED
-#define LED_G						GPIO_PA0
-#define PA0_FUNC					AS_GPIO
-#define PA0_OUTPUT_ENABLE			1
-#define PA0_INPUT_ENABLE			0
-
-#define LED_R						GPIO_PD4
-#define PD4_FUNC					AS_GPIO
-#define PD4_OUTPUT_ENABLE			1
-#define PD4_INPUT_ENABLE			0
-
-#define LED_POWER					LED_R
-#define LED_PERMIT					LED_G
-
-// UART
-#if UART_ENABLE
-	#define UART_TX_PIN         	UART_TX_PB1
-	#define UART_RX_PIN         	UART_RX_PB7
-
-	#define UART_PIN_CFG()			uart_gpio_set(UART_TX_PIN, UART_RX_PIN);// uart tx/rx pin set
-#endif
-
-// DEBUG
-#if UART_PRINTF_MODE
-	#define	DEBUG_INFO_TX_PIN	    GPIO_PC4//print
-#endif
-/*******************************************************************************************************
-*********************8258Dongle with 32 Pins: End*****************************************************
-*******************************************************************************************************/
-#elif defined DONGLE_8258_48 && (DONGLE_8258_48 == 1)
-/*******************************************************************************************************
-*********************8258Dongle with 48 Pins: Start*****************************************************
-*******************************************************************************************************/
 //KEY
 #define	BUTTON1 					GPIO_PD6
 #define PD6_FUNC					AS_GPIO
@@ -111,28 +57,27 @@ extern "C" {
 #define LED_POWER					LED_R
 #define LED_PERMIT					LED_G
 
+// ADC
+#if 1//VOLTAGE_DETECT_ENABLE
+#define VOLTAGE_DETECT_ADC_PIN		GPIO_PC5
+#endif
+
 // UART
 #if UART_ENABLE
-	#define UART_TX_PIN         	UART_TX_PD7
-	#define UART_RX_PIN         	UART_RX_PA0
+#define UART_TX_PIN         		UART_TX_PD7
+#define UART_RX_PIN         		UART_RX_PA0
 
-	#define UART_PIN_CFG()			uart_gpio_set(UART_TX_PIN, UART_RX_PIN);// uart tx/rx pin set
+#define UART_PIN_CFG()				uart_gpio_set(UART_TX_PIN, UART_RX_PIN);// uart tx/rx pin set
 #endif
 
 // DEBUG
 #if UART_PRINTF_MODE
-	#define	DEBUG_INFO_TX_PIN	    GPIO_PC6//print
-#endif
-/*******************************************************************************************************
-*********************8258Dongle with 48 Pins: End*****************************************************
-*******************************************************************************************************/
-#else
-	#error "Board defined error!"
+#define	DEBUG_INFO_TX_PIN	    	GPIO_PC6//print
 #endif
 
 // USB
 #if ZBHCI_USB_PRINT || ZBHCI_USB_CDC || ZBHCI_USB_HID
-	#define HW_USB_CFG()			do{ \
+#define HW_USB_CFG()				do{ \
 										usb_set_pin_en();	\
 									}while(0)
 #endif
@@ -150,8 +95,8 @@ enum{
 #define	KB_MAP_NUM		KB_MAP_NORMAL
 #define	KB_MAP_FN		KB_MAP_NORMAL
 
-#define KB_DRIVE_PINS  {NULL }
-#define KB_SCAN_PINS   {BUTTON1,  BUTTON2}
+#define KB_DRIVE_PINS	{0}
+#define KB_SCAN_PINS	{BUTTON1, BUTTON2}
 
 
 /* Disable C linkage for C++ Compilers: */
