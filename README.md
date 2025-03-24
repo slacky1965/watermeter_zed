@@ -19,7 +19,7 @@
 * [Hardware](#hardware)
 * [Software](#software)
 * [Operating Principle](#firmware)
-* [#settings](#settings)
+* [Settings](#settings)
 * [Home Assistant](#home_assistant)
 
 ---
