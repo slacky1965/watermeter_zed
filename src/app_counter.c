@@ -3,7 +3,7 @@
 
 #include "watermeter.h"
 
-#define DEBOUNCE_COUNTER    48                          /* number of polls for debounce       */
+#define DEBOUNCE_COUNTER    56                          /* number of polls for debounce       */
 
 static water_counter_t hot_counter;
 static water_counter_t cold_counter;
