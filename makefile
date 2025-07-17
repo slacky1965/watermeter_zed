@@ -163,7 +163,7 @@ $(BIN_FILE): $(ELF_FILE)
 	@echo 'Create zigbee OTA file'
 	@python3 $(MAKE_OTA) -ot $(PROJECT_NAME) $(BIN_PATH)/$(PROJECT_NAME)_$(VERSION_RELEASE).$(VERSION_BUILD).bin
 	@echo ' '
-#	@echo GCC_FLAGS: $(GCC_FLAGS)
+	@echo ZCL_VERSION_FILE: $(ZCL_VERSION_FILE)
 	 
 
 sizedummy: $(ELF_FILE)
