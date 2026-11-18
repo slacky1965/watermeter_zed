@@ -7,6 +7,9 @@
 
 static uint8_t waterleak_debounce1 = 1;
 static uint8_t waterleak_debounce2 = 1;
+/* Keep the confirmed state while a counter is between its wet/dry limits. */
+static uint8_t waterleak_active1 = false;
+static uint8_t waterleak_active2 = false;
 
 static void cmdOnOff(uint8_t endpoint, uint8_t command) {
     epInfo_t dstEpInfo;
@@ -79,15 +82,19 @@ void waterleak_handler() {
     epInfo_t dstEpInfo;
     zoneStatusChangeNoti_t statusChangeNotification;
     zcl_onOffSwitchCfgAttr_t *onoffCfgAttrs = zcl_onOffSwitchCfgAttrGet();
+    /* Preserve joined boundary notifications even when the OR is unchanged. */
+    uint8_t notify_pending = false;
 
     if (!drv_gpio_read(WLEAK1_GPIO)) {
         if (waterleak_debounce1 != DEBOUNCE_COUNTER) {
             waterleak_debounce1++;
             if (waterleak_debounce1 == DEBOUNCE_COUNTER) {
+                waterleak_active1 = true;
 #if UART_PRINTF_MODE && DEBUG_WATERLEAK
                 printf("Waterleak first channel leaking\r\n");
 #endif /* UART_PRINTF_MODE */
                 if(zb_isDeviceJoinedNwk()) {
+                    notify_pending = true;
 
 #if UART_PRINTF_MODE && DEBUG_ONOFF
                     printf("Switch action on EP4: 0x0%x\r\n", onoffCfgAttrs->ep4_attrs.switchActions);
@@ -124,20 +131,6 @@ void waterleak_handler() {
                         default:
                             break;
                     }
-
-                    fillIASAddress(&dstEpInfo);
-
-                    zoneStatusChangeNoti_t statusChangeNotification;
-
-                    zcl_getAttrVal(WATERMETER_ENDPOINT4, ZCL_CLUSTER_SS_IAS_ZONE, ZCL_ATTRID_ZONE_STATUS, &len, (u8*)&statusChangeNotification.zoneStatus);
-                    zcl_getAttrVal(WATERMETER_ENDPOINT4, ZCL_CLUSTER_SS_IAS_ZONE, ZCL_ATTRID_ZONE_ID, &len, &statusChangeNotification.zoneId);
-
-                    statusChangeNotification.zoneStatus |= ZONE_STATUS_BIT_ALARM1;
-                    zcl_setAttrVal(WATERMETER_ENDPOINT4, ZCL_CLUSTER_SS_IAS_ZONE, ZCL_ATTRID_ZONE_STATUS, (u8*)&statusChangeNotification.zoneStatus);
-                    statusChangeNotification.extStatus = 0;
-                    statusChangeNotification.delay = 0;
-
-                    zcl_iasZone_statusChangeNotificationCmd(WATERMETER_ENDPOINT4, &dstEpInfo, TRUE, &statusChangeNotification);
                 }
             }
         }
@@ -145,10 +138,12 @@ void waterleak_handler() {
         if (waterleak_debounce1 != 1) {
             waterleak_debounce1--;
             if (waterleak_debounce1 == 1) {
+                waterleak_active1 = false;
 #if UART_PRINTF_MODE && DEBUG_WATERLEAK
                 printf("Waterleak first channel clear\r\n");
 #endif /* UART_PRINTF_MODE */
                 if(zb_isDeviceJoinedNwk()){
+                    notify_pending = true;
 #if UART_PRINTF_MODE && DEBUG_WATERLEAK
 
 #if UART_PRINTF_MODE && DEBUG_ONOFF
@@ -188,17 +183,6 @@ void waterleak_handler() {
                     }
 
 #endif /* UART_PRINTF_MODE */
-                    fillIASAddress(&dstEpInfo);
-
-                    zcl_getAttrVal(WATERMETER_ENDPOINT4, ZCL_CLUSTER_SS_IAS_ZONE, ZCL_ATTRID_ZONE_STATUS, &len, (u8*)&statusChangeNotification.zoneStatus);
-                    zcl_getAttrVal(WATERMETER_ENDPOINT4, ZCL_CLUSTER_SS_IAS_ZONE, ZCL_ATTRID_ZONE_ID, &len, &statusChangeNotification.zoneId);
-
-                    statusChangeNotification.zoneStatus &= ~ZONE_STATUS_BIT_ALARM1;
-                    zcl_setAttrVal(WATERMETER_ENDPOINT4, ZCL_CLUSTER_SS_IAS_ZONE, ZCL_ATTRID_ZONE_STATUS, (u8*)&statusChangeNotification.zoneStatus);
-                    statusChangeNotification.extStatus = 0;
-                    statusChangeNotification.delay = 0;
-
-                    zcl_iasZone_statusChangeNotificationCmd(WATERMETER_ENDPOINT4, &dstEpInfo, TRUE, &statusChangeNotification);
                 }
             }
         }
@@ -208,10 +192,12 @@ void waterleak_handler() {
         if (waterleak_debounce2 != DEBOUNCE_COUNTER) {
             waterleak_debounce2++;
             if (waterleak_debounce2 == DEBOUNCE_COUNTER) {
+                waterleak_active2 = true;
 #if UART_PRINTF_MODE && DEBUG_WATERLEAK
                 printf("Waterleak second channel leaking\r\n");
 #endif /* UART_PRINTF_MODE */
                 if(zb_isDeviceJoinedNwk()) {
+                    notify_pending = true;
 
 #if UART_PRINTF_MODE && DEBUG_ONOFF
                     printf("Switch action on EP4: 0x0%x\r\n", onoffCfgAttrs->ep4_attrs.switchActions);
@@ -248,20 +234,6 @@ void waterleak_handler() {
                         default:
                             break;
                     }
-
-                    fillIASAddress(&dstEpInfo);
-
-                    zoneStatusChangeNoti_t statusChangeNotification;
-
-                    zcl_getAttrVal(WATERMETER_ENDPOINT4, ZCL_CLUSTER_SS_IAS_ZONE, ZCL_ATTRID_ZONE_STATUS, &len, (u8*)&statusChangeNotification.zoneStatus);
-                    zcl_getAttrVal(WATERMETER_ENDPOINT4, ZCL_CLUSTER_SS_IAS_ZONE, ZCL_ATTRID_ZONE_ID, &len, &statusChangeNotification.zoneId);
-
-                    statusChangeNotification.zoneStatus |= ZONE_STATUS_BIT_ALARM1;
-                    zcl_setAttrVal(WATERMETER_ENDPOINT4, ZCL_CLUSTER_SS_IAS_ZONE, ZCL_ATTRID_ZONE_STATUS, (u8*)&statusChangeNotification.zoneStatus);
-                    statusChangeNotification.extStatus = 0;
-                    statusChangeNotification.delay = 0;
-
-                    zcl_iasZone_statusChangeNotificationCmd(WATERMETER_ENDPOINT4, &dstEpInfo, TRUE, &statusChangeNotification);
                 }
             }
         }
@@ -269,10 +241,12 @@ void waterleak_handler() {
         if (waterleak_debounce2 != 1) {
             waterleak_debounce2--;
             if (waterleak_debounce2 == 1) {
+                waterleak_active2 = false;
 #if UART_PRINTF_MODE && DEBUG_WATERLEAK
                 printf("Waterleak second channel clear\r\n");
 #endif /* UART_PRINTF_MODE */
                 if(zb_isDeviceJoinedNwk()){
+                    notify_pending = true;
 #if UART_PRINTF_MODE && DEBUG_WATERLEAK
                     switch(onoffCfgAttrs->ep4_attrs.switchActions) {
                         case ZCL_SWITCH_ACTION_ON_OFF:
@@ -302,21 +276,27 @@ void waterleak_handler() {
                             break;
                     }
 #endif /* UART_PRINTF_MODE */
-                    fillIASAddress(&dstEpInfo);
-
-                    zcl_getAttrVal(WATERMETER_ENDPOINT4, ZCL_CLUSTER_SS_IAS_ZONE, ZCL_ATTRID_ZONE_STATUS, &len, (u8*)&statusChangeNotification.zoneStatus);
-                    zcl_getAttrVal(WATERMETER_ENDPOINT4, ZCL_CLUSTER_SS_IAS_ZONE, ZCL_ATTRID_ZONE_ID, &len, &statusChangeNotification.zoneId);
-
-                    statusChangeNotification.zoneStatus &= ~ZONE_STATUS_BIT_ALARM1;
-                    zcl_setAttrVal(WATERMETER_ENDPOINT4, ZCL_CLUSTER_SS_IAS_ZONE, ZCL_ATTRID_ZONE_STATUS, (u8*)&statusChangeNotification.zoneStatus);
-                    statusChangeNotification.extStatus = 0;
-                    statusChangeNotification.delay = 0;
-
-                    zcl_iasZone_statusChangeNotificationCmd(WATERMETER_ENDPOINT4, &dstEpInfo, TRUE, &statusChangeNotification);
                 }
 
             }
         }
+    }
+
+    /* Publish after both inputs: a simultaneous handoff must never send dry. */
+    if (notify_pending) {
+        fillIASAddress(&dstEpInfo);
+        zcl_getAttrVal(WATERMETER_ENDPOINT4, ZCL_CLUSTER_SS_IAS_ZONE, ZCL_ATTRID_ZONE_STATUS, &len, (u8*)&statusChangeNotification.zoneStatus);
+        zcl_getAttrVal(WATERMETER_ENDPOINT4, ZCL_CLUSTER_SS_IAS_ZONE, ZCL_ATTRID_ZONE_ID, &len, &statusChangeNotification.zoneId);
+
+        if (waterleak_active1 || waterleak_active2) {
+            statusChangeNotification.zoneStatus |= ZONE_STATUS_BIT_ALARM1;
+        } else {
+            statusChangeNotification.zoneStatus &= ~ZONE_STATUS_BIT_ALARM1;
+        }
+        zcl_setAttrVal(WATERMETER_ENDPOINT4, ZCL_CLUSTER_SS_IAS_ZONE, ZCL_ATTRID_ZONE_STATUS, (u8*)&statusChangeNotification.zoneStatus);
+        statusChangeNotification.extStatus = 0;
+        statusChangeNotification.delay = 0;
+        zcl_iasZone_statusChangeNotificationCmd(WATERMETER_ENDPOINT4, &dstEpInfo, TRUE, &statusChangeNotification);
     }
 
     if (waterleak_idle()) {
